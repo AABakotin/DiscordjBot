@@ -20,6 +20,8 @@ import java.util.List;
 public class Info implements ICommand {
     private static final Logger logger = LoggerFactory.getLogger(Info.class);
 
+    private final String nonAvatarUrl = "https://i.pinimg.com/236x/27/26/cc/2726cc2808c5597fb7392bb484689119--gut-health-health-and-wellness.jpg";
+
     public String getName() {
         return "info";
     }
@@ -45,8 +47,7 @@ public class Info implements ICommand {
         User target = event.getOption("info", OptionMapping::getAsUser);
         Member member = event.getOption("info", OptionMapping::getAsMember);
         String avatar = target.getAvatarUrl();
-        if (avatar == null) avatar = "https://neverlose.cc/static/avatars/Revvin.png?t=1620945615";
-
+        if (avatar == null) avatar = nonAvatarUrl;
 
         EmbedBuilder avatarEmbed = new EmbedBuilder()
                 .setColor(Color.YELLOW)
@@ -58,12 +59,12 @@ public class Info implements ICommand {
                 .setImage(avatar)
                 .setFooter("requested by " + date, event.getGuild().getIconUrl());
 
-        event.reply("Requested 'info' by @" + event.getUser().getName() + " " + date)
+        event.reply("Requested 'info' @" + target.getName() + " by @" + event.getUser().getName())
                 .setEmbeds(avatarEmbed.build())
                 .setEphemeral(true)
                 .queue(
-                        success -> logger.info("requested 'info' by @" + event.getUser().getName() + " " + date),
-                        error -> logger.error("Some error occurred in 'info', try again!" + " " + date)
+                        success -> logger.info("requested 'info' @" + target.getName() + " by @" + event.getUser().getName()),
+                        failure -> logger.error("Some error occurred in 'info', try again!")
                 );
     }
 }

@@ -7,17 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.ICommand;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Timer;
 
 public class Ping implements ICommand {
     private static final Logger logger = LoggerFactory.getLogger(Ping.class);
+
     @Override
     public String getName() {
         return "ping";
@@ -30,10 +25,7 @@ public class Ping implements ICommand {
 
     @Override
     public List<OptionData> getOptions() {
-        List<OptionData> dataList = new ArrayList<>();
-        dataList.add(new OptionData(
-                OptionType.STRING, "ping", "Ping to you", false));
-        return dataList;
+        return null;
     }
 
     @Override
@@ -43,10 +35,10 @@ public class Ping implements ICommand {
                 .flatMap(v ->
                         event.getHook()
                                 .editOriginalFormat(
-                                        "Pong: %d ms", System.currentTimeMillis() - time
-                                )
-                ).queue();
-        logger.info("requested 'ping' by @" + event.getUser().getName() + " " + new Date());
-
+                                        "Pong: %d ms", System.currentTimeMillis() - time))
+                .queue(
+                        success -> logger.info("requested 'ping' by @" + event.getUser().getName()),
+                        failure -> logger.error("Some error occurred in 'ping', try again!")
+                );
     }
 }
