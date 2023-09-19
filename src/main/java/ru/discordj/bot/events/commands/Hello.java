@@ -1,23 +1,40 @@
-//package ru.discordj.bot.Events.Commands;
-//
-//import java.util.Objects;
-//
-//public class Hello implements ICommand {
-//    private static final Logger logger = LoggerFactory.getLogger(ru.discordj.bot.Events.Commands.ReadyEventListener.class);
-//
-//    public Hello() {
-//    }
-//
-//    public void handle(CommandContext ctx) {
-//        ctx.getChannel().sendTyping().queue();
-//        ctx.getMessage().delete().queue();
-//        String userName = ((Member) Objects.requireNonNull(ctx.getMember())).getUser().getName();
-//        ctx.getChannel().sendMessage("Приветики " + userName).queue();
-//        ctx.getChannel().sendMessage((CharSequence)Objects.requireNonNull(ctx.getAuthor().getAvatarUrl())).queue();
-//        logger.info("Hi" + userName);
-//    }
-//
-//    public String getName() {
-//        return "hello";
-//    }
-//}
+package ru.discordj.bot.events.commands;
+
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.discordj.bot.events.ICommand;
+
+import java.util.List;
+import java.util.Objects;
+
+public class Hello implements ICommand {
+    private static final Logger logger = LoggerFactory.getLogger(Hello.class);
+
+
+    public String getName() {
+        return "hello";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Hello My Friend ;)";
+    }
+
+    @Override
+    public List<OptionData> getOptions() {
+        return null;
+    }
+
+    @Override
+    public void execute(SlashCommandInteractionEvent event) {
+        String userName = event.getMember().getUser().getName();
+        event.reply("Hello " + userName + " ,my friend " + event.getUser().getAvatarUrl())
+                .setEphemeral(true)
+                .queue(
+                        success -> logger.info("requested 'hello' by @" + event.getUser().getName()),
+                        failure -> logger.error("Some error occurred in 'hello', try again!")
+                );
+    }
+}
