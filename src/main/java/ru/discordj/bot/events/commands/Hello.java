@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.ICommand;
 
 import java.util.List;
-import java.util.Objects;
 
 public class Hello implements ICommand {
     private static final Logger logger = LoggerFactory.getLogger(Hello.class);

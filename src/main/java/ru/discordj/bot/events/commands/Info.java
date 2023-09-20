@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.discordj.bot.config.Constant;
 import ru.discordj.bot.events.ICommand;
 
 import java.awt.*;
@@ -17,10 +18,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+
+
 public class Info implements ICommand {
     private static final Logger logger = LoggerFactory.getLogger(Info.class);
 
-    private final String nonAvatarUrl = "https://i.pinimg.com/236x/27/26/cc/2726cc2808c5597fb7392bb484689119--gut-health-health-and-wellness.jpg";
 
     public String getName() {
         return "info";
@@ -35,7 +37,7 @@ public class Info implements ICommand {
     public List<OptionData> getOptions() {
         List<OptionData> dataList = new ArrayList<>();
         dataList.add(new OptionData(
-                OptionType.USER, "info", "Information about User", true));
+                OptionType.USER, "information", "Information about User", true));
         return dataList;
     }
 
@@ -47,7 +49,7 @@ public class Info implements ICommand {
         User target = event.getOption("info", OptionMapping::getAsUser);
         Member member = event.getOption("info", OptionMapping::getAsMember);
         String avatar = target.getAvatarUrl();
-        if (avatar == null) avatar = nonAvatarUrl;
+        if (avatar == null) avatar = Constant.NON_AVATAR_URL;
 
         EmbedBuilder avatarEmbed = new EmbedBuilder()
                 .setColor(Color.YELLOW)

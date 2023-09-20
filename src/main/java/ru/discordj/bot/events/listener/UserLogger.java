@@ -1,4 +1,4 @@
-package ru.discordj.bot;
+package ru.discordj.bot.events.listener;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
