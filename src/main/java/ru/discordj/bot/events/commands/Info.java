@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.config.Config;
+import ru.discordj.bot.config.Constant;
 import ru.discordj.bot.events.ICommand;
 
 import java.awt.*;
@@ -49,7 +49,7 @@ public class Info implements ICommand {
         User target = event.getOption("info", OptionMapping::getAsUser);
         Member member = event.getOption("info", OptionMapping::getAsMember);
         String avatar = target.getAvatarUrl();
-        if (avatar == null) avatar = new Config().getNonAvatarUrl();
+        if (avatar == null) avatar = Constant.NON_AVATAR_URL;
 
         EmbedBuilder avatarEmbed = new EmbedBuilder()
                 .setColor(Color.YELLOW)

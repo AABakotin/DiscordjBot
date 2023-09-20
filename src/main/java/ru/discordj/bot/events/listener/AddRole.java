@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.config.Config;
+import ru.discordj.bot.config.Constant;
 
 import java.awt.*;
 import java.text.SimpleDateFormat;
@@ -15,24 +15,25 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static ru.discordj.bot.config.Constant.*;
+
 
 public class AddRole extends ListenerAdapter {
 
-    private static final Config config = new Config();
     private static final Logger logger = LoggerFactory.getLogger(AddRole.class);
     private final Map<String, String> stringRoleMap = new HashMap<>();
     private final SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     private final Date date = new Date();
 
     {
-        stringRoleMap.put(config.getEmojiAccess(), config.getRoleAccess());
-        stringRoleMap.put(config.getEmojiJava(), config.getRoleJavaDevelopment());
+        stringRoleMap.put(EMOJI_ACCESS, ROLE_ACCESS);
+        stringRoleMap.put(EMOJI_JAVA,ROLE_JAVA);
     }
 
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        GuildChannel guestGuildChannel = event.getGuild().getGuildChannelById(config.getGuestChannel());
+        GuildChannel guestGuildChannel = event.getGuild().getGuildChannelById(GUEST_CHANNEL);
         if (guestGuildChannel == event.getGuildChannel()) {
             String emoji = event.getEmoji().getName();
             if (stringRoleMap.containsKey(emoji)) {
@@ -53,7 +54,7 @@ public class AddRole extends ListenerAdapter {
 
     @Override
     public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
-        GuildChannel guestGuildChannel = event.getGuild().getGuildChannelById(config.getGuestChannel());
+        GuildChannel guestGuildChannel = event.getGuild().getGuildChannelById(GUEST_CHANNEL);
         if (guestGuildChannel == event.getGuildChannel()) {
             String emoji = event.getEmoji().getName();
             if (stringRoleMap.containsKey(emoji)) {
