@@ -8,13 +8,16 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import ru.discordj.bot.config.Config;
 import ru.discordj.bot.events.CommandManager;
 import ru.discordj.bot.events.commands.*;
 import ru.discordj.bot.events.listener.AddRole;
 
 
 public class Main extends ListenerAdapter {
-   private static final CommandManager manager = new CommandManager();
+    private static final CommandManager manager = new CommandManager();
+    private static final Config config = new Config();
+
 
     static {
         manager.add(new Ping());
@@ -23,9 +26,9 @@ public class Main extends ListenerAdapter {
         manager.add(new Info());
         manager.add(new Hello());
     }
-    public static void main(String[] args) {
 
-        JDABuilder.createLight(args[0])
+    public static void main(String[] args) {
+        JDABuilder.createLight(config.getToken())
                 .setActivity(Activity.playing("Testing MZF"))
                 .setEnabledIntents(
                         GatewayIntent.GUILD_PRESENCES,
@@ -35,7 +38,7 @@ public class Main extends ListenerAdapter {
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .enableCache(CacheFlag.CLIENT_STATUS)
-                .addEventListeners(manager,new AddRole())
+                .addEventListeners(manager, new AddRole())
                 .build();
     }
 }
