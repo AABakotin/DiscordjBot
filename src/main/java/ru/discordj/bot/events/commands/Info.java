@@ -46,8 +46,8 @@ public class Info implements ICommand {
         DateTimeFormatter frm = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
         Date date = new Date();
 
-        User target = event.getOption("info", OptionMapping::getAsUser);
-        Member member = event.getOption("info", OptionMapping::getAsMember);
+        User target = event.getOption("information", OptionMapping::getAsUser);
+        Member member = event.getOption("information", OptionMapping::getAsMember);
         String avatar = target.getAvatarUrl();
         if (avatar == null) avatar = Constant.NON_AVATAR_URL;
 

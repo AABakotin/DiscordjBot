@@ -4,9 +4,12 @@ package ru.discordj.bot.config;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.jetbrains.annotations.NotNull;
 
-final  public class Constant {
+final public class Constant {
     @NotNull
-    private static final Dotenv dotenv = Dotenv.configure().filename(".env").load();
+    private static final Dotenv dotenv =
+            Dotenv.configure()
+            .filename(".env")
+            .load();
     @NotNull
     public static final String GUEST_CHANNEL = dotenv.get("GUEST_CHANNEL");
     @NotNull
