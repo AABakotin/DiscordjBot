@@ -25,7 +25,7 @@ public class JDA {
     }
 
     public static void start() {
-        JDABuilder.createLight(TOKEN)
+        JDABuilder.createLight(System.getenv("TOKEN"))
                 .setActivity(Activity.watching("за твоим поведением"))
                 .setEnabledIntents(
                         GatewayIntent.GUILD_PRESENCES,
