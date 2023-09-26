@@ -1,19 +1,24 @@
 package ru.discordj.bot.config;
 
-import ch.qos.logback.core.subst.Token;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.CommandManager;
 import ru.discordj.bot.events.commands.*;
+import ru.discordj.bot.events.commands.music.*;
 import ru.discordj.bot.events.listener.AddRole;
 
-import static ru.discordj.bot.config.Constant.*;
+import static net.dv8tion.jda.api.requests.GatewayIntent.*;
+import static net.dv8tion.jda.api.utils.cache.CacheFlag.CLIENT_STATUS;
+import static net.dv8tion.jda.api.utils.cache.CacheFlag.VOICE_STATE;
+import static ru.discordj.bot.config.Constant.TOKEN_FROM_ENV;
 
 public class JDA {
+
+    private static final Logger logger = LoggerFactory.getLogger(JDA.class);
     private static final CommandManager MANAGER = new CommandManager();
 
     static {
@@ -22,23 +27,47 @@ public class JDA {
         MANAGER.add(new RulesInfo());
         MANAGER.add(new Info());
         MANAGER.add(new Hello());
+        MANAGER.add(new NowPlaying());
+        MANAGER.add(new Play());
+        MANAGER.add(new Queue());
+        MANAGER.add(new Repeat());
+        MANAGER.add(new Skip());
+        MANAGER.add(new Stop());
     }
 
-    public static void start() {
-        JDABuilder.createLight(System.getenv("TOKEN"))
+    public static void start(String[] args) {
+        JDABuilder.createLight(checkToken(args))
                 .setActivity(Activity.watching("за твоим поведением"))
                 .setEnabledIntents(
-                        GatewayIntent.GUILD_PRESENCES,
-                        GatewayIntent.GUILD_MESSAGES,
-                        GatewayIntent.GUILD_MEMBERS,
-                        GatewayIntent.GUILD_MESSAGE_REACTIONS)
+                        GUILD_PRESENCES,
+                        GUILD_MESSAGES,
+                        GUILD_MEMBERS,
+                        GUILD_MESSAGE_REACTIONS,
+                        GUILD_VOICE_STATES)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .setChunkingFilter(ChunkingFilter.ALL)
-                .enableCache(CacheFlag.CLIENT_STATUS)
+                .enableCache(CLIENT_STATUS, VOICE_STATE)
                 .addEventListeners(
                         MANAGER,
                         new AddRole())
                 .build();
+    }
+
+    private static String checkToken(String[] args) {
+
+            if (args.length >= 1) {
+                logger.info("Loading token key form args...");
+                return args[0];
+            }
+            if (TOKEN_FROM_ENV.isEmpty()) {
+                logger.info("Loading token key form ENV...");
+               return   System.getenv("TOKEN");
+            }
+            else {
+                logger.info("Loading token key form file...");
+                return TOKEN_FROM_ENV;
+            }
+
     }
 }
 
