@@ -63,5 +63,8 @@ public class Play implements ICommand {
         PlayerManager playerManager = PlayerManager.get();
         event.reply("Playing").queue();
         playerManager.play(event.getGuild(), name);
+
+        // todo logger name track
+        // todo embed
     }
 }

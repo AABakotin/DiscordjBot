@@ -15,8 +15,8 @@ import java.util.Map;
 public class PlayerManager {
 
     private static PlayerManager INSTANCE;
-    private Map<Long, GuildMusicManager> guildMusicManagers = new HashMap<>();
-    private AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
+    private final Map<Long, GuildMusicManager> guildMusicManagers = new HashMap<>();
+    private final AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
 
     private PlayerManager() {
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
