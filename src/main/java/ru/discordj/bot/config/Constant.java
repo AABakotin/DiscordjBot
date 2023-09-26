@@ -20,9 +20,9 @@ final public class Constant {
     public static final String EMOJI_JAVA = dotenv.get("EMOJI_JAVA");
     @NotNull
     public static final String ROLE_JAVA = dotenv.get("ROLE_JAVA");
-    @NotNull
-    public static final String TOKEN = dotenv.get("TOKEN");
     public static final String NON_AVATAR_URL = dotenv.get("NON_AVATAR_URL");
+
+    public static final String TOKEN_FROM_ENV = dotenv.get("TOKEN_FROM_ENV");
     private Constant() {
     }
 }
