@@ -26,7 +26,6 @@ public class CommandManager extends ListenerAdapter {
                             .queue();
                 }
             }
-
     }
 
     @Override

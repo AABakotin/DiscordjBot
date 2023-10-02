@@ -8,7 +8,7 @@ final public class Constant {
     @NotNull
     private static final Dotenv dotenv =
             Dotenv.configure()
-            .filename(".env")
+            .filename("properties.env")
             .load();
     @NotNull
     public static final String GUEST_CHANNEL = dotenv.get("GUEST_CHANNEL");

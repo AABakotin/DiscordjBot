@@ -17,13 +17,11 @@ import static net.dv8tion.jda.api.utils.cache.CacheFlag.VOICE_STATE;
 import static ru.discordj.bot.config.Constant.TOKEN_FROM_ENV;
 
 public class JDA {
-
     private static final Logger logger = LoggerFactory.getLogger(JDA.class);
     private static final CommandManager MANAGER = new CommandManager();
 
     static {
         MANAGER.add(new Ping());
-        MANAGER.add(new Ban());
         MANAGER.add(new RulesInfo());
         MANAGER.add(new Info());
         MANAGER.add(new Hello());
@@ -54,7 +52,6 @@ public class JDA {
     }
 
     private static String checkToken(String[] args) {
-
             if (args.length >= 1) {
                 logger.info("Loading token key form args...");
                 return args[0];

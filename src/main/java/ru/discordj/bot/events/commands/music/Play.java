@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
 
@@ -14,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Play implements ICommand {
+    private static final Logger logger = LoggerFactory.getLogger(Play.class);
+
     @Override
     public String getName() {
         return "play";
@@ -36,19 +40,19 @@ public class Play implements ICommand {
         Member member = event.getMember();
         GuildVoiceState memberVoiceState = member.getVoiceState();
 
-        if(!memberVoiceState.inAudioChannel()) {
-            event.reply("You need to be in a voice channel").queue();
+        if (!memberVoiceState.inAudioChannel()) {
+            event.reply("You need to be in a voice channel").setEphemeral(true).queue();
             return;
         }
 
         Member self = event.getGuild().getSelfMember();
         GuildVoiceState selfVoiceState = self.getVoiceState();
 
-        if(!selfVoiceState.inAudioChannel()) {
+        if (!selfVoiceState.inAudioChannel()) {
             event.getGuild().getAudioManager().openAudioConnection(memberVoiceState.getChannel());
         } else {
-            if(selfVoiceState.getChannel() != memberVoiceState.getChannel()) {
-                event.reply("You need to be in the same channel as me").queue();
+            if (selfVoiceState.getChannel() != memberVoiceState.getChannel()) {
+                event.reply("You need to be in the same channel as me").setEphemeral(true).queue();
                 return;
             }
         }
@@ -61,10 +65,15 @@ public class Play implements ICommand {
         }
 
         PlayerManager playerManager = PlayerManager.get();
-        event.reply("Playing").queue();
+        event.reply("\uFE0F " + "Playing... \n").queue();
+
         playerManager.play(event.getGuild(), name);
 
-        // todo logger name track
-        // todo embed
+
+
+        logger.info("Playing music for " + member.getUser().getName());
+
     }
+
+
 }
