@@ -10,6 +10,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class TrackScheduler extends AudioEventAdapter {
 
+    public final static String PLAY_EMOJI  = "\u25B6"; // ▶
+    public final static String PAUSE_EMOJI = "\u23F8"; // ⏸
+    public final static String STOP_EMOJI  = "\u23F9"; // ⏹
+
     private final AudioPlayer player;
     private final BlockingQueue<AudioTrack> queue = new LinkedBlockingQueue<>();
     private boolean isRepeat = false;
