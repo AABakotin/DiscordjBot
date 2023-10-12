@@ -11,26 +11,36 @@ import ru.discordj.bot.events.commands.*;
 import ru.discordj.bot.events.commands.music.*;
 import ru.discordj.bot.events.listener.AddRole;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static net.dv8tion.jda.api.requests.GatewayIntent.*;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.CLIENT_STATUS;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.VOICE_STATE;
-import static ru.discordj.bot.config.Constant.TOKEN_FROM_ENV;
+import static ru.discordj.bot.config.Constant.*;
 
 public class JDA {
     private static final Logger logger = LoggerFactory.getLogger(JDA.class);
     private static final CommandManager MANAGER = new CommandManager();
+    private static final Map<String, String> stringRoleMap = new HashMap<>();
 
     static {
+
         MANAGER.add(new Ping());
-        MANAGER.add(new RulesInfo());
+        MANAGER.add(new Rules());
         MANAGER.add(new Info());
         MANAGER.add(new Hello());
+        MANAGER.add(new Invite());
+
         MANAGER.add(new NowPlaying());
         MANAGER.add(new Play());
         MANAGER.add(new Queue());
         MANAGER.add(new Repeat());
         MANAGER.add(new Skip());
         MANAGER.add(new Stop());
+
+        stringRoleMap.put(EMOJI_ACCESS, ROLE_ACCESS);
+        stringRoleMap.put(EMOJI_JAVA, ROLE_JAVA);
     }
 
     public static void start(String[] args) {
@@ -66,5 +76,9 @@ public class JDA {
             }
 
     }
+    public static String getRoleToEmoji(String emoji){
+            return stringRoleMap.get(emoji);
+    }
+
 }
 

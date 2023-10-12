@@ -10,19 +10,16 @@ final public class Constant {
             Dotenv.configure()
             .filename("properties.env")
             .load();
-    @NotNull
+
     public static final String GUEST_CHANNEL = dotenv.get("GUEST_CHANNEL");
-    @NotNull
     public static final String EMOJI_ACCESS = dotenv.get("EMOJI_ACCESS");
-    @NotNull
     public static final String ROLE_ACCESS = dotenv.get("ROLE_ACCESS");
-    @NotNull
     public static final String EMOJI_JAVA = dotenv.get("EMOJI_JAVA");
-    @NotNull
     public static final String ROLE_JAVA = dotenv.get("ROLE_JAVA");
     public static final String NON_AVATAR_URL = dotenv.get("NON_AVATAR_URL");
-
     public static final String TOKEN_FROM_ENV = dotenv.get("TOKEN_FROM_ENV");
+    public static final String INVITATION_LINK = dotenv.get("INVITATION_LINK");
+
     private Constant() {
     }
 }

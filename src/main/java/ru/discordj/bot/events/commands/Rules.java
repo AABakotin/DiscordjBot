@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.discordj.bot.config.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
 
 import java.awt.*;
@@ -12,8 +13,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class RulesInfo implements ICommand {
-    private static final Logger logger = LoggerFactory.getLogger(RulesInfo.class);
+import static ru.discordj.bot.config.Constant.INVITATION_LINK;
+
+public class Rules implements ICommand {
+    private static final Logger logger = LoggerFactory.getLogger(Rules.class);
 
     public String getName() {
         return "rules";
@@ -31,24 +34,13 @@ public class RulesInfo implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        String imageServer = Objects.requireNonNull(event.getGuild()).getIconUrl();
-        EmbedBuilder embed = (new EmbedBuilder())
-                .setColor(Color.BLUE)
-                .setTitle("*The Stealth Dudes*")
-                .setImage(imageServer)
-                .addField(
-                        "Правила:",
-                        " 1. Не матерится \n" +
-                                "2. Не орать \n" +
-                                "3. Уважать других\n" +
-                                "4. Потом еще напишу)",
-                        false);
+        String imageServer = event.getGuild().getIconUrl();
         String author = event.getUser().getName();
-        EmbedBuilder builder = embed.setFooter("requested by @" + author + " " + new Date());
+
         event.getUser()
                 .openPrivateChannel()
                 .complete()
-                .sendMessageEmbeds(builder.build())
+                .sendMessageEmbeds(EmbedCreation.embedWelcome(imageServer, author))
                 .queue(
                         success -> event.reply("Rules has been sent to private message!")
                                 .setEphemeral(true)
