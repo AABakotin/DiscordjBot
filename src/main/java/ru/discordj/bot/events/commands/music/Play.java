@@ -5,8 +5,10 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.managers.AudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.discordj.bot.config.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
 
@@ -37,43 +39,39 @@ public class Play implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        Member member = event.getMember();
-        GuildVoiceState memberVoiceState = member.getVoiceState();
+        final Member member = event.getMember();
+        final GuildVoiceState memberVoiceState = member.getVoiceState();
+        final GuildVoiceState voiceState = event.getGuild().getSelfMember().getVoiceState();
+        final AudioManager audioManager = event.getGuild().getAudioManager();
 
         if (!memberVoiceState.inAudioChannel()) {
             event.reply("You need to be in a voice channel").setEphemeral(true).queue();
             return;
         }
+        if (!voiceState.inAudioChannel()) {
+            audioManager.openAudioConnection(memberVoiceState.getChannel());
+        } else if (voiceState.getChannel() != memberVoiceState.getChannel()) {
+            event.reply("You need to be in the same channel as me").setEphemeral(true).queue();
+            return;
+        }
+        String link = event.getOption("name").getAsString();
 
-        Member self = event.getGuild().getSelfMember();
-        GuildVoiceState selfVoiceState = self.getVoiceState();
-
-        if (!selfVoiceState.inAudioChannel()) {
-            event.getGuild().getAudioManager().openAudioConnection(memberVoiceState.getChannel());
-        } else {
-            if (selfVoiceState.getChannel() != memberVoiceState.getChannel()) {
-                event.reply("You need to be in the same channel as me").setEphemeral(true).queue();
-                return;
-            }
+        if (!isUrl(link)) {
+            link = "ytsearch:" + link;
         }
 
-        String name = event.getOption("name").getAsString();
-        try {
-            new URI(name);
-        } catch (URISyntaxException e) {
-            name = "ytsearch:" + name;
-        }
-
-        PlayerManager playerManager = PlayerManager.get();
-        event.reply("\uFE0F " + "Playing... \n").queue();
-
-        playerManager.play(event.getGuild(), name);
-
-
+        PlayerManager.get().play(event.getChannel().asTextChannel(), link);
+        event.reply("▶️ Adding to queue:").queue();
 
         logger.info("Playing music for " + member.getUser().getName());
-
     }
 
-
+    private boolean isUrl(String link) {
+        try {
+            new URI(link);
+            return true;
+        } catch (URISyntaxException e) {
+            return false;
+        }
+    }
 }

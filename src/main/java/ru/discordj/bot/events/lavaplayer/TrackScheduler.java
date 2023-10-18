@@ -10,29 +10,28 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class TrackScheduler extends AudioEventAdapter {
 
-    public final static String PLAY_EMOJI  = "\u25B6"; // ▶
-    public final static String PAUSE_EMOJI = "\u23F8"; // ⏸
-    public final static String STOP_EMOJI  = "\u23F9"; // ⏹
-
     private final AudioPlayer player;
-    private final BlockingQueue<AudioTrack> queue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<AudioTrack> queue;
     private boolean isRepeat = false;
 
     public TrackScheduler(AudioPlayer player) {
+        this.queue = new LinkedBlockingQueue<>();
         this.player = player;
     }
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        if(isRepeat) {
-            player.startTrack(track.makeClone(), false);
-        } else {
-            player.startTrack(queue.poll(), false);
+        if (endReason.mayStartNext) {
+            if (isRepeat) {
+                player.startTrack(track.makeClone(), false);
+            } else {
+                player.startTrack(this.queue.poll(), false);
+            }
         }
     }
 
     public void queue(AudioTrack track) {
-        if(!player.startTrack(track, true)) {
+        if (!this.player.startTrack(track, true)) {
             queue.offer(track);
         }
     }
@@ -52,4 +51,5 @@ public class TrackScheduler extends AudioEventAdapter {
     public void setRepeat(boolean repeat) {
         isRepeat = repeat;
     }
+
 }

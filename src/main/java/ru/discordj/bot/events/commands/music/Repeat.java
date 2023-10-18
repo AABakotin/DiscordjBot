@@ -52,6 +52,6 @@ public class Repeat implements ICommand {
         GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
         boolean isRepeat = !guildMusicManager.getTrackScheduler().isRepeat();
         guildMusicManager.getTrackScheduler().setRepeat(isRepeat);
-        event.reply("♻ "+"Repeat is now " + isRepeat).queue();
+        event.reply("🔁 "+"Repeat is now " + isRepeat).queue();
     }
 }

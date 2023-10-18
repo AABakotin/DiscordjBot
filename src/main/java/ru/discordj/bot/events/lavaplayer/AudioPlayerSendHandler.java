@@ -8,15 +8,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 
-public class AudioForwarder implements AudioSendHandler {
+public class AudioPlayerSendHandler implements AudioSendHandler {
 
     private final AudioPlayer player;
     private final Guild guild;
-    private final ByteBuffer buffer = ByteBuffer.allocate(1024);
-    private final MutableAudioFrame frame = new MutableAudioFrame();
+    private final ByteBuffer buffer;
+    private final MutableAudioFrame frame;
     private int time;
 
-    public AudioForwarder(AudioPlayer player, Guild guild) {
+    public AudioPlayerSendHandler(AudioPlayer player, Guild guild) {
+        this.buffer = ByteBuffer.allocate(1024);
+        this.frame = new MutableAudioFrame();
         this.player = player;
         this.guild = guild;
         frame.setBuffer(buffer);
@@ -25,9 +27,9 @@ public class AudioForwarder implements AudioSendHandler {
     @Override
     public boolean canProvide() {
         boolean canProvide = player.provide(frame);
-        if(!canProvide) {
+        if (!canProvide) {
             time += 20;
-            if(time >= 300000) {
+            if (time >= 10000) {
                 time = 0;
                 guild.getAudioManager().closeAudioConnection();
             }
@@ -35,12 +37,13 @@ public class AudioForwarder implements AudioSendHandler {
             time = 0;
         }
         return canProvide;
+//        return this.player.provide(this.frame);
     }
 
     @Nullable
     @Override
     public ByteBuffer provide20MsAudio() {
-        return buffer.flip();
+        return this.buffer.flip();
     }
 
     @Override
