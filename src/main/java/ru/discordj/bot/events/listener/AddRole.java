@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.config.EmbedCreation;
+import ru.discordj.bot.config.embed.EmbedCreation;
 import ru.discordj.bot.config.JDA;
 
 import static ru.discordj.bot.config.Constant.GUEST_CHANNEL;

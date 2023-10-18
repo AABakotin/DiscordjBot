@@ -2,11 +2,11 @@ package ru.discordj.bot.events.commands.music;
 
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import ru.discordj.bot.config.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.events.lavaplayer.GuildMusicManager;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
@@ -14,6 +14,7 @@ import ru.discordj.bot.events.lavaplayer.PlayerManager;
 import java.util.List;
 
 public class NowPlaying implements ICommand {
+
     @Override
     public String getName() {
         return "nowplaying";
@@ -57,12 +58,8 @@ public class NowPlaying implements ICommand {
             event.reply("I am not playing anything").setEphemeral(true).queue();
             return;
         }
+
         AudioTrackInfo info = guildMusicManager.getTrackScheduler().getPlayer().getPlayingTrack().getInfo();
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle("Currently Playing");
-        embedBuilder.setDescription("**Name:** `" + info.title + "`");
-        embedBuilder.appendDescription("\n**Author:** `" + info.author + "`");
-        embedBuilder.appendDescription("\n**URL:** `" + info.uri + "`");
-        event.replyEmbeds(embedBuilder.build()).queue();
+        event.replyEmbeds(EmbedCreation.embedMusic(info)).queue();
     }
 }

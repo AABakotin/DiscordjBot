@@ -6,21 +6,22 @@ import net.dv8tion.jda.api.entities.Guild;
 
 public class GuildMusicManager {
 
+    public final AudioPlayer player;
     private final TrackScheduler trackScheduler;
-    private final AudioForwarder audioForwarder;
+    private final AudioPlayerSendHandler sendHandler;
 
     public GuildMusicManager(AudioPlayerManager manager, Guild guild) {
-        AudioPlayer player = manager.createPlayer();
-        trackScheduler = new TrackScheduler(player);
-        player.addListener(trackScheduler);
-        audioForwarder = new AudioForwarder(player, guild);
+        this.player = manager.createPlayer();
+        this.trackScheduler = new TrackScheduler(this.player);
+        this.player.addListener(this.trackScheduler);
+        this.sendHandler = new AudioPlayerSendHandler(this.player, guild);
     }
 
     public TrackScheduler getTrackScheduler() {
         return trackScheduler;
     }
 
-    public AudioForwarder getAudioForwarder() {
-        return audioForwarder;
+    public AudioPlayerSendHandler getSendHandler() {
+        return sendHandler;
     }
 }

@@ -1,7 +1,7 @@
 package ru.discordj.bot.config;
 
+
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.slf4j.Logger;
@@ -10,6 +10,7 @@ import ru.discordj.bot.events.CommandManager;
 import ru.discordj.bot.events.commands.*;
 import ru.discordj.bot.events.commands.music.*;
 import ru.discordj.bot.events.listener.AddRole;
+import ru.discordj.bot.events.listener.MusicListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +24,7 @@ public class JDA {
     private static final Logger logger = LoggerFactory.getLogger(JDA.class);
     private static final CommandManager MANAGER = new CommandManager();
     private static final Map<String, String> stringRoleMap = new HashMap<>();
+
 
     static {
 
@@ -45,13 +47,13 @@ public class JDA {
 
     public static void start(String[] args) {
         JDABuilder.createLight(checkToken(args))
-                .setActivity(Activity.watching("за твоим поведением"))
                 .setEnabledIntents(
                         GUILD_PRESENCES,
                         GUILD_MESSAGES,
                         GUILD_MEMBERS,
                         GUILD_MESSAGE_REACTIONS,
-                        GUILD_VOICE_STATES)
+                        GUILD_VOICE_STATES,
+                        MESSAGE_CONTENT)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .enableCache(CLIENT_STATUS, VOICE_STATE)
@@ -62,22 +64,22 @@ public class JDA {
     }
 
     private static String checkToken(String[] args) {
-            if (args.length >= 1) {
-                logger.info("Loading token key form args...");
-                return args[0];
-            }
-            if (TOKEN_FROM_ENV.isEmpty()) {
-                logger.info("Loading token key form ENV...");
-               return   System.getenv("TOKEN");
-            }
-            else {
-                logger.info("Loading token key form file...");
-                return TOKEN_FROM_ENV;
-            }
-
+        if (args.length >= 1) {
+            logger.info("Loading token key form args...");
+            return args[0];
+        }
+        if (TOKEN_FROM_ENV.isEmpty()) {
+            logger.info("Loading token key form ENV...");
+            return System.getenv("TOKEN");
+        } else {
+            logger.info("Loading token key form file...");
+            return TOKEN_FROM_ENV;
+        }
     }
-    public static String getRoleToEmoji(String emoji){
-            return stringRoleMap.get(emoji);
+
+
+    public static String getRoleToEmoji(String emoji) {
+        return stringRoleMap.get(emoji);
     }
 
 }
