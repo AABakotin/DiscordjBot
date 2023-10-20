@@ -29,7 +29,7 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
         boolean canProvide = player.provide(frame);
         if (!canProvide) {
             time += 20;
-            if (time >= 10000) {
+            if (time >= 40000) {
                 time = 0;
                 guild.getAudioManager().closeAudioConnection();
             }
@@ -37,7 +37,6 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
             time = 0;
         }
         return canProvide;
-//        return this.player.provide(this.frame);
     }
 
     @Nullable

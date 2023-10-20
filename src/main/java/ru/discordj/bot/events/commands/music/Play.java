@@ -61,7 +61,7 @@ public class Play implements ICommand {
         }
 
         PlayerManager.get().play(event.getChannel().asTextChannel(), link);
-        event.reply("▶️ Adding to queue:").queue();
+        event.reply("▶️ " + " Adding to play list:").queue();
 
         logger.info("Playing music for " + member.getUser().getName());
     }
