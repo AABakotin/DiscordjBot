@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import ru.discordj.bot.config.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.events.lavaplayer.GuildMusicManager;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
@@ -13,15 +12,15 @@ import ru.discordj.bot.events.lavaplayer.PlayerManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Queue implements ICommand {
+public class ClearPlayList implements ICommand {
     @Override
     public String getName() {
-        return "queue";
+        return "clear";
     }
 
     @Override
     public String getDescription() {
-        return "Will display the current queue";
+        return "Clear play list";
     }
 
     @Override
@@ -54,7 +53,12 @@ public class Queue implements ICommand {
 
         GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
         List<AudioTrack> queue = new ArrayList<>(guildMusicManager.getTrackScheduler().getQueue());
-        event.getChannel().sendMessageEmbeds(EmbedCreation.embedMusic(queue)).queue();
-        event.reply("📑" + " Queue:").queue();
+        if (queue.isEmpty()) {
+            event.reply("Queue is empty").setEphemeral(true).queue();
+        } else {
+            event.reply("Queue is cleared").queue();
+            guildMusicManager.getTrackScheduler().clear();
+
+        }
     }
 }
