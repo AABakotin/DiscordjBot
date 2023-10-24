@@ -6,7 +6,10 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
+import ru.discordj.bot.events.listener.AddRole;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -18,10 +21,19 @@ import static net.dv8tion.jda.api.interactions.components.buttons.Button.danger;
 import static ru.discordj.bot.config.Constant.INVITATION_LINK;
 
 public class EmbedCreation {
-    private static final Date DATE = new Date();
+    private final Date DATE = new Date();
 
+    private static EmbedCreation INSTANCE;
+    private static final Logger logger = LoggerFactory.getLogger(EmbedCreation.class);
 
-    public static MessageEmbed embedWelcome(String imageServer, String author) {
+    public static EmbedCreation get() {
+        if (INSTANCE == null) {
+            INSTANCE = new EmbedCreation();
+        }
+        return INSTANCE;
+    }
+
+    public MessageEmbed embedWelcome(String imageServer, String author) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Color.BLUE)
                 .setTitle("█▓▒░⡷⠂𝚃𝚑𝚎 𝚂𝚝𝚎𝚊𝚕𝚝𝚑 𝙳𝚞𝚍𝚎⠐⢾░▒▓█")
@@ -44,7 +56,7 @@ public class EmbedCreation {
         return builder.build();
     }
 
-    public static MessageEmbed embedBay(String imageServer, String author) {
+    public MessageEmbed embedBay(String imageServer, String author) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Color.BLUE)
                 .setTitle("█▓▒░⡷⠂𝚃𝚑𝚎 𝚂𝚝𝚎𝚊𝚕𝚝𝚑 𝙳𝚞𝚍𝚎⠐⢾░▒▓█")
@@ -54,16 +66,17 @@ public class EmbedCreation {
         return builder.build();
     }
 
-    public static void playListEmbed(TextChannel textChannel) {
+    public void playListEmbed(TextChannel textChannel) {
         List<AudioTrack> playList = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().getPlayList();
         MessageCreateBuilder messageCreateBuilder = new MessageCreateBuilder();
         EmbedBuilder builderPlayList = new EmbedBuilder();
         AudioTrack playingTrack = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).player.getPlayingTrack();
         builderPlayList
                 .setColor(Color.GREEN)
-                .setTitle("▶️  " + " Playing: ")
+                .setTitle("Playing: " + " 🎵")
                 .addField("*Name:*", "***" + playingTrack.getInfo().title + "***", false)
-                .addField("*Duration:*", "***" + timer(playingTrack) + "***", false)
+                .addField("*Duration:*", "***" + timer(playingTrack) + "***", true)
+                .addField("*Repeat is:*", "***" + statusRepeat(textChannel) + "***", true)
                 .addField("*URL:*", "***" + playingTrack.getInfo().uri + "***", false);
         messageCreateBuilder.setEmbeds(builderPlayList.build());
         if (!playList.isEmpty()) {
@@ -77,20 +90,31 @@ public class EmbedCreation {
                                 i + 1 + ".",
                                 "***" + playList.get(i).getInfo().title + "\n" + timer(playList.get(i)) + "***",
                                 false);
-                buttons.add(danger(playList.get(i).getIdentifier(), "🗑️ " + x));
+                buttons.add(danger(playList.get(i).getInfo().title, "🗑️ " + x));
             }
-            messageCreateBuilder.setActionRow(buttons);
+            try{
+                messageCreateBuilder.setActionRow(buttons);
+            } catch (IllegalArgumentException ex){
+                buttons.clear();
+                builderPlayList.setFooter("Сорри, отваливаются кнопки! 🤫");
+                logger.error(ex.getMessage());
+            }
             messageCreateBuilder.setEmbeds(builderPlayList.build());
-            textChannel.sendMessage(messageCreateBuilder.build()).complete();
-            buttons.clear();
+            textChannel.sendMessage(messageCreateBuilder.build()).queue();
         } else {
-            textChannel.sendMessage(messageCreateBuilder.build()).complete();
+            textChannel.sendMessage(messageCreateBuilder.build()).queue();
         }
+    }
 
+    private String statusRepeat(TextChannel textChannel) {
+        if (PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().isRepeat()) {
+            return "🔁";
+        }
+        return "➡️";
     }
 
 
-    private static String timer(AudioTrack info) {
+    private String timer(AudioTrack info) {
         return String.format(
                 "%02d : %02d : %02d",
                 TimeUnit.MILLISECONDS.toHours(info.getDuration())

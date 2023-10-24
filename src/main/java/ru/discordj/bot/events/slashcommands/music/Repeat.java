@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import ru.discordj.bot.config.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.events.lavaplayer.GuildMusicManager;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
@@ -52,6 +53,8 @@ public class Repeat implements ICommand {
         GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
         boolean isRepeat = !guildMusicManager.getTrackScheduler().isRepeat();
         guildMusicManager.getTrackScheduler().setRepeat(isRepeat);
-        event.reply("🔁 "+"Repeat is now " + isRepeat).queue();
+
+        event.reply("Repeat is now " + isRepeat).queue();
+        EmbedCreation.get().playListEmbed(event.getChannel().asTextChannel());
     }
 }

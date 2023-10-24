@@ -53,7 +53,8 @@ public class Stop implements ICommand {
         GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
         TrackScheduler trackScheduler = guildMusicManager.getTrackScheduler();
         trackScheduler.getQueue().clear();
+
         trackScheduler.getPlayer().stopTrack();
-        event.reply("⏹️ "+"Stop").queue();
+        event.reply("Stop!").queue();
     }
 }

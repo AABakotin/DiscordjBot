@@ -52,9 +52,8 @@ public class Queue implements ICommand {
             event.reply("You are not in the same channel as me").setEphemeral(true).queue();
             return;
         }
-
-        EmbedCreation.playListEmbed(event.getChannel().asTextChannel());
-        event.reply("📑" + " Queue:").queue();
+        event.reply("Queue: ").queue();
+        EmbedCreation.get().playListEmbed(event.getChannel().asTextChannel());
 
     }
 }

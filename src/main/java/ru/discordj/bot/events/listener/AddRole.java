@@ -36,7 +36,7 @@ public class AddRole extends ListenerAdapter {
             event.getUser()
                     .openPrivateChannel()
                     .complete()
-                    .sendMessageEmbeds(EmbedCreation.embedWelcome(imageServer, author)).queue();
+                    .sendMessageEmbeds(EmbedCreation.get().embedWelcome(imageServer, author)).queue();
 
             logger.info("User " + event.getUser().getName() + " subscribe " + emoji);
         }
@@ -63,7 +63,7 @@ public class AddRole extends ListenerAdapter {
             event.getUser()
                     .openPrivateChannel()
                     .complete()
-                    .sendMessageEmbeds(EmbedCreation.embedBay(imageServer, author))
+                    .sendMessageEmbeds(EmbedCreation.get().embedBay(imageServer, author))
                     .queue();
 
             logger.info("User " + event.getUser().getName() + " unsubscribe " + emoji);

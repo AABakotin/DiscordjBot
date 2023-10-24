@@ -39,9 +39,9 @@ public class TrackScheduler extends AudioEventAdapter {
         if (this.queue.peek() != null) {
             this.player.startTrack(this.queue.peek().makeClone(), false);
             getQueue().poll();
-            EmbedCreation.playListEmbed(textChannel);
+            EmbedCreation.get().playListEmbed(textChannel);
         } else {
-            EmbedCreation.playListEmbed(textChannel);
+            EmbedCreation.get().playListEmbed(textChannel);
         }
     }
 
@@ -51,13 +51,9 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
-    public void clear() {
-        getQueue().clear();
-    }
-
     public void removeTrack(String Identifier) {
         if (!Identifier.isEmpty()) {
-            getQueue().removeIf(e -> e.getIdentifier().equals(Identifier));
+            getQueue().removeIf(e -> e.getInfo().title.equals(Identifier));
         }
     }
 

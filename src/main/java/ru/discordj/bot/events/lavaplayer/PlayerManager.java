@@ -24,7 +24,7 @@ public class PlayerManager {
     private final Map<Long, GuildMusicManager> musicManagers;
     private final AudioPlayerManager audioPlayerManager;
     private static final Logger logger = LoggerFactory.getLogger(PlayerManager.class);
-    private final long MAX_SIZE = 5L;
+    private final long MAX_SIZE = 1L;
 
     private PlayerManager() {
         this.musicManagers = new HashMap<>();
@@ -52,12 +52,15 @@ public class PlayerManager {
 
     public void play(TextChannel textChannel, String trackURL) {
         final GuildMusicManager guildMusicManager = getGuildMusicManager(textChannel.getGuild());
-        this.audioPlayerManager.loadItemOrdered(guildMusicManager, trackURL, new AudioLoadResultHandler() {
+        this.audioPlayerManager.loadItemOrdered(
+                guildMusicManager,
+                trackURL,
+                new AudioLoadResultHandler()
+                {
             @Override
             public void trackLoaded(AudioTrack track) {
-                guildMusicManager.getTrackScheduler().queue(track);
-//                EmbedCreation.playEmbed(textChannel);
-                EmbedCreation.playListEmbed(textChannel);
+                guildMusicManager.getTrackScheduler().queue(track.makeClone());
+                EmbedCreation.get().playListEmbed(textChannel);
             }
 
             @Override
@@ -66,11 +69,12 @@ public class PlayerManager {
                         .stream()
                         .limit(MAX_SIZE)
                         .collect(Collectors.toList());
+
                 if (!tracks.isEmpty()) {
                     for (AudioTrack track : tracks) {
                         guildMusicManager.getTrackScheduler().queue(track);
                     }
-                    trackLoaded(tracks.get(0));
+                    EmbedCreation.get().playListEmbed(textChannel);
                 }
             }
 

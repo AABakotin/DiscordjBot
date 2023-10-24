@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import ru.discordj.bot.config.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.events.lavaplayer.GuildMusicManager;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
@@ -56,8 +57,9 @@ public class ClearPlayList implements ICommand {
         if (queue.isEmpty()) {
             event.reply("Queue is empty").setEphemeral(true).queue();
         } else {
-            event.reply("Queue is cleared").queue();
-            guildMusicManager.getTrackScheduler().clear();
+            guildMusicManager.getTrackScheduler().getQueue().clear();
+            event.reply("The playlist is now clean").queue();
+            EmbedCreation.get().playListEmbed(event.getChannel().asTextChannel());
 
         }
     }
