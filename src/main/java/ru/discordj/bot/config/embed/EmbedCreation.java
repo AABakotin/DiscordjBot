@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import java.awt.*;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static ru.discordj.bot.config.Constant.INVITATION_LINK;
 
@@ -49,23 +50,40 @@ public class EmbedCreation {
     }
 
     public static MessageEmbed embedMusic(AudioTrackInfo info) {
+        timer(info);
         EmbedBuilder builder = new EmbedBuilder()
-                .setTitle("𝄞" + " *Track's information* " + "♫")
-                .setDescription("*Name:* `" + info.title + "`\n")
-                .appendDescription("*Author:* `" + info.author + "`\n")
-                .appendDescription("*URL:* `" + info.uri + "`");
+                .setColor(Color.BLUE)
+                .addField("*Name:*", "***" + info.title + "***", false)
+                .addField("*Author:*", "***" + info.author + "***", false)
+                .addField("*Duration:*", "***" + timer(info) + "***", false)
+                .addField("*URL:*", "***" + info.uri + "***", false);
         return builder.build();
     }
 
     public static MessageEmbed embedMusic(List<AudioTrack> info) {
         EmbedBuilder builder = new EmbedBuilder().setTitle("📑" + " Queue: ");
-
         for (int i = 0; i < info.size(); i++) {
             builder
-                    .addField(i + 1 + ": ",  info.get(i).getInfo().title, true);
+                    .setColor(Color.BLUE)
+                    .addField(
+                            i + 1 + ".",
+                            "***" + info.get(i).getInfo().title + "\n" + timer(info.get(i).getInfo()) + "***",
+                            true);
         }
-
         return builder.build();
     }
 
+
+    private static String timer(AudioTrackInfo info) {
+        return String.format(
+                "%02d : %02d : %02d",
+                TimeUnit.MILLISECONDS.toHours(info.length)
+                        - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(info.length)),
+                TimeUnit.MILLISECONDS.toMinutes(info.length)
+                        - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(info.length)),
+                TimeUnit.MILLISECONDS.toSeconds(info.length) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(info.length))
+        );
+
+    }
 }

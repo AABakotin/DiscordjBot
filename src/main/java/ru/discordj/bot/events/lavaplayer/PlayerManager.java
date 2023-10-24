@@ -14,12 +14,15 @@ import ru.discordj.bot.config.embed.EmbedCreation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PlayerManager {
 
     private static PlayerManager INSTANCE;
     private final Map<Long, GuildMusicManager> musicManagers;
     private final AudioPlayerManager audioPlayerManager;
+
+    private final long MAX_SIZE = 5L;
 
     private PlayerManager() {
         this.musicManagers = new HashMap<>();
@@ -51,29 +54,30 @@ public class PlayerManager {
             public void trackLoaded(AudioTrack track) {
                 guildMusicManager.getTrackScheduler().queue(track);
                 textChannel.sendMessageEmbeds(EmbedCreation.embedMusic(track.getInfo())).queue();
-
             }
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
-                final List<AudioTrack> tracks = playlist.getTracks();
-                if (!tracks.isEmpty()){
+                final List<AudioTrack> tracks = playlist.getTracks()
+                        .stream()
+                        .limit(MAX_SIZE)
+                        .collect(Collectors.toList());
+                if (!tracks.isEmpty()) {
                     for (AudioTrack track : tracks) {
                         guildMusicManager.getTrackScheduler().queue(track);
-                        textChannel.sendMessageEmbeds(EmbedCreation.embedMusic(track.getInfo())).queue();
                     }
-
+                    textChannel.sendMessageEmbeds(EmbedCreation.embedMusic(tracks)).queue();
                 }
             }
 
             @Override
             public void noMatches() {
-
+//                textChannel.sendMessage("Not found. Repeat later.").queue();
             }
 
             @Override
             public void loadFailed(FriendlyException exception) {
-
+//                textChannel.sendMessage("The link is corrupted. Repeat later.").queue();
             }
 
         });
