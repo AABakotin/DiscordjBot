@@ -52,24 +52,27 @@ public class EmbedCreation {
     public static MessageEmbed embedMusic(AudioTrackInfo info) {
         timer(info);
         EmbedBuilder builder = new EmbedBuilder()
-                .setColor(Color.BLUE)
+                .setColor(Color.GREEN)
+                .setTitle("▶️" + " Playing: ")
                 .addField("*Name:*", "***" + info.title + "***", false)
-                .addField("*Author:*", "***" + info.author + "***", false)
                 .addField("*Duration:*", "***" + timer(info) + "***", false)
                 .addField("*URL:*", "***" + info.uri + "***", false);
         return builder.build();
     }
 
     public static MessageEmbed embedMusic(List<AudioTrack> info) {
-        EmbedBuilder builder = new EmbedBuilder().setTitle("📑" + " Queue: ");
-        for (int i = 0; i < info.size(); i++) {
-            builder
-                    .setColor(Color.BLUE)
-                    .addField(
-                            i + 1 + ".",
-                            "***" + info.get(i).getInfo().title + "\n" + timer(info.get(i).getInfo()) + "***",
-                            true);
-        }
+        EmbedBuilder builder = new EmbedBuilder();
+        if (!info.isEmpty()) {
+            for (int i = 0; i < info.size(); i++) {
+                builder
+                        .setTitle("📑" + " Queue: ")
+                        .setColor(Color.BLUE)
+                        .addField(
+                                i + 1 + ".",
+                                "***" + info.get(i).getInfo().title + "\n" + timer(info.get(i).getInfo()) + "***",
+                                false);
+            }
+        } else return builder.setFooter("📑" + " Queue: is empty").build();
         return builder.build();
     }
 

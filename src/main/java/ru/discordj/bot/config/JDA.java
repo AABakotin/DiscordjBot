@@ -40,6 +40,7 @@ public class JDA {
         MANAGER.add(new Repeat());
         MANAGER.add(new Skip());
         MANAGER.add(new Stop());
+        MANAGER.add(new ClearPlayList());
 
         stringRoleMap.put(EMOJI_ACCESS, ROLE_ACCESS);
         stringRoleMap.put(EMOJI_JAVA, ROLE_JAVA);

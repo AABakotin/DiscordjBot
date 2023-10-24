@@ -4,7 +4,11 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import ru.discordj.bot.config.embed.EmbedCreation;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -30,10 +34,23 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
+    public void skip(TextChannel textChannel) {
+            if (this.queue.peek() != null) {
+                this.player.startTrack(this.queue.peek().makeClone(), false);
+                textChannel.sendMessageEmbeds(EmbedCreation.embedMusic(getQueue().poll().getInfo())).queue();
+            } else {
+                textChannel.sendMessageEmbeds(EmbedCreation.embedMusic(getPlayList())).queue();
+            }
+    }
+
     public void queue(AudioTrack track) {
         if (!this.player.startTrack(track, true)) {
             queue.offer(track);
         }
+    }
+
+    public void clear() {
+        getQueue().clear();
     }
 
     public AudioPlayer getPlayer() {
@@ -50,6 +67,10 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public void setRepeat(boolean repeat) {
         isRepeat = repeat;
+    }
+
+    public List<AudioTrack> getPlayList(){
+       return new ArrayList<>(queue);
     }
 
 }
