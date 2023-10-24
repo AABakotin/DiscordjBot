@@ -1,11 +1,15 @@
 package ru.discordj.bot.config.embed;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import ru.discordj.bot.events.lavaplayer.PlayerManager;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -49,43 +53,47 @@ public class EmbedCreation {
         return builder.build();
     }
 
-    public static MessageEmbed embedMusic(AudioTrackInfo info) {
-        timer(info);
+    public static void playEmbed(TextChannel textChannel) {
+        AudioTrack playingTrack = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).player.getPlayingTrack();
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Color.GREEN)
                 .setTitle("▶️" + " Playing: ")
-                .addField("*Name:*", "***" + info.title + "***", false)
-                .addField("*Duration:*", "***" + timer(info) + "***", false)
-                .addField("*URL:*", "***" + info.uri + "***", false);
-        return builder.build();
+                .addField("*Name:*", "***" + playingTrack.getInfo().title + "***", false)
+                .addField("*Duration:*", "***" + timer(playingTrack) + "***", false)
+                .addField("*URL:*", "***" + playingTrack.getInfo().uri + "***", false);
+        textChannel.sendMessageEmbeds(builder.build()).queue();
     }
 
-    public static MessageEmbed embedMusic(List<AudioTrack> info) {
+    public static void playListEmbed(TextChannel textChannel) {
+        List<AudioTrack> playList = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().getPlayList();
+        Collection<Button> buttonList = new ArrayList<>();
         EmbedBuilder builder = new EmbedBuilder();
-        if (!info.isEmpty()) {
-            for (int i = 0; i < info.size(); i++) {
+        if (!playList.isEmpty()) {
+            for (int i = 0; i < playList.size(); i++) {
                 builder
                         .setTitle("📑" + " Queue: ")
                         .setColor(Color.BLUE)
                         .addField(
                                 i + 1 + ".",
-                                "***" + info.get(i).getInfo().title + "\n" + timer(info.get(i).getInfo()) + "***",
+                                "***" + playList.get(i).getInfo().title + "\n" + timer(playList.get(i)) + "***",
                                 false);
+                buttonList.add(Button.danger(playList.get(i).getIdentifier(), "" + ++i));
             }
-        } else return builder.setFooter("📑" + " Queue: is empty").build();
-        return builder.build();
+            textChannel.sendMessageEmbeds(builder.build()).setActionRow(buttonList).queue();
+        } else builder.setFooter("📑" + " Queue: is empty").build();
+
     }
 
 
-    private static String timer(AudioTrackInfo info) {
+    private static String timer(AudioTrack info) {
         return String.format(
                 "%02d : %02d : %02d",
-                TimeUnit.MILLISECONDS.toHours(info.length)
-                        - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(info.length)),
-                TimeUnit.MILLISECONDS.toMinutes(info.length)
-                        - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(info.length)),
-                TimeUnit.MILLISECONDS.toSeconds(info.length) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(info.length))
+                TimeUnit.MILLISECONDS.toHours(info.getDuration())
+                        - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(info.getDuration())),
+                TimeUnit.MILLISECONDS.toMinutes(info.getDuration())
+                        - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(info.getDuration())),
+                TimeUnit.MILLISECONDS.toSeconds(info.getDuration()) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(info.getDuration()))
         );
 
     }

@@ -7,10 +7,10 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.CommandManager;
-import ru.discordj.bot.events.commands.*;
-import ru.discordj.bot.events.commands.music.*;
 import ru.discordj.bot.events.listener.AddRole;
-import ru.discordj.bot.events.listener.MusicListener;
+import ru.discordj.bot.events.listener.ButtonListener;
+import ru.discordj.bot.events.slashcommands.*;
+import ru.discordj.bot.events.slashcommands.music.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,8 +60,9 @@ public class JDA {
                 .enableCache(CLIENT_STATUS, VOICE_STATE)
                 .addEventListeners(
                         MANAGER,
-                        new AddRole())
-                .build();
+                        new AddRole(),
+                new ButtonListener())
+                        .build();
     }
 
     private static String checkToken(String[] args) {

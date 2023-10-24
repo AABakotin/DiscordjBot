@@ -35,12 +35,13 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public void skip(TextChannel textChannel) {
-            if (this.queue.peek() != null) {
-                this.player.startTrack(this.queue.peek().makeClone(), false);
-                textChannel.sendMessageEmbeds(EmbedCreation.embedMusic(getQueue().poll().getInfo())).queue();
-            } else {
-                textChannel.sendMessageEmbeds(EmbedCreation.embedMusic(getPlayList())).queue();
-            }
+        if (this.queue.peek() != null) {
+            this.player.startTrack(this.queue.peek().makeClone(), false);
+            getQueue().poll();
+            EmbedCreation.playEmbed(textChannel);
+        } else {
+            EmbedCreation.playListEmbed(textChannel);
+        }
     }
 
     public void queue(AudioTrack track) {
@@ -51,6 +52,12 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public void clear() {
         getQueue().clear();
+    }
+
+    public void removeTrack(String Identifier) {
+        if (!Identifier.isEmpty()) {
+            getQueue().removeIf(e -> e.getIdentifier().equals(Identifier));
+        }
     }
 
     public AudioPlayer getPlayer() {
@@ -69,8 +76,8 @@ public class TrackScheduler extends AudioEventAdapter {
         isRepeat = repeat;
     }
 
-    public List<AudioTrack> getPlayList(){
-       return new ArrayList<>(queue);
+    public List<AudioTrack> getPlayList() {
+        return new ArrayList<>(queue);
     }
 
 }

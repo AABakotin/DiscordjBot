@@ -1,4 +1,4 @@
-package ru.discordj.bot.events.commands.music;
+package ru.discordj.bot.events.slashcommands.music;
 
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.config.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
 

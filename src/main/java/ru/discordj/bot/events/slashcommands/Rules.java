@@ -1,4 +1,4 @@
-package ru.discordj.bot.events.commands;
+package ru.discordj.bot.events.slashcommands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
