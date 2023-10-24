@@ -1,22 +1,39 @@
 package ru.discordj.bot.config.embed;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.discordj.bot.events.lavaplayer.PlayerManager;
+import ru.discordj.bot.events.listener.AddRole;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static net.dv8tion.jda.api.interactions.components.buttons.Button.danger;
 import static ru.discordj.bot.config.Constant.INVITATION_LINK;
 
 public class EmbedCreation {
-    private static final Date DATE = new Date();
+    private final Date DATE = new Date();
 
+    private static EmbedCreation INSTANCE;
+    private static final Logger logger = LoggerFactory.getLogger(EmbedCreation.class);
 
-    public static MessageEmbed embedWelcome(String imageServer, String author) {
+    public static EmbedCreation get() {
+        if (INSTANCE == null) {
+            INSTANCE = new EmbedCreation();
+        }
+        return INSTANCE;
+    }
+
+    public MessageEmbed embedWelcome(String imageServer, String author) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Color.BLUE)
                 .setTitle("█▓▒░⡷⠂𝚃𝚑𝚎 𝚂𝚝𝚎𝚊𝚕𝚝𝚑 𝙳𝚞𝚍𝚎⠐⢾░▒▓█")
@@ -39,7 +56,7 @@ public class EmbedCreation {
         return builder.build();
     }
 
-    public static MessageEmbed embedBay(String imageServer, String author) {
+    public MessageEmbed embedBay(String imageServer, String author) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Color.BLUE)
                 .setTitle("█▓▒░⡷⠂𝚃𝚑𝚎 𝚂𝚝𝚎𝚊𝚕𝚝𝚑 𝙳𝚞𝚍𝚎⠐⢾░▒▓█")
@@ -49,44 +66,63 @@ public class EmbedCreation {
         return builder.build();
     }
 
-    public static MessageEmbed embedMusic(AudioTrackInfo info) {
-        timer(info);
-        EmbedBuilder builder = new EmbedBuilder()
+    public void playListEmbed(TextChannel textChannel) {
+        List<AudioTrack> playList = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().getPlayList();
+        MessageCreateBuilder messageCreateBuilder = new MessageCreateBuilder();
+        EmbedBuilder builderPlayList = new EmbedBuilder();
+        AudioTrack playingTrack = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).player.getPlayingTrack();
+        builderPlayList
                 .setColor(Color.GREEN)
-                .setTitle("▶️" + " Playing: ")
-                .addField("*Name:*", "***" + info.title + "***", false)
-                .addField("*Duration:*", "***" + timer(info) + "***", false)
-                .addField("*URL:*", "***" + info.uri + "***", false);
-        return builder.build();
-    }
+                .setTitle("Playing: " + " 🎵")
+                .addField("*Name:*", "***" + playingTrack.getInfo().title + "***", false)
+                .addField("*Duration:*", "***" + timer(playingTrack) + "***", true)
+                .addField("*Repeat is:*", "***" + statusRepeat(textChannel) + "***", true)
+                .addField("*URL:*", "***" + playingTrack.getInfo().uri + "***", false);
+        messageCreateBuilder.setEmbeds(builderPlayList.build());
+        if (!playList.isEmpty()) {
+            List<Button> buttons = new ArrayList<>();
 
-    public static MessageEmbed embedMusic(List<AudioTrack> info) {
-        EmbedBuilder builder = new EmbedBuilder();
-        if (!info.isEmpty()) {
-            for (int i = 0; i < info.size(); i++) {
-                builder
-                        .setTitle("📑" + " Queue: ")
-                        .setColor(Color.BLUE)
+            builderPlayList.addBlankField(true)
+                    .addField("Playlist:", "", true);
+            for (int i = 0, x = 1; i < playList.size(); i++, x++) {
+                builderPlayList
                         .addField(
                                 i + 1 + ".",
-                                "***" + info.get(i).getInfo().title + "\n" + timer(info.get(i).getInfo()) + "***",
+                                "***" + playList.get(i).getInfo().title + "\n" + timer(playList.get(i)) + "***",
                                 false);
+                buttons.add(danger(playList.get(i).getInfo().title, "🗑️ " + x));
             }
-        } else return builder.setFooter("📑" + " Queue: is empty").build();
-        return builder.build();
+            try{
+                messageCreateBuilder.setActionRow(buttons);
+            } catch (IllegalArgumentException ex){
+                buttons.clear();
+                builderPlayList.setFooter("Сорри, отваливаются кнопки! 🤫");
+                logger.error(ex.getMessage());
+            }
+            messageCreateBuilder.setEmbeds(builderPlayList.build());
+            textChannel.sendMessage(messageCreateBuilder.build()).queue();
+        } else {
+            textChannel.sendMessage(messageCreateBuilder.build()).queue();
+        }
+    }
+
+    private String statusRepeat(TextChannel textChannel) {
+        if (PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().isRepeat()) {
+            return "🔁";
+        }
+        return "➡️";
     }
 
 
-    private static String timer(AudioTrackInfo info) {
+    private String timer(AudioTrack info) {
         return String.format(
                 "%02d : %02d : %02d",
-                TimeUnit.MILLISECONDS.toHours(info.length)
-                        - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(info.length)),
-                TimeUnit.MILLISECONDS.toMinutes(info.length)
-                        - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(info.length)),
-                TimeUnit.MILLISECONDS.toSeconds(info.length) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(info.length))
+                TimeUnit.MILLISECONDS.toHours(info.getDuration())
+                        - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(info.getDuration())),
+                TimeUnit.MILLISECONDS.toMinutes(info.getDuration())
+                        - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(info.getDuration())),
+                TimeUnit.MILLISECONDS.toSeconds(info.getDuration()) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(info.getDuration()))
         );
-
     }
 }

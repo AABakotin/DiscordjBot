@@ -1,26 +1,28 @@
-package ru.discordj.bot.events.commands.music;
+package ru.discordj.bot.events.slashcommands.music;
 
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import ru.discordj.bot.config.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.events.lavaplayer.GuildMusicManager;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class ClearPlayList implements ICommand {
+public class NowPlaying implements ICommand {
+
     @Override
     public String getName() {
-        return "clear";
+        return "nowplaying";
     }
 
     @Override
     public String getDescription() {
-        return "Clear play list";
+        return "Will display the current playing song";
     }
 
     @Override
@@ -52,13 +54,12 @@ public class ClearPlayList implements ICommand {
         }
 
         GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
-        List<AudioTrack> queue = new ArrayList<>(guildMusicManager.getTrackScheduler().getQueue());
-        if (queue.isEmpty()) {
-            event.reply("Queue is empty").setEphemeral(true).queue();
-        } else {
-            event.reply("Queue is cleared").queue();
-            guildMusicManager.getTrackScheduler().clear();
-
+        if (guildMusicManager.getTrackScheduler().getPlayer().getPlayingTrack() == null) {
+            event.reply("I am not playing anything").setEphemeral(true).queue();
+            return;
         }
+
+        event.reply("Now playing: ").queue();
+        EmbedCreation.get().playListEmbed(event.getChannel().asTextChannel());
     }
 }

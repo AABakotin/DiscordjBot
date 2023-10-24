@@ -1,4 +1,4 @@
-package ru.discordj.bot.events.commands;
+package ru.discordj.bot.events.slashcommands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -34,7 +34,7 @@ public class Rules implements ICommand {
         event.getUser()
                 .openPrivateChannel()
                 .complete()
-                .sendMessageEmbeds(EmbedCreation.embedWelcome(imageServer, author))
+                .sendMessageEmbeds(EmbedCreation.get().embedWelcome(imageServer, author))
                 .queue(
                         success -> event.reply("Rules has been sent to private message!")
                                 .setEphemeral(true)

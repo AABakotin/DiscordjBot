@@ -1,7 +1,5 @@
-package ru.discordj.bot.events.commands.music;
+package ru.discordj.bot.events.slashcommands.music;
 
-
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -13,16 +11,15 @@ import ru.discordj.bot.events.lavaplayer.PlayerManager;
 
 import java.util.List;
 
-public class NowPlaying implements ICommand {
-
+public class Repeat implements ICommand {
     @Override
     public String getName() {
-        return "nowplaying";
+        return "repeat";
     }
 
     @Override
     public String getDescription() {
-        return "Will display the current playing song";
+        return "Will toggle repeating";
     }
 
     @Override
@@ -54,12 +51,10 @@ public class NowPlaying implements ICommand {
         }
 
         GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
-        if(guildMusicManager.getTrackScheduler().getPlayer().getPlayingTrack() == null) {
-            event.reply("I am not playing anything").setEphemeral(true).queue();
-            return;
-        }
+        boolean isRepeat = !guildMusicManager.getTrackScheduler().isRepeat();
+        guildMusicManager.getTrackScheduler().setRepeat(isRepeat);
 
-        AudioTrackInfo info = guildMusicManager.getTrackScheduler().getPlayer().getPlayingTrack().getInfo();
-        event.replyEmbeds(EmbedCreation.embedMusic(info)).queue();
+        event.reply("Repeat is now " + isRepeat).queue();
+        EmbedCreation.get().playListEmbed(event.getChannel().asTextChannel());
     }
 }

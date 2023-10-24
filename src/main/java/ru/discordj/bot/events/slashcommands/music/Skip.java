@@ -1,4 +1,4 @@
-package ru.discordj.bot.events.commands.music;
+package ru.discordj.bot.events.slashcommands.music;
 
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -10,15 +10,15 @@ import ru.discordj.bot.events.lavaplayer.PlayerManager;
 
 import java.util.List;
 
-public class Repeat implements ICommand {
+public class Skip implements ICommand {
     @Override
     public String getName() {
-        return "repeat";
+        return "skip";
     }
 
     @Override
     public String getDescription() {
-        return "Will toggle repeating";
+        return "Will skip the current song";
     }
 
     @Override
@@ -50,8 +50,9 @@ public class Repeat implements ICommand {
         }
 
         GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
-        boolean isRepeat = !guildMusicManager.getTrackScheduler().isRepeat();
-        guildMusicManager.getTrackScheduler().setRepeat(isRepeat);
-        event.reply("🔁 "+"Repeat is now " + isRepeat).queue();
+
+        event.reply("Skipped: ").queue();
+        guildMusicManager.getTrackScheduler().skip(event.getChannel().asTextChannel());
+
     }
 }

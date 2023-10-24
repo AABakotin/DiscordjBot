@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.config.embed.EmbedCreation;
-import ru.discordj.bot.events.commands.music.Play;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +24,7 @@ public class PlayerManager {
     private final Map<Long, GuildMusicManager> musicManagers;
     private final AudioPlayerManager audioPlayerManager;
     private static final Logger logger = LoggerFactory.getLogger(PlayerManager.class);
-    private final long MAX_SIZE = 3L;
+    private final long MAX_SIZE = 1L;
 
     private PlayerManager() {
         this.musicManagers = new HashMap<>();
@@ -50,14 +49,18 @@ public class PlayerManager {
         });
     }
 
+
     public void play(TextChannel textChannel, String trackURL) {
         final GuildMusicManager guildMusicManager = getGuildMusicManager(textChannel.getGuild());
-        this.audioPlayerManager.loadItemOrdered(guildMusicManager, trackURL, new AudioLoadResultHandler() {
+        this.audioPlayerManager.loadItemOrdered(
+                guildMusicManager,
+                trackURL,
+                new AudioLoadResultHandler()
+                {
             @Override
             public void trackLoaded(AudioTrack track) {
-                guildMusicManager.getTrackScheduler().queue(track);
-                textChannel.sendMessageEmbeds(EmbedCreation.embedMusic(track.getInfo())).queue();
-                textChannel.sendMessageEmbeds(EmbedCreation.embedMusic(guildMusicManager.getTrackScheduler().getPlayList())).queue();
+                guildMusicManager.getTrackScheduler().queue(track.makeClone());
+                EmbedCreation.get().playListEmbed(textChannel);
             }
 
             @Override
@@ -66,25 +69,25 @@ public class PlayerManager {
                         .stream()
                         .limit(MAX_SIZE)
                         .collect(Collectors.toList());
+
                 if (!tracks.isEmpty()) {
                     for (AudioTrack track : tracks) {
                         guildMusicManager.getTrackScheduler().queue(track);
                     }
-                    trackLoaded(tracks.get(0));
+                    EmbedCreation.get().playListEmbed(textChannel);
                 }
             }
 
-
             @Override
             public void noMatches() {
+                textChannel.sendMessage("noMatches :(").queue();
                 logger.warn("noMatches.");
             }
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                logger.warn("Something broke when playing the track.");
+                logger.warn("Something broke when playing the track." + exception.getMessage());
             }
-
         });
     }
 }

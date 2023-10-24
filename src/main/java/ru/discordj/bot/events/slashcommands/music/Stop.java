@@ -1,4 +1,4 @@
-package ru.discordj.bot.events.commands.music;
+package ru.discordj.bot.events.slashcommands.music;
 
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -53,7 +53,8 @@ public class Stop implements ICommand {
         GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
         TrackScheduler trackScheduler = guildMusicManager.getTrackScheduler();
         trackScheduler.getQueue().clear();
+
         trackScheduler.getPlayer().stopTrack();
-        event.reply("⏹️ "+"Stop").queue();
+        event.reply("Stop!").queue();
     }
 }
