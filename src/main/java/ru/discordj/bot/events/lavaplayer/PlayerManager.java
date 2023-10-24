@@ -55,8 +55,8 @@ public class PlayerManager {
         this.audioPlayerManager.loadItemOrdered(guildMusicManager, trackURL, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                EmbedCreation.playEmbed(textChannel);
                 guildMusicManager.getTrackScheduler().queue(track);
+//                EmbedCreation.playEmbed(textChannel);
                 EmbedCreation.playListEmbed(textChannel);
             }
 
@@ -74,17 +74,16 @@ public class PlayerManager {
                 }
             }
 
-
             @Override
             public void noMatches() {
+                textChannel.sendMessage("noMatches :(").queue();
                 logger.warn("noMatches.");
             }
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                logger.warn("Something broke when playing the track.");
+                logger.warn("Something broke when playing the track." + exception.getMessage());
             }
-
         });
     }
 }

@@ -59,8 +59,8 @@ public class Play implements ICommand {
             link = "ytsearch:" + link;
         }
 
-        PlayerManager.get().play(event.getChannel().asTextChannel(), link);
         event.reply("▶️ " + " Adding to queue:").queue();
+        PlayerManager.get().play(event.getChannel().asTextChannel(), link);
 
         logger.info("Playing music for " + member.getUser().getName());
     }

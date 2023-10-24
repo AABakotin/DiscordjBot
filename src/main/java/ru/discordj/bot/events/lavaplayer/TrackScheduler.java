@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 public class TrackScheduler extends AudioEventAdapter {
 
@@ -38,7 +39,7 @@ public class TrackScheduler extends AudioEventAdapter {
         if (this.queue.peek() != null) {
             this.player.startTrack(this.queue.peek().makeClone(), false);
             getQueue().poll();
-            EmbedCreation.playEmbed(textChannel);
+            EmbedCreation.playListEmbed(textChannel);
         } else {
             EmbedCreation.playListEmbed(textChannel);
         }

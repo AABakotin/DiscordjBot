@@ -5,15 +5,16 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static net.dv8tion.jda.api.interactions.components.buttons.Button.danger;
 import static ru.discordj.bot.config.Constant.INVITATION_LINK;
 
 public class EmbedCreation {
@@ -53,34 +54,38 @@ public class EmbedCreation {
         return builder.build();
     }
 
-    public static void playEmbed(TextChannel textChannel) {
+    public static void playListEmbed(TextChannel textChannel) {
+        List<AudioTrack> playList = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().getPlayList();
+        MessageCreateBuilder messageCreateBuilder = new MessageCreateBuilder();
+        EmbedBuilder builderPlayList = new EmbedBuilder();
         AudioTrack playingTrack = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).player.getPlayingTrack();
-        EmbedBuilder builder = new EmbedBuilder()
+        builderPlayList
                 .setColor(Color.GREEN)
-                .setTitle("▶️" + " Playing: ")
+                .setTitle("▶️  " + " Playing: ")
                 .addField("*Name:*", "***" + playingTrack.getInfo().title + "***", false)
                 .addField("*Duration:*", "***" + timer(playingTrack) + "***", false)
                 .addField("*URL:*", "***" + playingTrack.getInfo().uri + "***", false);
-        textChannel.sendMessageEmbeds(builder.build()).queue();
-    }
-
-    public static void playListEmbed(TextChannel textChannel) {
-        List<AudioTrack> playList = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().getPlayList();
-        Collection<Button> buttonList = new ArrayList<>();
-        EmbedBuilder builder = new EmbedBuilder();
+        messageCreateBuilder.setEmbeds(builderPlayList.build());
         if (!playList.isEmpty()) {
-            for (int i = 0; i < playList.size(); i++) {
-                builder
-                        .setTitle("📑" + " Queue: ")
-                        .setColor(Color.BLUE)
+            List<Button> buttons = new ArrayList<>();
+
+            builderPlayList.addBlankField(true)
+                    .addField("Playlist:", "", true);
+            for (int i = 0, x = 1; i < playList.size(); i++, x++) {
+                builderPlayList
                         .addField(
                                 i + 1 + ".",
                                 "***" + playList.get(i).getInfo().title + "\n" + timer(playList.get(i)) + "***",
                                 false);
-                buttonList.add(Button.danger(playList.get(i).getIdentifier(), "" + ++i));
+                buttons.add(danger(playList.get(i).getIdentifier(), "🗑️ " + x));
             }
-            textChannel.sendMessageEmbeds(builder.build()).setActionRow(buttonList).queue();
-        } else builder.setFooter("📑" + " Queue: is empty").build();
+            messageCreateBuilder.setActionRow(buttons);
+            messageCreateBuilder.setEmbeds(builderPlayList.build());
+            textChannel.sendMessage(messageCreateBuilder.build()).complete();
+            buttons.clear();
+        } else {
+            textChannel.sendMessage(messageCreateBuilder.build()).complete();
+        }
 
     }
 
@@ -95,6 +100,5 @@ public class EmbedCreation {
                 TimeUnit.MILLISECONDS.toSeconds(info.getDuration()) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(info.getDuration()))
         );
-
     }
 }

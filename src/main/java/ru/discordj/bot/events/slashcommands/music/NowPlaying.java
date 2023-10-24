@@ -60,7 +60,6 @@ public class NowPlaying implements ICommand {
         }
 
         event.reply("Now playing:").queue();
-        TextChannel textChannel = event.getChannel().asTextChannel();
-        EmbedCreation.playEmbed(textChannel);
+        EmbedCreation.playListEmbed(event.getChannel().asTextChannel());
     }
 }
