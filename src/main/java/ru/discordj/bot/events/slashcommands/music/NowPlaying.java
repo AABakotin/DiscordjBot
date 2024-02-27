@@ -3,10 +3,9 @@ package ru.discordj.bot.events.slashcommands.music;
 
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import ru.discordj.bot.config.embed.EmbedCreation;
+import ru.discordj.bot.embed.SendMessage;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.events.lavaplayer.GuildMusicManager;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
@@ -59,7 +58,7 @@ public class NowPlaying implements ICommand {
             return;
         }
 
-        event.reply("Now playing: ").queue();
-        EmbedCreation.get().playListEmbed(event.getChannel().asTextChannel());
+        SendMessage.playList(event);
+
     }
 }

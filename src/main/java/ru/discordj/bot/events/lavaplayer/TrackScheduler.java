@@ -5,13 +5,14 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import ru.discordj.bot.config.embed.EmbedCreation;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import ru.discordj.bot.embed.IEmbed;
+import ru.discordj.bot.embed.createEmbed.EmbedForm;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Collectors;
 
 public class TrackScheduler extends AudioEventAdapter {
 
@@ -19,9 +20,17 @@ public class TrackScheduler extends AudioEventAdapter {
     private final BlockingQueue<AudioTrack> queue;
     private boolean isRepeat = false;
 
+    private final IEmbed embed;
+
     public TrackScheduler(AudioPlayer player) {
         this.queue = new LinkedBlockingQueue<>();
         this.player = player;
+        this.embed = new EmbedForm();
+    }
+
+    @Override
+    public void onTrackStart(AudioPlayer player, AudioTrack track) {
+        super.onTrackStart(player, track);
     }
 
     @Override
@@ -39,9 +48,6 @@ public class TrackScheduler extends AudioEventAdapter {
         if (this.queue.peek() != null) {
             this.player.startTrack(this.queue.peek().makeClone(), false);
             getQueue().poll();
-            EmbedCreation.get().playListEmbed(textChannel);
-        } else {
-            EmbedCreation.get().playListEmbed(textChannel);
         }
     }
 
@@ -51,9 +57,10 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
-    public void removeTrack(String Identifier) {
-        if (!Identifier.isEmpty()) {
-            getQueue().removeIf(e -> e.getInfo().title.equals(Identifier));
+    public void removeTrack(ButtonInteractionEvent event) {
+        if (event.getButton().getId() != null) {
+            getQueue().removeIf(e -> e.getInfo().title.equals(event.getButton().getId()));
+            event.reply(embed.playListEmbed(event.getChannel().asTextChannel())).queue();
         }
     }
 

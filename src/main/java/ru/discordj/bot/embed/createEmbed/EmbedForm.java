@@ -1,17 +1,22 @@
-package ru.discordj.bot.config.embed;
+package ru.discordj.bot.embed.createEmbed;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import ru.discordj.bot.config.Constant;
+import ru.discordj.bot.embed.IEmbed;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
-import ru.discordj.bot.events.listener.AddRole;
 
 import java.awt.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,19 +25,10 @@ import java.util.concurrent.TimeUnit;
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.danger;
 import static ru.discordj.bot.config.Constant.INVITATION_LINK;
 
-public class EmbedCreation {
+public class EmbedForm implements IEmbed {
     private final Date DATE = new Date();
 
-    private static EmbedCreation INSTANCE;
-    private static final Logger logger = LoggerFactory.getLogger(EmbedCreation.class);
-
-    public static EmbedCreation get() {
-        if (INSTANCE == null) {
-            INSTANCE = new EmbedCreation();
-        }
-        return INSTANCE;
-    }
-
+    @Override
     public MessageEmbed embedWelcome(String imageServer, String author) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Color.BLUE)
@@ -56,6 +52,8 @@ public class EmbedCreation {
         return builder.build();
     }
 
+
+    @Override
     public MessageEmbed embedBay(String imageServer, String author) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Color.BLUE)
@@ -66,11 +64,16 @@ public class EmbedCreation {
         return builder.build();
     }
 
-    public void playListEmbed(TextChannel textChannel) {
-        List<AudioTrack> playList = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().getPlayList();
+
+    @Override
+    public MessageCreateData playListEmbed(TextChannel textChannel) {
         MessageCreateBuilder messageCreateBuilder = new MessageCreateBuilder();
         EmbedBuilder builderPlayList = new EmbedBuilder();
+        List<AudioTrack> playList = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().getPlayList();
         AudioTrack playingTrack = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).player.getPlayingTrack();
+        if (playingTrack == null) {
+            return null;
+        }
         builderPlayList
                 .setColor(Color.GREEN)
                 .setTitle("Playing: " + " 🎵")
@@ -78,13 +81,12 @@ public class EmbedCreation {
                 .addField("*Duration:*", "***" + timer(playingTrack) + "***", true)
                 .addField("*Repeat is:*", "***" + statusRepeat(textChannel) + "***", true)
                 .addField("*URL:*", "***" + playingTrack.getInfo().uri + "***", false);
-        messageCreateBuilder.setEmbeds(builderPlayList.build());
+
         if (!playList.isEmpty()) {
             List<Button> buttons = new ArrayList<>();
-
             builderPlayList.addBlankField(true)
-                    .addField("Playlist:", "", true);
-            for (int i = 0, x = 1; i < playList.size(); i++, x++) {
+                    .addField("________Playlist: ________", "", true);
+            for (int i = 0, x = 1; i < playList.size() && x <= 5; i++, x++) {
                 builderPlayList
                         .addField(
                                 i + 1 + ".",
@@ -92,19 +94,30 @@ public class EmbedCreation {
                                 false);
                 buttons.add(danger(playList.get(i).getInfo().title, "🗑️ " + x));
             }
-            try{
-                messageCreateBuilder.setActionRow(buttons);
-            } catch (IllegalArgumentException ex){
-                buttons.clear();
-                builderPlayList.setFooter("Сорри, отваливаются кнопки! 🤫");
-                logger.error(ex.getMessage());
-            }
-            messageCreateBuilder.setEmbeds(builderPlayList.build());
-            textChannel.sendMessage(messageCreateBuilder.build()).queue();
-        } else {
-            textChannel.sendMessage(messageCreateBuilder.build()).queue();
+            messageCreateBuilder.setActionRow(buttons);
         }
+        return messageCreateBuilder.setEmbeds(builderPlayList.build()).build();
     }
+
+    public MessageEmbed infoUser(SlashCommandInteractionEvent event) {
+        DateTimeFormatter frm = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+        User target = event.getOption("information", OptionMapping::getAsUser);
+        Member member = event.getOption("information", OptionMapping::getAsMember);
+        String avatar = target.getAvatarUrl();
+        if (avatar == null) avatar = Constant.NON_AVATAR_URL;
+
+        return new EmbedBuilder()
+                .setColor(Color.YELLOW)
+                .setTitle(target.getName() + "'s info:")
+                .setDescription("Join on " + member.getTimeJoined().format(frm))
+                .addField("Name", target.getName(), true)
+                .addField("Online Status: ", member.getOnlineStatus().getKey(), true)
+                .addField("Avatar: ", "The Avatar is below ", false)
+                .setImage(avatar)
+                .setFooter("requested by " + DATE, event.getGuild().getIconUrl()).build();
+
+    }
+
 
     private String statusRepeat(TextChannel textChannel) {
         if (PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().isRepeat()) {

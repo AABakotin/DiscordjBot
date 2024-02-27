@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.discordj.bot.embed.SendMessage;
 import ru.discordj.bot.events.ICommand;
 
 import java.util.List;
@@ -28,15 +29,6 @@ public class Ping implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        long time = System.currentTimeMillis();
-        event.reply("Pong!").setEphemeral(true)
-                .flatMap(v ->
-                        event.getHook()
-                                .editOriginalFormat(
-                                        "Pong: %d ms", System.currentTimeMillis() - time))
-                .queue(
-                        success -> logger.info("requested 'ping' by @" + event.getUser().getName()),
-                        failure -> logger.error("Some error occurred in 'ping', try again!")
-                );
+        SendMessage.sendPingPong(event);
     }
 }

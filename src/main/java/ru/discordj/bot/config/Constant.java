@@ -8,8 +8,8 @@ final public class Constant {
     @NotNull
     private static final Dotenv dotenv =
             Dotenv.configure()
-            .filename("properties.env")
-            .load();
+                    .filename("properties.env")
+                    .load();
 
     public static final String GUEST_CHANNEL = dotenv.get("GUEST_CHANNEL");
     public static final String EMOJI_ACCESS = dotenv.get("EMOJI_ACCESS");
@@ -19,6 +19,8 @@ final public class Constant {
     public static final String NON_AVATAR_URL = dotenv.get("NON_AVATAR_URL");
     public static final String TOKEN_FROM_ENV = dotenv.get("TOKEN_FROM_ENV");
     public static final String INVITATION_LINK = dotenv.get("INVITATION_LINK");
+    public static final long MAX_SIZE_FUNDED_SONGS = 1L;
+    public static final int MESSAGE_LIFETIME = 3;
 
     private Constant() {
     }

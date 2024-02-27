@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import ru.discordj.bot.embed.SendMessage;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.events.lavaplayer.GuildMusicManager;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
@@ -51,8 +52,8 @@ public class Skip implements ICommand {
 
         GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
 
-        event.reply("Skipped: ").queue();
         guildMusicManager.getTrackScheduler().skip(event.getChannel().asTextChannel());
+        event.getMessageChannel().deleteMessageById(event.getChannel().getLatestMessageId()).queue(e -> SendMessage.playList(event));
 
     }
 }

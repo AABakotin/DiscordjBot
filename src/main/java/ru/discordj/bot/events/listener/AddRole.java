@@ -6,7 +6,8 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.config.embed.EmbedCreation;
+import ru.discordj.bot.embed.IEmbed;
+import ru.discordj.bot.embed.createEmbed.EmbedForm;
 import ru.discordj.bot.config.JDA;
 
 import static ru.discordj.bot.config.Constant.GUEST_CHANNEL;
@@ -15,12 +16,12 @@ import static ru.discordj.bot.config.Constant.GUEST_CHANNEL;
 public class AddRole extends ListenerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(AddRole.class);
+    private final IEmbed embed = new EmbedForm();
 
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         GuildChannel guestGuildChannel = event.getGuild().getGuildChannelById(GUEST_CHANNEL);
-
         if (guestGuildChannel == event.getGuildChannel()) {
             String emoji = event.getEmoji().getName();
             event.getGuild()
@@ -36,7 +37,7 @@ public class AddRole extends ListenerAdapter {
             event.getUser()
                     .openPrivateChannel()
                     .complete()
-                    .sendMessageEmbeds(EmbedCreation.get().embedWelcome(imageServer, author)).queue();
+                    .sendMessageEmbeds(embed.embedWelcome(imageServer, author)).queue();
 
             logger.info("User " + event.getUser().getName() + " subscribe " + emoji);
         }
@@ -63,7 +64,7 @@ public class AddRole extends ListenerAdapter {
             event.getUser()
                     .openPrivateChannel()
                     .complete()
-                    .sendMessageEmbeds(EmbedCreation.get().embedBay(imageServer, author))
+                    .sendMessageEmbeds(embed.embedBay(imageServer, author))
                     .queue();
 
             logger.info("User " + event.getUser().getName() + " unsubscribe " + emoji);

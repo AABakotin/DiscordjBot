@@ -1,30 +1,20 @@
 package ru.discordj.bot.events.lavaplayer;
 
-import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
-import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ru.discordj.bot.config.embed.EmbedCreation;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 public class PlayerManager {
 
     private static PlayerManager INSTANCE;
     private final Map<Long, GuildMusicManager> musicManagers;
     private final AudioPlayerManager audioPlayerManager;
-    private static final Logger logger = LoggerFactory.getLogger(PlayerManager.class);
-    private final long MAX_SIZE = 1L;
 
     private PlayerManager() {
         this.musicManagers = new HashMap<>();
@@ -50,44 +40,9 @@ public class PlayerManager {
     }
 
 
-    public void play(TextChannel textChannel, String trackURL) {
-        final GuildMusicManager guildMusicManager = getGuildMusicManager(textChannel.getGuild());
-        this.audioPlayerManager.loadItemOrdered(
-                guildMusicManager,
-                trackURL,
-                new AudioLoadResultHandler()
-                {
-            @Override
-            public void trackLoaded(AudioTrack track) {
-                guildMusicManager.getTrackScheduler().queue(track.makeClone());
-                EmbedCreation.get().playListEmbed(textChannel);
-            }
-
-            @Override
-            public void playlistLoaded(AudioPlaylist playlist) {
-                final List<AudioTrack> tracks = playlist.getTracks()
-                        .stream()
-                        .limit(MAX_SIZE)
-                        .collect(Collectors.toList());
-
-                if (!tracks.isEmpty()) {
-                    for (AudioTrack track : tracks) {
-                        guildMusicManager.getTrackScheduler().queue(track);
-                    }
-                    EmbedCreation.get().playListEmbed(textChannel);
-                }
-            }
-
-            @Override
-            public void noMatches() {
-                textChannel.sendMessage("noMatches :(").queue();
-                logger.warn("noMatches.");
-            }
-
-            @Override
-            public void loadFailed(FriendlyException exception) {
-                logger.warn("Something broke when playing the track." + exception.getMessage());
-            }
-        });
+    public void play(SlashCommandInteractionEvent event, String trackURL) {
+        final GuildMusicManager guildMusicManager = getGuildMusicManager(Objects.requireNonNull(event.getGuild()));
+        final LoadResultHandler loadResultHandler = new LoadResultHandler(guildMusicManager, event);
+        this.audioPlayerManager.loadItemOrdered(guildMusicManager, trackURL, loadResultHandler);
     }
 }

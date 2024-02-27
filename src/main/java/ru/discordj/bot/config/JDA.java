@@ -69,8 +69,7 @@ public class JDA {
         if (args.length >= 1) {
             logger.info("Loading token key form args...");
             return args[0];
-        }
-        if (TOKEN_FROM_ENV.isEmpty()) {
+        } else if ((TOKEN_FROM_ENV.isEmpty())) {
             logger.info("Loading token key form ENV...");
             return System.getenv("TOKEN");
         } else {

@@ -53,17 +53,20 @@ public class Play implements ICommand {
             event.reply("You need to be in the same channel as me").setEphemeral(true).queue();
             return;
         }
+
+
         String link = event.getOption("name").getAsString();
 
         if (!isUrl(link)) {
             link = "ytsearch:" + link;
         }
 
-        event.reply("Adding to queue:").queue();
-        PlayerManager.get().play(event.getChannel().asTextChannel(), link);
+        PlayerManager.get().play(event, link);
 
-        logger.info("Playing music for " + member.getUser().getName());
+
+        logger.info("Playing music: " + link + ", for " + member.getUser().getName());
     }
+
 
     private boolean isUrl(String link) {
         try {
