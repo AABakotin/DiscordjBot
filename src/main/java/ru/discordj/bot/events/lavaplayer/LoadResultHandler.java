@@ -10,12 +10,9 @@ import org.slf4j.LoggerFactory;
 import ru.discordj.bot.embed.SendMessage;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static ru.discordj.bot.config.Constant.MAX_SIZE_FUNDED_SONGS;
-import static ru.discordj.bot.config.Constant.MESSAGE_LIFETIME;
 
 public class LoadResultHandler implements AudioLoadResultHandler {
 
@@ -33,7 +30,6 @@ public class LoadResultHandler implements AudioLoadResultHandler {
     @Override
     public void trackLoaded(AudioTrack track) {
         guildMusicManager.getTrackScheduler().queue(track.makeClone());
-        SendMessage.playList(event);
     }
 
     @Override
@@ -49,22 +45,15 @@ public class LoadResultHandler implements AudioLoadResultHandler {
             }
             SendMessage.playList(event);
         }
-
     }
 
     @Override
     public void noMatches() {
-        event.reply("Enter the details of the artist name and song.")
-                .delay(MESSAGE_LIFETIME, SECONDS)
-                .queue(del -> event.getMessageChannel()
-                        .deleteMessageById(event.getMessageChannel().getLatestMessageId())
-                        .queue());
         logger.warn("noMatches.");
     }
 
     @Override
     public void loadFailed(FriendlyException exception) {
-        event.getChannel().deleteMessageById(event.getMessageChannel().getLatestMessageId()).queue();
         logger.error("Something broke when playing the track.");
     }
 

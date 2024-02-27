@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.embed.createEmbed.EmbedForm;
-import ru.discordj.bot.events.lavaplayer.PlayerManager;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static ru.discordj.bot.config.Constant.MESSAGE_LIFETIME;
@@ -12,13 +11,16 @@ import static ru.discordj.bot.config.Constant.MESSAGE_LIFETIME;
 public class SendMessage {
 
     private static final Logger logger = LoggerFactory.getLogger(SendMessage.class);
-    private static final IEmbed EMBED = new EmbedForm();
+
+
+
 
     public static void playList(SlashCommandInteractionEvent event) {
-        if (!PlayerManager.get().getGuildMusicManager(event.getGuild()).getTrackScheduler().getPlayList().isEmpty()) {
-            event.getMessageChannel().deleteMessageById(event.getChannel().getLatestMessageId()).queue();
-        }
-        event.reply(EMBED.playListEmbed(event.getChannel().asTextChannel())).queue();
+        IEmbed EMBED = new EmbedForm();
+            event.getMessageChannel().deleteMessageById(event.getChannel().getLatestMessageId()).queue(
+                    ok -> event.reply(EMBED.playListEmbed(event.getChannel().asTextChannel())).queue(),
+                    error ->  event.reply(EMBED.playListEmbed(event.getChannel().asTextChannel())).queue()
+            );
     }
 
     public static void stopPlayer(SlashCommandInteractionEvent event) {
@@ -33,6 +35,7 @@ public class SendMessage {
     }
 
     public static void sendRules(SlashCommandInteractionEvent event) {
+        IEmbed EMBED = new EmbedForm();
         String imageServer = event.getGuild().getIconUrl();
         String author = event.getUser().getName();
         event.getUser()
@@ -59,6 +62,7 @@ public class SendMessage {
     }
 
     public static void infoUser(SlashCommandInteractionEvent event) {
+        IEmbed EMBED = new EmbedForm();
         event.replyEmbeds(EMBED.infoUser(event))
                 .queue(
                         success -> logger.info("requested 'info' by @" + event.getUser().getName()),
