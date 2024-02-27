@@ -10,13 +10,14 @@ import java.util.Objects;
 
 public class ButtonListener extends ListenerAdapter {
 
-    private final IEmbed embed = new EmbedForm();
-
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        event.getChannel().deleteMessageById(event.getChannel().getLatestMessageId()).queue();
+        IEmbed iEmbed = new EmbedForm();
+        event.getChannel().deleteMessageById(event.getChannel().getLatestMessageId()).queue(
+               e -> event.reply(iEmbed.playListEmbed(event.getChannel().asTextChannel())).queue());
         PlayerManager.get().getGuildMusicManager(Objects.requireNonNull(event.getGuild())).getTrackScheduler().removeTrack(event);
-        }
+
     }
+}
 
 

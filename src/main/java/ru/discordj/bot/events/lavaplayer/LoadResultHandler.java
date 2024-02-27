@@ -8,13 +8,14 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.embed.SendMessage;
-import ru.discordj.bot.embed.IEmbed;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static java.util.concurrent.TimeUnit.*;
-import static ru.discordj.bot.config.Constant.*;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static ru.discordj.bot.config.Constant.MAX_SIZE_FUNDED_SONGS;
+import static ru.discordj.bot.config.Constant.MESSAGE_LIFETIME;
 
 public class LoadResultHandler implements AudioLoadResultHandler {
 
@@ -22,22 +23,17 @@ public class LoadResultHandler implements AudioLoadResultHandler {
     private static final Logger logger = LoggerFactory.getLogger(LoadResultHandler.class);
     private final SlashCommandInteractionEvent event;
 
-    private IEmbed embed;
-
 
     public LoadResultHandler(GuildMusicManager guildMusicManager, SlashCommandInteractionEvent textChannel) {
         this.guildMusicManager = guildMusicManager;
         this.event = textChannel;
     }
 
-    public void getPlayList() {
-        event.reply(embed.playListEmbed(event.getChannel().asTextChannel())).queue();
-    }
 
     @Override
     public void trackLoaded(AudioTrack track) {
         guildMusicManager.getTrackScheduler().queue(track.makeClone());
-        event.reply(embed.playListEmbed(event.getChannel().asTextChannel())).queue();
+        SendMessage.playList(event);
     }
 
     @Override
@@ -58,22 +54,18 @@ public class LoadResultHandler implements AudioLoadResultHandler {
 
     @Override
     public void noMatches() {
-        logger.warn("noMatches.");
         event.reply("Enter the details of the artist name and song.")
                 .delay(MESSAGE_LIFETIME, SECONDS)
                 .queue(del -> event.getMessageChannel()
                         .deleteMessageById(event.getMessageChannel().getLatestMessageId())
                         .queue());
+        logger.warn("noMatches.");
     }
 
     @Override
     public void loadFailed(FriendlyException exception) {
-        event.reply("Something broke when playing the track. Retry your request.")
-                .delay(MESSAGE_LIFETIME, SECONDS)
-                .queue(del -> event.getMessageChannel()
-                        .deleteMessageById(event.getMessageChannel().getLatestMessageId())
-                        .queue());
-        logger.error("Something broke when playing the track." + exception.getMessage());
+        event.getChannel().deleteMessageById(event.getMessageChannel().getLatestMessageId()).queue();
+        logger.error("Something broke when playing the track.");
     }
 
 

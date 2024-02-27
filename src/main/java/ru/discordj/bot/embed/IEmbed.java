@@ -12,7 +12,7 @@ public interface IEmbed {
 
      MessageEmbed embedBay(String imageServer, String author);
 
-     MessageEmbed embedWelcome(String imageServer, String author);
+     MessageEmbed  embedWelcome(String imageServer, String author);
 
      MessageEmbed infoUser (SlashCommandInteractionEvent event);
 

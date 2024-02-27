@@ -4,10 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import ru.discordj.bot.embed.IEmbed;
-import ru.discordj.bot.embed.createEmbed.EmbedForm;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +17,10 @@ public class TrackScheduler extends AudioEventAdapter {
     private final BlockingQueue<AudioTrack> queue;
     private boolean isRepeat = false;
 
-    private final IEmbed embed;
 
     public TrackScheduler(AudioPlayer player) {
         this.queue = new LinkedBlockingQueue<>();
         this.player = player;
-        this.embed = new EmbedForm();
     }
 
     @Override
@@ -44,7 +39,7 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
-    public void skip(TextChannel textChannel) {
+    public void skip() {
         if (this.queue.peek() != null) {
             this.player.startTrack(this.queue.peek().makeClone(), false);
             getQueue().poll();
@@ -60,7 +55,7 @@ public class TrackScheduler extends AudioEventAdapter {
     public void removeTrack(ButtonInteractionEvent event) {
         if (event.getButton().getId() != null) {
             getQueue().removeIf(e -> e.getInfo().title.equals(event.getButton().getId()));
-            event.reply(embed.playListEmbed(event.getChannel().asTextChannel())).queue();
+
         }
     }
 
