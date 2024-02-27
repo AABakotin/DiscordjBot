@@ -53,8 +53,10 @@ public class Skip implements ICommand {
         GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
 
         guildMusicManager.getTrackScheduler().skip();
-        event.getMessageChannel().deleteMessageById(event.getChannel().getLatestMessageId()).queue(e -> SendMessage.playList(event),
-                error -> SendMessage.playList(event));
+
+        event.getMessageChannel().deleteMessageById(event.getChannel().getLatestMessageId())
+                .queue(ok -> SendMessage.playList(event),
+                        error -> SendMessage.playList(event));
 
     }
 }

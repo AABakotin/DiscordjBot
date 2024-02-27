@@ -9,7 +9,6 @@ public class MusicListener extends ListenerAdapter {
     AudioTrackInfo trackInfo;
 
 
-
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
     }

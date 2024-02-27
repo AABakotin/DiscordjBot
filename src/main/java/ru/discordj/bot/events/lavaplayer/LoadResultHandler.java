@@ -18,18 +18,23 @@ public class LoadResultHandler implements AudioLoadResultHandler {
 
     private final GuildMusicManager guildMusicManager;
     private static final Logger logger = LoggerFactory.getLogger(LoadResultHandler.class);
+
     private final SlashCommandInteractionEvent event;
 
 
-    public LoadResultHandler(GuildMusicManager guildMusicManager, SlashCommandInteractionEvent textChannel) {
+    public LoadResultHandler(GuildMusicManager guildMusicManager, SlashCommandInteractionEvent event) {
         this.guildMusicManager = guildMusicManager;
-        this.event = textChannel;
+        this.event = event;
+
     }
+
+
 
 
     @Override
     public void trackLoaded(AudioTrack track) {
         guildMusicManager.getTrackScheduler().queue(track.makeClone());
+
     }
 
     @Override
@@ -45,6 +50,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
             }
             SendMessage.playList(event);
         }
+
     }
 
     @Override

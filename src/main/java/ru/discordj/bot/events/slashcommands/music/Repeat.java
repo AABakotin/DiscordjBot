@@ -32,7 +32,7 @@ public class Repeat implements ICommand {
         Member member = event.getMember();
         GuildVoiceState memberVoiceState = member.getVoiceState();
 
-        if(!memberVoiceState.inAudioChannel()) {
+        if (!memberVoiceState.inAudioChannel()) {
             event.reply("You need to be in a voice channel").setEphemeral(true).queue();
             return;
         }
@@ -40,12 +40,12 @@ public class Repeat implements ICommand {
         Member self = event.getGuild().getSelfMember();
         GuildVoiceState selfVoiceState = self.getVoiceState();
 
-        if(!selfVoiceState.inAudioChannel()) {
+        if (!selfVoiceState.inAudioChannel()) {
             event.reply("I am not in an audio channel").setEphemeral(true).queue();
             return;
         }
 
-        if(selfVoiceState.getChannel() != memberVoiceState.getChannel()) {
+        if (selfVoiceState.getChannel() != memberVoiceState.getChannel()) {
             event.reply("You are not in the same channel as me").setEphemeral(true).queue();
             return;
         }

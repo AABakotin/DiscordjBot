@@ -61,8 +61,8 @@ public class JDA {
                 .addEventListeners(
                         MANAGER,
                         new AddRole(),
-                new ButtonListener())
-                        .build();
+                        new ButtonListener())
+                .build();
     }
 
     private static String checkToken(String[] args) {

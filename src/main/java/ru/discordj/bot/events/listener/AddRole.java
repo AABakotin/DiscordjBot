@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.config.JDA;
-import ru.discordj.bot.embed.IEmbed;
 import ru.discordj.bot.embed.createEmbed.EmbedForm;
 
 import static ru.discordj.bot.config.Constant.GUEST_CHANNEL;
@@ -16,7 +15,6 @@ import static ru.discordj.bot.config.Constant.GUEST_CHANNEL;
 public class AddRole extends ListenerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(AddRole.class);
-    private final IEmbed embed = new EmbedForm();
 
 
     @Override
@@ -37,7 +35,7 @@ public class AddRole extends ListenerAdapter {
             event.getUser()
                     .openPrivateChannel()
                     .complete()
-                    .sendMessageEmbeds(embed.embedWelcome(imageServer, author)).queue();
+                    .sendMessageEmbeds(EmbedForm.get().embedWelcome(imageServer, author)).queue();
 
             logger.info("User " + event.getUser().getName() + " subscribe " + emoji);
         }
@@ -64,7 +62,7 @@ public class AddRole extends ListenerAdapter {
             event.getUser()
                     .openPrivateChannel()
                     .complete()
-                    .sendMessageEmbeds(embed.embedBay(imageServer, author))
+                    .sendMessageEmbeds(EmbedForm.get().embedBay(imageServer, author))
                     .queue();
 
             logger.info("User " + event.getUser().getName() + " unsubscribe " + emoji);

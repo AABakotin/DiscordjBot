@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.discordj.bot.embed.SendMessage;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
 
@@ -15,6 +16,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Play implements ICommand {
     private static final Logger logger = LoggerFactory.getLogger(Play.class);
@@ -58,12 +60,10 @@ public class Play implements ICommand {
             link = "ytsearch:" + link;
         }
 
-
         PlayerManager.get().play(event, link);
 
-        logger.info("Playing music: " + link + ", for " + member.getUser().getName());
-    }
 
+    }
 
 
     private boolean isUrl(String link) {

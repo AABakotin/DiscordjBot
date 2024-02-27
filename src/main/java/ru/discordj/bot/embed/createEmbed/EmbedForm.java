@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import ru.discordj.bot.config.Constant;
-import ru.discordj.bot.embed.IEmbed;
 import ru.discordj.bot.events.lavaplayer.PlayerManager;
 
 import java.awt.*;
@@ -25,10 +24,18 @@ import java.util.concurrent.TimeUnit;
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.danger;
 import static ru.discordj.bot.config.Constant.INVITATION_LINK;
 
-public class EmbedForm implements IEmbed {
+public class EmbedForm {
     private final Date DATE = new Date();
 
-    @Override
+    private static EmbedForm INSTANCE;
+
+    public static EmbedForm get() {
+        if (INSTANCE == null) {
+            INSTANCE = new EmbedForm();
+        }
+        return INSTANCE;
+    }
+
     public MessageEmbed embedWelcome(String imageServer, String author) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Color.BLUE)
@@ -53,7 +60,6 @@ public class EmbedForm implements IEmbed {
     }
 
 
-    @Override
     public MessageEmbed embedBay(String imageServer, String author) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Color.BLUE)
@@ -65,15 +71,11 @@ public class EmbedForm implements IEmbed {
     }
 
 
-    @Override
     public MessageCreateData playListEmbed(TextChannel textChannel) {
         MessageCreateBuilder messageCreateBuilder = new MessageCreateBuilder();
         EmbedBuilder builderPlayList = new EmbedBuilder();
         List<AudioTrack> playList = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().getPlayList();
         AudioTrack playingTrack = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).player.getPlayingTrack();
-        if (playingTrack == null) {
-            return null;
-        }
         builderPlayList
                 .setColor(Color.GREEN)
                 .setTitle("Playing: " + " 🎵")
