@@ -1,6 +1,7 @@
 package ru.discordj.bot.config;
 
 
+import dev.arbjerg.lavalink.libraries.jda.JDAVoiceUpdateListener;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -24,6 +25,7 @@ public class JDA {
     private static final Logger logger = LoggerFactory.getLogger(JDA.class);
     private static final CommandManager MANAGER = new CommandManager();
     private static final Map<String, String> stringRoleMap = new HashMap<>();
+    private static LavaLink lavalink;
 
 
     static {
@@ -42,12 +44,15 @@ public class JDA {
         MANAGER.add(new Stop());
         MANAGER.add(new ClearPlayList());
 
+
         stringRoleMap.put(EMOJI_ACCESS, ROLE_ACCESS);
         stringRoleMap.put(EMOJI_JAVA, ROLE_JAVA);
     }
 
     public static void start(String[] args) {
-        JDABuilder.createLight(checkToken(args))
+        final String token = checkToken(args);
+        lavalink = new LavaLink(token);
+        JDABuilder.createLight(token)
                 .setEnabledIntents(
                         GUILD_PRESENCES,
                         GUILD_MESSAGES,
@@ -56,13 +61,14 @@ public class JDA {
                         GUILD_VOICE_STATES,
                         MESSAGE_CONTENT)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
+                .setVoiceDispatchInterceptor(new JDAVoiceUpdateListener(lavalink.getClient()))
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .enableCache(CLIENT_STATUS, VOICE_STATE)
                 .addEventListeners(
                         MANAGER,
                         new AddRole(),
-                new ButtonListener())
-                        .build();
+                        new ButtonListener())
+                .build();
     }
 
     private static String checkToken(String[] args) {
@@ -84,5 +90,8 @@ public class JDA {
         return stringRoleMap.get(emoji);
     }
 
+    public static LavaLink getLavalink() {
+        return lavalink;
+    }
 }
 

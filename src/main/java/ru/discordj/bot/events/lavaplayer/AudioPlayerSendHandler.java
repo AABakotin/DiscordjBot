@@ -1,6 +1,7 @@
 package ru.discordj.bot.events.lavaplayer;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.Guild;
@@ -15,6 +16,7 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
     private final ByteBuffer buffer;
     private final MutableAudioFrame frame;
     private int time;
+    private AudioFrame lastFrame;
 
     public AudioPlayerSendHandler(AudioPlayer player, Guild guild) {
         this.buffer = ByteBuffer.allocate(1024);

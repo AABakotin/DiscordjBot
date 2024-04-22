@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  lavalink-server:
+    image: fredboat/lavalink
+    cap_add:
+      - SYS_NICE
+    volumes:
+      - ./:/opt/Lavalink
+    ports:
+      - "2333:2333/udp"
+      - "2333:2333/tcp"
+    restart: always
+    stop_grace_period: 2m
+    deploy:
+      resources:
+        limits:
+          cpus: '0.70'
+          memory: 1gb
