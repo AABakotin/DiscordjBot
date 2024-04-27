@@ -51,9 +51,7 @@ public class AddRole extends ListenerAdapter {
 
     @Override
     public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
-        if (event == null) {
-            return;
-        }
+
         GuildChannel guestGuildChannel = event.getGuild().getGuildChannelById(GUEST_CHANNEL);
 
         if (guestGuildChannel == event.getGuildChannel()) {
