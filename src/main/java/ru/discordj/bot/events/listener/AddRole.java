@@ -22,19 +22,19 @@ public class AddRole extends ListenerAdapter {
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         GuildChannel guestGuildChannel = event.getGuild().getGuildChannelById(GUEST_CHANNEL);
         String emoji = event.getEmoji().getName();
+        String roleToEmoji = JDA.getRoleToEmoji(emoji);
 
         if (guestGuildChannel == event.getGuildChannel()) {
             try {
                 event.getGuild()
                         .addRoleToMember(
-                                Objects.requireNonNull(event.getMember()).getUser(),
-                                event.getGuild().getRoleById(JDA.getRoleToEmoji(emoji))
+                                event.getMember().getUser(),
+                                event.getGuild().getRoleById(roleToEmoji)
                         )
                         .queue();
             } catch (IllegalArgumentException e) {
                 logger.error("onMessageReactionAdd: ID emoji or ID role in property.env is NULL");
             }
-
 
             String imageServer = event.getGuild().getIconUrl();
             String author = Objects.requireNonNull(event.getUser()).getName();
@@ -43,25 +43,24 @@ public class AddRole extends ListenerAdapter {
                     .openPrivateChannel()
                     .complete()
                     .sendMessageEmbeds(EmbedCreation.get().embedWelcome(imageServer, author)).queue();
-
-            logger.info("User {} subscribe on Program Developer", event.getUser().getName());
+            event.getGuild().getRoleById(roleToEmoji);
+            logger.info("User {} subscribe on {}", event.getUser().getName(), event.getGuild().getRoleById(roleToEmoji).getName());
         }
     }
 
 
     @Override
     public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
-
         GuildChannel guestGuildChannel = event.getGuild().getGuildChannelById(GUEST_CHANNEL);
+        String emoji = event.getEmoji().getName();
+        String roleToEmoji = JDA.getRoleToEmoji(emoji);
 
         if (guestGuildChannel == event.getGuildChannel()) {
-            String emoji = event.getEmoji().getName();
-
             try {
                 event.getGuild()
                         .removeRoleFromMember(
-                                Objects.requireNonNull(event.getMember()).getUser(),
-                                event.getGuild().getRoleById(JDA.getRoleToEmoji(emoji))
+                                event.getMember().getUser(),
+                                event.getGuild().getRoleById(roleToEmoji)
                         )
                         .queue();
             } catch (IllegalArgumentException e) {
@@ -77,7 +76,7 @@ public class AddRole extends ListenerAdapter {
                     .sendMessageEmbeds(EmbedCreation.get().embedBay(imageServer, author))
                     .queue();
 
-            logger.info("User {} unsubscribe on Program Developer", event.getUser().getName());
+            logger.info("User {} unsubscribe on {}", event.getUser().getName(), event.getGuild().getRoleById(roleToEmoji).getName());
         }
     }
 }
