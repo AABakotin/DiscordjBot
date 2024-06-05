@@ -14,9 +14,9 @@ import java.util.Objects;
 import static ru.discordj.bot.config.Constant.GUEST_CHANNEL;
 
 
-public class AddRole extends ListenerAdapter {
+public class AddRoleListener extends ListenerAdapter {
 
-    private static final Logger logger = LoggerFactory.getLogger(AddRole.class);
+    private static final Logger logger = LoggerFactory.getLogger(AddRoleListener.class);
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
@@ -42,7 +42,7 @@ public class AddRole extends ListenerAdapter {
             event.getUser()
                     .openPrivateChannel()
                     .complete()
-                    .sendMessageEmbeds(EmbedCreation.get().embedWelcome(imageServer, author)).queue();
+                    .sendMessageEmbeds(EmbedCreation.get().embedWelcomeGuild(imageServer, author)).queue();
 
             logger.info("User {} subscribe on Program Developer", event.getUser().getName());
         }
@@ -74,7 +74,7 @@ public class AddRole extends ListenerAdapter {
             event.getUser()
                     .openPrivateChannel()
                     .complete()
-                    .sendMessageEmbeds(EmbedCreation.get().embedBay(imageServer, author))
+                    .sendMessageEmbeds(EmbedCreation.get().embedLeaveGuild(imageServer, author))
                     .queue();
 
             logger.info("User {} unsubscribe on Program Developer", event.getUser().getName());

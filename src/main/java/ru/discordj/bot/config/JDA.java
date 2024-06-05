@@ -7,8 +7,8 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.CommandManager;
-import ru.discordj.bot.events.listener.AddRole;
-import ru.discordj.bot.events.listener.ButtonListener;
+import ru.discordj.bot.events.listener.AddRoleListener;
+import ru.discordj.bot.events.listener.PlayerButtonListener;
 import ru.discordj.bot.events.slashcommands.*;
 import ru.discordj.bot.events.slashcommands.music.*;
 
@@ -60,22 +60,21 @@ public class JDA {
                 .enableCache(CLIENT_STATUS, VOICE_STATE)
                 .addEventListeners(
                         MANAGER,
-                        new AddRole(),
-                new ButtonListener())
-                        .build();
+                        new AddRoleListener(),
+                        new PlayerButtonListener())
+                .build();
     }
 
     private static String checkToken(String[] args) {
         if (args.length >= 1) {
             logger.info("Loading token key form args...");
             return args[0];
-        }
-        if (TOKEN_FROM_ENV.isEmpty()) {
-            logger.info("Loading token key form ENV...");
-            return System.getenv("TOKEN");
+        } else if (!TOKEN_FROM_FILE_PROPERTIES.isEmpty()) {
+            logger.info("Loading token key form properties file...");
+            return TOKEN_FROM_FILE_PROPERTIES;
         } else {
-            logger.info("Loading token key form file...");
-            return TOKEN_FROM_ENV;
+            logger.info("Loading token key form system environment...");
+            return System.getenv("TOKEN");
         }
     }
 

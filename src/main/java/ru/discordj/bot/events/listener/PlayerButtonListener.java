@@ -3,9 +3,9 @@ package ru.discordj.bot.events.listener;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ru.discordj.bot.config.embed.EmbedCreation;
-import ru.discordj.bot.events.lavaplayer.PlayerManager;
+import ru.discordj.bot.lavaplayer.PlayerManager;
 
-public class ButtonListener extends ListenerAdapter {
+public class PlayerButtonListener extends ListenerAdapter {
 
 
     @Override

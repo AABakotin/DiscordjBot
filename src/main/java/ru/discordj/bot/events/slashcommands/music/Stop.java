@@ -5,9 +5,9 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.discordj.bot.events.ICommand;
-import ru.discordj.bot.events.lavaplayer.GuildMusicManager;
-import ru.discordj.bot.events.lavaplayer.PlayerManager;
-import ru.discordj.bot.events.lavaplayer.TrackScheduler;
+import ru.discordj.bot.lavaplayer.GuildMusicManager;
+import ru.discordj.bot.lavaplayer.PlayerManager;
+import ru.discordj.bot.lavaplayer.TrackScheduler;
 
 import java.util.List;
 
