@@ -34,7 +34,7 @@ public class Rules implements ICommand {
         event.getUser()
                 .openPrivateChannel()
                 .complete()
-                .sendMessageEmbeds(EmbedCreation.get().embedWelcome(imageServer, author))
+                .sendMessageEmbeds(EmbedCreation.get().embedWelcomeGuild(imageServer, author))
                 .queue(
                         success -> event.reply("Rules has been sent to private message!")
                                 .setEphemeral(true)

@@ -32,7 +32,7 @@ public class EmbedCreation {
         return INSTANCE;
     }
 
-    public MessageEmbed embedWelcome(String imageServer, String author) {
+    public MessageEmbed embedWelcomeGuild(String imageServer, String author) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Color.BLUE)
                 .setTitle("█▓▒░⡷⠂𝚃𝚑𝚎 𝚂𝚝𝚎𝚊𝚕𝚝𝚑 𝙳𝚞𝚍𝚎⠐⢾░▒▓█")
@@ -55,7 +55,7 @@ public class EmbedCreation {
         return builder.build();
     }
 
-    public MessageEmbed embedBay(String imageServer, String author) {
+    public MessageEmbed embedLeaveGuild(String imageServer, String author) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Color.BLUE)
                 .setTitle("█▓▒░⡷⠂𝚃𝚑𝚎 𝚂𝚝𝚎𝚊𝚕𝚝𝚑 𝙳𝚞𝚍𝚎⠐⢾░▒▓█")
@@ -78,31 +78,32 @@ public class EmbedCreation {
                 .addField("*Repeat is:*", "***" + statusRepeat(textChannel) + "***", true)
                 .addField("*URL:*", "***" + playingTrack.getInfo().uri + "***", false);
         messageCreateBuilder.setEmbeds(builderPlayList.build());
-        if (!playList.isEmpty()) {
-            List<Button> buttons = new ArrayList<>();
 
-            builderPlayList.addBlankField(true)
-                    .addField("Playlist:", "", true);
-            for (int i = 0, x = 1; i < playList.size(); i++, x++) {
-                builderPlayList
-                        .addField(
-                                i + 1 + ".",
-                                "***" + playList.get(i).getInfo().title + "\n" + timer(playList.get(i)) + "***",
-                                false);
-                buttons.add(danger(playList.get(i).getInfo().title, "🗑️ " + x));
-            }
-            try{
-                messageCreateBuilder.setActionRow(buttons);
-            } catch (IllegalArgumentException ex){
-                buttons.clear();
-                builderPlayList.setFooter("Сорри, отваливаются кнопки! 🤫");
-                logger.error(ex.getMessage());
-            }
-            messageCreateBuilder.setEmbeds(builderPlayList.build());
+        if (playList.isEmpty()) {
             textChannel.sendMessage(messageCreateBuilder.build()).queue();
-        } else {
-            textChannel.sendMessage(messageCreateBuilder.build()).queue();
+            return;
         }
+
+        List<Button> buttons = new ArrayList<>();
+        builderPlayList.addBlankField(true)
+                .addField("Playlist:", "", true);
+        for (int i = 0, x = 1; i < playList.size(); i++, x++) {
+            builderPlayList
+                    .addField(
+                            i + 1 + ".",
+                            "***" + playList.get(i).getInfo().title + "\n" + timer(playList.get(i)) + "***",
+                            false);
+            buttons.add(danger(playList.get(i).getInfo().title, "🗑️ " + x));
+        }
+        try {
+            messageCreateBuilder.setActionRow(buttons);
+        } catch (IllegalArgumentException ex) {
+            buttons.clear();
+            builderPlayList.setFooter("Сорри, отваливаются кнопки! 🤫");
+            logger.error(ex.getMessage());
+        }
+        messageCreateBuilder.setEmbeds(builderPlayList.build());
+        textChannel.sendMessage(messageCreateBuilder.build()).queue();
     }
 
     private String statusRepeat(TextChannel textChannel) {

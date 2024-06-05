@@ -61,21 +61,20 @@ public class JDA {
                 .addEventListeners(
                         MANAGER,
                         new AddRoleListener(),
-                new PlayerButtonListener())
-                        .build();
+                        new PlayerButtonListener())
+                .build();
     }
 
     private static String checkToken(String[] args) {
         if (args.length >= 1) {
             logger.info("Loading token key form args...");
             return args[0];
-        }
-        if (TOKEN_FROM_ENV.isEmpty()) {
-            logger.info("Loading token key form ENV...");
-            return System.getenv("TOKEN");
+        } else if (!TOKEN_FROM_FILE_PROPERTIES.isEmpty()) {
+            logger.info("Loading token key form properties file...");
+            return TOKEN_FROM_FILE_PROPERTIES;
         } else {
-            logger.info("Loading token key form file...");
-            return TOKEN_FROM_ENV;
+            logger.info("Loading token key form system environment...");
+            return System.getenv("TOKEN");
         }
     }
 

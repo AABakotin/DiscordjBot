@@ -17,7 +17,7 @@ final public class Constant {
     public static final String EMOJI_JAVA = dotenv.get("EMOJI_JAVA");
     public static final String ROLE_JAVA = dotenv.get("ROLE_JAVA");
     public static final String NON_AVATAR_URL = dotenv.get("NON_AVATAR_URL");
-    public static final String TOKEN_FROM_ENV = dotenv.get("TOKEN_FROM_ENV");
+    public static final String TOKEN_FROM_FILE_PROPERTIES = dotenv.get("TOKEN");
     public static final String INVITATION_LINK = dotenv.get("INVITATION_LINK");
 
     private Constant() {
