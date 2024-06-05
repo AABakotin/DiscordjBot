@@ -8,8 +8,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.events.lavaplayer.PlayerManager;
-import ru.discordj.bot.events.listener.AddRole;
+import ru.discordj.bot.lavaplayer.PlayerManager;
 
 import java.awt.*;
 import java.util.ArrayList;

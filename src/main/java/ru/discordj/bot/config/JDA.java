@@ -7,8 +7,8 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.CommandManager;
-import ru.discordj.bot.events.listener.AddRole;
-import ru.discordj.bot.events.listener.ButtonListener;
+import ru.discordj.bot.events.listener.AddRoleListener;
+import ru.discordj.bot.events.listener.PlayerButtonListener;
 import ru.discordj.bot.events.slashcommands.*;
 import ru.discordj.bot.events.slashcommands.music.*;
 
@@ -60,8 +60,8 @@ public class JDA {
                 .enableCache(CLIENT_STATUS, VOICE_STATE)
                 .addEventListeners(
                         MANAGER,
-                        new AddRole(),
-                new ButtonListener())
+                        new AddRoleListener(),
+                new PlayerButtonListener())
                         .build();
     }
 

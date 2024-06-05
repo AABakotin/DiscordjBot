@@ -7,8 +7,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.discordj.bot.config.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
-import ru.discordj.bot.events.lavaplayer.GuildMusicManager;
-import ru.discordj.bot.events.lavaplayer.PlayerManager;
+import ru.discordj.bot.lavaplayer.GuildMusicManager;
+import ru.discordj.bot.lavaplayer.PlayerManager;
 
 import java.util.ArrayList;
 import java.util.List;

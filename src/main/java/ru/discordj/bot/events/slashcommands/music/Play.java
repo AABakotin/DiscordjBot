@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.ICommand;
-import ru.discordj.bot.events.lavaplayer.PlayerManager;
+import ru.discordj.bot.lavaplayer.PlayerManager;
 
 import java.net.URI;
 import java.net.URISyntaxException;

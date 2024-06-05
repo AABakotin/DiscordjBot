@@ -1,17 +1,12 @@
 package ru.discordj.bot.events.slashcommands.music;
 
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ru.discordj.bot.config.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
-import ru.discordj.bot.events.lavaplayer.GuildMusicManager;
-import ru.discordj.bot.events.lavaplayer.PlayerManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Queue implements ICommand {

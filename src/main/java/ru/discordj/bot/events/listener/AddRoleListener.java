@@ -14,9 +14,9 @@ import java.util.Objects;
 import static ru.discordj.bot.config.Constant.GUEST_CHANNEL;
 
 
-public class AddRole extends ListenerAdapter {
+public class AddRoleListener extends ListenerAdapter {
 
-    private static final Logger logger = LoggerFactory.getLogger(AddRole.class);
+    private static final Logger logger = LoggerFactory.getLogger(AddRoleListener.class);
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
