@@ -69,12 +69,12 @@ public class JDA {
         if (args.length >= 1) {
             logger.info("Loading token key form args...");
             return args[0];
-        } else if (!TOKEN_FROM_FILE_PROPERTIES.isEmpty()) {
-            logger.info("Loading token key form properties file...");
-            return TOKEN_FROM_FILE_PROPERTIES;
-        } else {
+        } else if (System.getenv().containsKey("TOKEN")) {
             logger.info("Loading token key form system environment...");
             return System.getenv("TOKEN");
+        } else {
+            logger.info("Loading token key form properties file...");
+            return TOKEN_FROM_FILE_PROPERTIES;
         }
     }
 

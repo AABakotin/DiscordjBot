@@ -44,7 +44,7 @@ public class AddRoleListener extends ListenerAdapter {
                     .complete()
                     .sendMessageEmbeds(EmbedCreation.get().embedWelcomeGuild(imageServer, author)).queue();
 
-            logger.info("User {} subscribe on Program Developer", event.getUser().getName());
+            logger.info("User {} subscribe {}", event.getUser().getName(), event.getUser().getJDA().getRoleById(JDA.getRoleToEmoji(emoji)));
         }
     }
 
@@ -77,7 +77,7 @@ public class AddRoleListener extends ListenerAdapter {
                     .sendMessageEmbeds(EmbedCreation.get().embedLeaveGuild(imageServer, author))
                     .queue();
 
-            logger.info("User {} unsubscribe on Program Developer", event.getUser().getName());
+            logger.info("User {} unsubscribe {}", event.getUser().getName(), event.getUser().getJDA().getRoleById(JDA.getRoleToEmoji(emoji)));
         }
     }
 }

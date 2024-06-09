@@ -91,7 +91,7 @@ public class PlayerManager {
 
             @Override
             public void noMatches() {
-                textChannel.sendMessage("noMatches :(").queue();
+                textChannel.sendMessage("Не нашел :(").queue();
                 logger.warn("noMatches.");
             }
 
