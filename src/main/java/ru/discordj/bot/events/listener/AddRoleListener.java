@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.config.JDA;
-import ru.discordj.bot.config.embed.EmbedCreation;
+import ru.discordj.bot.embed.EmbedCreation;
 
 import java.util.Objects;
 

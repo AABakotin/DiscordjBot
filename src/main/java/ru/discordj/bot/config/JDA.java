@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.CommandManager;
 import ru.discordj.bot.events.listener.AddRoleListener;
+import ru.discordj.bot.events.listener.Configurator;
 import ru.discordj.bot.events.listener.PlayerButtonListener;
 import ru.discordj.bot.events.slashcommands.*;
 import ru.discordj.bot.events.slashcommands.music.*;
@@ -53,6 +54,8 @@ public class JDA {
                         GUILD_MESSAGES,
                         GUILD_MEMBERS,
                         GUILD_MESSAGE_REACTIONS,
+                        GUILD_MESSAGES,
+
                         GUILD_VOICE_STATES,
                         MESSAGE_CONTENT)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
@@ -61,7 +64,9 @@ public class JDA {
                 .addEventListeners(
                         MANAGER,
                         new AddRoleListener(),
-                        new PlayerButtonListener())
+                        new PlayerButtonListener(),
+                        new Configurator()
+                )
                 .build();
     }
 

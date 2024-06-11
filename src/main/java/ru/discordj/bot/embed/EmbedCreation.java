@@ -1,4 +1,4 @@
-package ru.discordj.bot.config.embed;
+package ru.discordj.bot.embed;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
