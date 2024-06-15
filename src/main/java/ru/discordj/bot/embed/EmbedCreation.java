@@ -72,7 +72,7 @@ public class EmbedCreation {
         AudioTrack playingTrack = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).player.getPlayingTrack();
         builderPlayList
                 .setColor(Color.GREEN)
-                .setTitle("Playing: " + " 🎵")
+                .setThumbnail(playingTrack.getInfo().artworkUrl)
                 .addField("*Name:*", "***" + playingTrack.getInfo().title + "***", false)
                 .addField("*Duration:*", "***" + timer(playingTrack) + "***", true)
                 .addField("*Repeat is:*", "***" + statusRepeat(textChannel) + "***", true)
@@ -89,6 +89,7 @@ public class EmbedCreation {
                 .addField("Playlist:", "", true);
         for (int i = 0, x = 1; i < playList.size(); i++, x++) {
             builderPlayList
+                    .setThumbnail(playingTrack.getInfo().artworkUrl)
                     .addField(
                             i + 1 + ".",
                             "***" + playList.get(i).getInfo().title + "\n" + timer(playList.get(i)) + "***",
