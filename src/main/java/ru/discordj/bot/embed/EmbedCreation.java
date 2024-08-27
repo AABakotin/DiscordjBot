@@ -78,7 +78,6 @@ public class EmbedCreation {
                 .addField("*Repeat is:*", "***" + statusRepeat(textChannel) + "***", true)
                 .addField("*URL:*", "***" + playingTrack.getInfo().uri + "***", false);
         messageCreateBuilder.setEmbeds(builderPlayList.build());
-
         if (playList.isEmpty()) {
             textChannel.sendMessage(messageCreateBuilder.build()).queue();
             return;
@@ -108,10 +107,10 @@ public class EmbedCreation {
     }
 
     private String statusRepeat(TextChannel textChannel) {
-        if (PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().isRepeat()) {
-            return "🔁";
-        }
-        return "➡️";
+        return PlayerManager.get()
+                .getGuildMusicManager(textChannel.getGuild())
+                .getTrackScheduler()
+                .isRepeat() ? "🔁" : "➡️";
     }
 
 
