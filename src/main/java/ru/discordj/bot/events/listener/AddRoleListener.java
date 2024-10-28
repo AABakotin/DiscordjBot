@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.config.JDA;
+import ru.discordj.bot.config.JdaConfig;
 import ru.discordj.bot.embed.EmbedCreation;
 
 import java.util.Objects;
@@ -28,7 +28,7 @@ public class AddRoleListener extends ListenerAdapter {
                 event.getGuild()
                         .addRoleToMember(
                                 Objects.requireNonNull(event.getMember()).getUser(),
-                                event.getGuild().getRoleById(JDA.getRoleToEmoji(emoji))
+                                event.getGuild().getRoleById(JdaConfig.getRoleToEmoji(emoji))
                         )
                         .queue();
             } catch (IllegalArgumentException e) {
@@ -44,7 +44,7 @@ public class AddRoleListener extends ListenerAdapter {
                     .complete()
                     .sendMessageEmbeds(EmbedCreation.get().embedWelcomeGuild(imageServer, author)).queue();
 
-            logger.info("User {} subscribe {}", event.getUser().getName(), event.getUser().getJDA().getRoleById(JDA.getRoleToEmoji(emoji)));
+            logger.info("User {} subscribe {}", event.getUser().getName(), event.getUser().getJDA().getRoleById(JdaConfig.getRoleToEmoji(emoji)));
         }
     }
 
@@ -61,7 +61,7 @@ public class AddRoleListener extends ListenerAdapter {
                 event.getGuild()
                         .removeRoleFromMember(
                                 Objects.requireNonNull(event.getMember()).getUser(),
-                                event.getGuild().getRoleById(JDA.getRoleToEmoji(emoji))
+                                event.getGuild().getRoleById(JdaConfig.getRoleToEmoji(emoji))
                         )
                         .queue();
             } catch (IllegalArgumentException e) {
@@ -77,7 +77,7 @@ public class AddRoleListener extends ListenerAdapter {
                     .sendMessageEmbeds(EmbedCreation.get().embedLeaveGuild(imageServer, author))
                     .queue();
 
-            logger.info("User {} unsubscribe {}", event.getUser().getName(), event.getUser().getJDA().getRoleById(JDA.getRoleToEmoji(emoji)));
+            logger.info("User {} unsubscribe {}", event.getUser().getName(), event.getUser().getJDA().getRoleById(JdaConfig.getRoleToEmoji(emoji)));
         }
     }
 }

@@ -38,7 +38,7 @@ public class Rules implements ICommand {
                 .queue(
                         success -> event.reply("Rules has been sent to private message!")
                                 .setEphemeral(true)
-                                .queue(s -> logger.info("requested 'rules' by @" + author)),
+                                .queue(s -> logger.info("requested 'rules' by @{}", author)),
                         failure -> logger.error("Some error occurred in 'ping', try again!")
                 );
     }

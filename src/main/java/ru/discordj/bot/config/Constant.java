@@ -8,8 +8,9 @@ final public class Constant {
     @NotNull
     private static final Dotenv dotenv =
             Dotenv.configure()
-            .filename("properties.env")
-            .load();
+                    .filename("properties.env")
+                    .ignoreIfMalformed()
+                    .load();
 
 
     public static final String OWNER = dotenv.get("OWNER");
@@ -23,6 +24,9 @@ final public class Constant {
     public static final String TOKEN_FROM_FILE_PROPERTIES = dotenv.get("TOKEN_FROM_FILE");
     public static final String INVITATION_LINK = dotenv.get("INVITATION_LINK");
 
+    public static final String TEST_CHANNEL = "1300539782874529802";
+
+
 
     public static final byte INFO_RESPONSE = 0x49;
     public static final byte[] A2S_INFO = {
@@ -31,6 +35,7 @@ final public class Constant {
             (byte) 0x65, (byte) 0x20, (byte) 0x51, (byte) 0x75, (byte) 0x65, (byte) 0x72, (byte) 0x79, (byte) 0x00,
             (byte) 0x0A, (byte) 0x08, (byte) 0x5E, (byte) 0xEA
     };
+
 
     private Constant() {
     }

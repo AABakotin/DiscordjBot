@@ -2,28 +2,36 @@ package ru.discordj.bot.embed;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.discordj.bot.config.JdaConfig;
 import ru.discordj.bot.lavaplayer.PlayerManager;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.danger;
 import static ru.discordj.bot.config.Constant.INVITATION_LINK;
+import static ru.discordj.bot.config.Constant.TEST_CHANNEL;
 
 public class EmbedCreation {
     private final Date DATE = new Date();
 
     private static EmbedCreation INSTANCE;
     private static final Logger logger = LoggerFactory.getLogger(EmbedCreation.class);
+    private final JDA jda = JdaConfig.getJda().getSelfUser().getJDA();
 
     public static EmbedCreation get() {
         if (INSTANCE == null) {
@@ -105,6 +113,38 @@ public class EmbedCreation {
         messageCreateBuilder.setEmbeds(builderPlayList.build());
         textChannel.sendMessage(messageCreateBuilder.build()).queue();
     }
+
+    public void embedServerStatus(Map<String, String> receive) {
+        MessageCreateBuilder messageCreateBuilder = new MessageCreateBuilder();
+        EmbedBuilder builder = new EmbedBuilder();
+
+        builder
+                .setTitle("█▓▒░⡷⠂Monitoring Games Servers⠐⢾░▒▓█")
+                .setColor(Color.BLUE)
+                .setFooter("📩 " + "requested by @" + "author" + " " + DATE);
+        receive.forEach((key, value) -> {
+            builder
+                    .addField(key, value, true);
+        });
+
+        messageCreateBuilder.setEmbeds(builder.build());
+
+        TextChannel textChannelById = jda.getTextChannelById(TEST_CHANNEL);
+
+        if (textChannelById != null) {
+            MessageCreateAction message = textChannelById.sendMessage(messageCreateBuilder.build());
+            String latestMessageId = textChannelById.getLatestMessageId();
+            textChannelById.deleteMessageById(latestMessageId)
+                    .queue(
+                            ok -> message.queue(x -> System.out.println("Delete last msg")),
+                            not -> message.queue(e -> System.out.println("Create new msg")));
+
+
+
+
+        }
+    }
+
 
     private String statusRepeat(TextChannel textChannel) {
         return PlayerManager.get()
