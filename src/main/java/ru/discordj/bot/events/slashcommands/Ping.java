@@ -35,7 +35,7 @@ public class Ping implements ICommand {
                                 .editOriginalFormat(
                                         "Pong: %d ms", System.currentTimeMillis() - time))
                 .queue(
-                        success -> logger.info("requested 'ping' by @" + event.getUser().getName()),
+                        success -> logger.info("requested 'ping' by @{}", event.getUser().getName()),
                         failure -> logger.error("Some error occurred in 'ping', try again!")
                 );
     }

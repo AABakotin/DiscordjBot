@@ -32,7 +32,7 @@ public class Hello implements ICommand {
         event.reply("Hello " + userName + " ,my friend " + event.getUser().getAvatarUrl())
                 .setEphemeral(true)
                 .queue(
-                        success -> logger.info("requested 'hello' by @" + event.getUser().getName()),
+                        success -> logger.info("requested 'hello' by @{}", event.getUser().getName()),
                         failure -> logger.error("Some error occurred in 'hello', try again!")
                 );
     }

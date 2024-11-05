@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.config.embed.EmbedCreation;
+import ru.discordj.bot.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class Rules implements ICommand {
                 .queue(
                         success -> event.reply("Rules has been sent to private message!")
                                 .setEphemeral(true)
-                                .queue(s -> logger.info("requested 'rules' by @" + author)),
+                                .queue(s -> logger.info("requested 'rules' by @{}", author)),
                         failure -> logger.error("Some error occurred in 'ping', try again!")
                 );
     }

@@ -1,6 +1,7 @@
 package ru.discordj.bot.config;
 
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -8,9 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.CommandManager;
 import ru.discordj.bot.events.listener.AddRoleListener;
+import ru.discordj.bot.events.listener.Configurator;
 import ru.discordj.bot.events.listener.PlayerButtonListener;
 import ru.discordj.bot.events.slashcommands.*;
 import ru.discordj.bot.events.slashcommands.music.*;
+import ru.discordj.bot.informer.Run;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,10 +23,11 @@ import static net.dv8tion.jda.api.utils.cache.CacheFlag.CLIENT_STATUS;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.VOICE_STATE;
 import static ru.discordj.bot.config.Constant.*;
 
-public class JDA {
-    private static final Logger logger = LoggerFactory.getLogger(JDA.class);
+public class JdaConfig {
+    private static final Logger logger = LoggerFactory.getLogger(JdaConfig.class);
     private static final CommandManager MANAGER = new CommandManager();
     private static final Map<String, String> stringRoleMap = new HashMap<>();
+    private static JDA jda;
 
 
     static {
@@ -47,12 +51,16 @@ public class JDA {
     }
 
     public static void start(String[] args) {
-        JDABuilder.createLight(checkToken(args))
+//        Run.main(args);
+        jda = JDABuilder.createDefault(checkToken(args))
                 .setEnabledIntents(
                         GUILD_PRESENCES,
                         GUILD_MESSAGES,
                         GUILD_MEMBERS,
                         GUILD_MESSAGE_REACTIONS,
+                        GUILD_MESSAGES,
+                        GUILD_EMOJIS_AND_STICKERS,
+                        SCHEDULED_EVENTS,
                         GUILD_VOICE_STATES,
                         MESSAGE_CONTENT)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
@@ -61,7 +69,9 @@ public class JDA {
                 .addEventListeners(
                         MANAGER,
                         new AddRoleListener(),
-                        new PlayerButtonListener())
+                        new PlayerButtonListener(),
+                        new Configurator()
+                )
                 .build();
     }
 
@@ -83,5 +93,8 @@ public class JDA {
         return stringRoleMap.get(emoji);
     }
 
+    public static JDA getJda() {
+        return jda;
+    }
 }
 
