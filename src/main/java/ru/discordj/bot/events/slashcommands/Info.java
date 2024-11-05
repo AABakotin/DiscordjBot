@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.List;
 
 
-
 public class Info implements ICommand {
     private static final Logger logger = LoggerFactory.getLogger(Info.class);
 
@@ -48,8 +47,7 @@ public class Info implements ICommand {
 
         User target = event.getOption("information", OptionMapping::getAsUser);
         Member member = event.getOption("information", OptionMapping::getAsMember);
-        String avatar = target.getAvatarUrl();
-        if (avatar == null) avatar = Constant.NON_AVATAR_URL;
+        String avatar = target.getAvatarUrl() == null ? Constant.NON_AVATAR_URL : target.getAvatarUrl();
 
         EmbedBuilder avatarEmbed = new EmbedBuilder()
                 .setColor(Color.YELLOW)
@@ -65,7 +63,7 @@ public class Info implements ICommand {
                 .setEmbeds(avatarEmbed.build())
                 .setEphemeral(true)
                 .queue(
-                        success -> logger.info("requested 'info' @" + target.getName() + " by @" + event.getUser().getName()),
+                        success -> logger.info("requested 'info' @{} by @{}", target.getName(), event.getUser().getName()),
                         failure -> logger.error("Some error occurred in 'info', try again!")
                 );
     }

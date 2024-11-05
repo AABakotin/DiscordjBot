@@ -51,7 +51,7 @@ public class JdaConfig {
     }
 
     public static void start(String[] args) {
-        Run.main(args);
+//        Run.main(args);
         jda = JDABuilder.createDefault(checkToken(args))
                 .setEnabledIntents(
                         GUILD_PRESENCES,
