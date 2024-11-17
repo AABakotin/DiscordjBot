@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.discordj.bot.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Queue implements ICommand {
@@ -22,7 +23,7 @@ public class Queue implements ICommand {
 
     @Override
     public List<OptionData> getOptions() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

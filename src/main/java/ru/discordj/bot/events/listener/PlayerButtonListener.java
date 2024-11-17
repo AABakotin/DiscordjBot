@@ -10,7 +10,7 @@ public class PlayerButtonListener extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-            PlayerManager.get().getGuildMusicManager(event.getGuild()).getTrackScheduler().removeTrack(event.getButton().getId());
+            PlayerManager.getInstance().getGuildMusicManager(event.getGuild()).getTrackScheduler().removeTrack(event.getButton().getId());
             event.getChannel().deleteMessageById(event.getMessageId()).queue();
             EmbedCreation.get().playListEmbed(event.getChannel().asTextChannel());
         }

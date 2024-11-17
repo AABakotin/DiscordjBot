@@ -3,10 +3,8 @@ package ru.discordj.bot.embed;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -27,17 +25,17 @@ import static ru.discordj.bot.config.Constant.INVITATION_LINK;
 import static ru.discordj.bot.config.Constant.TEST_CHANNEL;
 
 public class EmbedCreation {
-    private final Date DATE = new Date();
 
-    private static EmbedCreation INSTANCE;
+    private final Date date = new Date();
+    private static EmbedCreation instance;
     private static final Logger logger = LoggerFactory.getLogger(EmbedCreation.class);
     private final JDA jda = JdaConfig.getJda().getSelfUser().getJDA();
 
     public static EmbedCreation get() {
-        if (INSTANCE == null) {
-            INSTANCE = new EmbedCreation();
+        if (instance == null) {
+            instance = new EmbedCreation();
         }
-        return INSTANCE;
+        return instance;
     }
 
     public MessageEmbed embedWelcomeGuild(String imageServer, String author) {
@@ -59,7 +57,7 @@ public class EmbedCreation {
                                 "3️⃣ Реферальная ссылка " + INVITATION_LINK + " 🤩. \n" +
                                 "4️⃣ Надеемся, что тебе понравится с нами. 🫡",
                         false)
-                .setFooter("📩 " + "requested by @" + author + " " + DATE, imageServer);
+                .setFooter("📩 " + "requested by @" + author + " " + date, imageServer);
         return builder.build();
     }
 
@@ -69,15 +67,15 @@ public class EmbedCreation {
                 .setTitle("█▓▒░⡷⠂𝚃𝚑𝚎 𝚂𝚝𝚎𝚊𝚕𝚝𝚑 𝙳𝚞𝚍𝚎⠐⢾░▒▓█")
                 .addField("👋😊 До скорых встреч! ", author.toUpperCase(), true)
                 .addField("😉 Ждем тебя снова!", INVITATION_LINK, false)
-                .setFooter("📩 " + "requested by @" + author + " " + DATE, imageServer);
+                .setFooter("📩 " + "requested by @" + author + " " + date, imageServer);
         return builder.build();
     }
 
     public void playListEmbed(TextChannel textChannel) {
-        List<AudioTrack> playList = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().getPlayList();
+        List<AudioTrack> playList = PlayerManager.getInstance().getGuildMusicManager(textChannel.getGuild()).getTrackScheduler().getPlayList();
         MessageCreateBuilder messageCreateBuilder = new MessageCreateBuilder();
         EmbedBuilder builderPlayList = new EmbedBuilder();
-        AudioTrack playingTrack = PlayerManager.get().getGuildMusicManager(textChannel.getGuild()).player.getPlayingTrack();
+        AudioTrack playingTrack = PlayerManager.getInstance().getGuildMusicManager(textChannel.getGuild()).player.getPlayingTrack();
         builderPlayList
                 .setColor(Color.GREEN)
                 .setThumbnail(playingTrack.getInfo().artworkUrl)
@@ -121,11 +119,8 @@ public class EmbedCreation {
         builder
                 .setTitle("█▓▒░⡷⠂Monitoring Games Servers⠐⢾░▒▓█")
                 .setColor(Color.BLUE)
-                .setFooter("📩 " + "requested by @" + "author" + " " + DATE);
-        receive.forEach((key, value) -> {
-            builder
-                    .addField(key, value, true);
-        });
+                .setFooter("📩 " + "requested by @" + "author" + " " + date);
+        receive.forEach((key, value) -> builder.addField(key, value, true));
 
         messageCreateBuilder.setEmbeds(builder.build());
 
@@ -135,24 +130,16 @@ public class EmbedCreation {
             MessageCreateAction message = textChannelById.sendMessage(messageCreateBuilder.build());
             String latestMessageId = textChannelById.getLatestMessageId();
             textChannelById.deleteMessageById(latestMessageId)
-                    .queue(
-                            ok -> message.queue(x -> System.out.println("Delete last msg")),
-                            not -> message.queue(e -> System.out.println("Create new msg")));
-
-
-
-
+                    .queue(ok -> message.queue(), not -> message.queue());
         }
     }
 
-
     private String statusRepeat(TextChannel textChannel) {
-        return PlayerManager.get()
+        return PlayerManager.getInstance()
                 .getGuildMusicManager(textChannel.getGuild())
                 .getTrackScheduler()
                 .isRepeat() ? "🔁" : "➡️";
     }
-
 
     private String timer(AudioTrack info) {
         return String.format(

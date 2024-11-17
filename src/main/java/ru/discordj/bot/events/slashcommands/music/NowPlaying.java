@@ -10,6 +10,7 @@ import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.lavaplayer.GuildMusicManager;
 import ru.discordj.bot.lavaplayer.PlayerManager;
 
+import java.util.Collections;
 import java.util.List;
 
 public class NowPlaying implements ICommand {
@@ -26,7 +27,7 @@ public class NowPlaying implements ICommand {
 
     @Override
     public List<OptionData> getOptions() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -52,7 +53,7 @@ public class NowPlaying implements ICommand {
             return;
         }
 
-        GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
+        GuildMusicManager guildMusicManager = PlayerManager.getInstance().getGuildMusicManager(event.getGuild());
         if (guildMusicManager.getTrackScheduler().getPlayer().getPlayingTrack() == null) {
             event.reply("I am not playing anything").setEphemeral(true).queue();
             return;

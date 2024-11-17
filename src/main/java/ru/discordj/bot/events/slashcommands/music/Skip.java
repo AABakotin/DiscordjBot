@@ -8,6 +8,7 @@ import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.lavaplayer.GuildMusicManager;
 import ru.discordj.bot.lavaplayer.PlayerManager;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Skip implements ICommand {
@@ -23,7 +24,7 @@ public class Skip implements ICommand {
 
     @Override
     public List<OptionData> getOptions() {
-        return null;
+       return Collections.emptyList();
     }
 
     @Override
@@ -49,7 +50,7 @@ public class Skip implements ICommand {
             return;
         }
 
-        GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
+        GuildMusicManager guildMusicManager = PlayerManager.getInstance().getGuildMusicManager(event.getGuild());
 
         event.reply("Skipped: ").queue();
         guildMusicManager.getTrackScheduler().skip(event.getChannel().asTextChannel());

@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.discordj.bot.events.ICommand;
 
+import java.util.Collections;
 import java.util.List;
 
 import static ru.discordj.bot.config.Constant.INVITATION_LINK;
@@ -21,7 +22,7 @@ public class Invite implements ICommand {
 
     @Override
     public List<OptionData> getOptions() {
-        return null;
+       return Collections.emptyList();
     }
 
     @Override

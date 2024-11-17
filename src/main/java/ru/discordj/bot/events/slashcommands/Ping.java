@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.ICommand;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Ping implements ICommand {
@@ -23,7 +24,7 @@ public class Ping implements ICommand {
 
     @Override
     public List<OptionData> getOptions() {
-        return null;
+       return Collections.emptyList();
     }
 
     @Override
