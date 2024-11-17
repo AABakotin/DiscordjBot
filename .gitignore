@@ -9,11 +9,9 @@ target/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
-/properties.env
 *.iws
 *.iml
 *.ipr
-*.env
 
 ### Eclipse ###
 .apt_generated
@@ -40,3 +38,4 @@ build/
 ### Mac OS ###
 .DS_Store
 /.idea/
+properties.env
