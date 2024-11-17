@@ -13,8 +13,6 @@ import ru.discordj.bot.events.listener.Configurator;
 import ru.discordj.bot.events.listener.PlayerButtonListener;
 import ru.discordj.bot.events.slashcommands.*;
 import ru.discordj.bot.events.slashcommands.music.*;
-import ru.discordj.bot.informer.Run;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +46,10 @@ public class JdaConfig {
 
         stringRoleMap.put(EMOJI_ACCESS, ROLE_ACCESS);
         stringRoleMap.put(EMOJI_JAVA, ROLE_JAVA);
+    }
+
+    private JdaConfig (){
+        throw new IllegalStateException("Configuration class");
     }
 
     public static void start(String[] args) {

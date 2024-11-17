@@ -5,15 +5,15 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
-import com.sedmelluq.discord.lavaplayer.source.yamusic.YandexMusicAudioSourceManager;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
-import dev.lavalink.youtube.clients.AndroidWithThumbnail;
+import dev.lavalink.youtube.clients.AndroidTestsuiteWithThumbnail;
 import dev.lavalink.youtube.clients.MusicWithThumbnail;
 import dev.lavalink.youtube.clients.WebWithThumbnail;
+import dev.lavalink.youtube.clients.skeleton.Client;
+
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import dev.lavalink.youtube.clients.skeleton.Client;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.slf4j.Logger;
@@ -27,35 +27,37 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PlayerManager {
+    
 
-    private static PlayerManager INSTANCE;
+    private static PlayerManager instance;
     private final Map<Long, GuildMusicManager> musicManagers;
     private final AudioPlayerManager audioPlayerManager;
     private static final Logger logger = LoggerFactory.getLogger(PlayerManager.class);
-    private final long MAX_SIZE = 1L;
+    private static final long MAX_SIZE = 1L;
 
     private PlayerManager() {
         this.musicManagers = new HashMap<>();
         this.audioPlayerManager = new DefaultAudioPlayerManager();
         YoutubeAudioSourceManager youtube = new YoutubeAudioSourceManager(
-                true,
-                new Client[] { new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidWithThumbnail() }
-        );
-        YandexMusicAudioSourceManager yandexMusic = new YandexMusicAudioSourceManager();
+            true,
+             new Client[] { new MusicWithThumbnail(),
+                 new WebWithThumbnail(),
+                  new AndroidTestsuiteWithThumbnail() 
+                });
         audioPlayerManager.registerSourceManager(youtube);
         AudioSourceManagers.registerRemoteSources(this.audioPlayerManager);
         AudioSourceManagers.registerLocalSource(this.audioPlayerManager);
     }
 
-    public static PlayerManager get() {
-        if (INSTANCE == null) {
-            INSTANCE = new PlayerManager();
+    public static PlayerManager getInstance() {
+        if (instance == null) {
+            instance = new PlayerManager();
         }
-        return INSTANCE;
+        return instance;
     }
 
     public GuildMusicManager getGuildMusicManager(Guild guild) {
-        return this.musicManagers.computeIfAbsent(guild.getIdLong(), (guildId) -> {
+        return this.musicManagers.computeIfAbsent(guild.getIdLong(), guildId -> {
             final GuildMusicManager guildMusicManager = new GuildMusicManager(this.audioPlayerManager, guild);
             guild.getAudioManager().setSendingHandler(guildMusicManager.getSendHandler());
             return guildMusicManager;
@@ -99,7 +101,7 @@ public class PlayerManager {
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                logger.warn("Something broke when playing the track." + exception.getMessage());
+                logger.warn("Something broke when playing the track. {}", exception.getMessage());
             }
         });
     }

@@ -9,6 +9,7 @@ import ru.discordj.bot.lavaplayer.GuildMusicManager;
 import ru.discordj.bot.lavaplayer.PlayerManager;
 import ru.discordj.bot.lavaplayer.TrackScheduler;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Stop implements ICommand {
@@ -24,7 +25,7 @@ public class Stop implements ICommand {
 
     @Override
     public List<OptionData> getOptions() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -50,7 +51,7 @@ public class Stop implements ICommand {
             return;
         }
 
-        GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
+        GuildMusicManager guildMusicManager = PlayerManager.getInstance().getGuildMusicManager(event.getGuild());
         TrackScheduler trackScheduler = guildMusicManager.getTrackScheduler();
         trackScheduler.getQueue().clear();
 

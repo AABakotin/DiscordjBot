@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import ru.discordj.bot.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Rules implements ICommand {
@@ -23,7 +24,7 @@ public class Rules implements ICommand {
 
     @Override
     public List<OptionData> getOptions() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

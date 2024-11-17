@@ -4,7 +4,7 @@ package ru.discordj.bot.config;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.jetbrains.annotations.NotNull;
 
-final public class Constant {
+public final class Constant {
     @NotNull
     private static final Dotenv dotenv =
             Dotenv.configure()
@@ -38,6 +38,7 @@ final public class Constant {
 
 
     private Constant() {
+        throw new IllegalStateException("Constant class");
     }
 }
 

@@ -11,6 +11,7 @@ import ru.discordj.bot.lavaplayer.GuildMusicManager;
 import ru.discordj.bot.lavaplayer.PlayerManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ClearPlayList implements ICommand {
@@ -26,7 +27,7 @@ public class ClearPlayList implements ICommand {
 
     @Override
     public List<OptionData> getOptions() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -52,7 +53,7 @@ public class ClearPlayList implements ICommand {
             return;
         }
 
-        GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
+        GuildMusicManager guildMusicManager = PlayerManager.getInstance().getGuildMusicManager(event.getGuild());
         List<AudioTrack> queue = new ArrayList<>(guildMusicManager.getTrackScheduler().getQueue());
         if (queue.isEmpty()) {
             event.reply("Queue is empty").setEphemeral(true).queue();

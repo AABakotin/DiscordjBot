@@ -9,6 +9,7 @@ import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.lavaplayer.GuildMusicManager;
 import ru.discordj.bot.lavaplayer.PlayerManager;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Repeat implements ICommand {
@@ -24,7 +25,7 @@ public class Repeat implements ICommand {
 
     @Override
     public List<OptionData> getOptions() {
-        return null;
+      return Collections.emptyList();
     }
 
     @Override
@@ -50,7 +51,7 @@ public class Repeat implements ICommand {
             return;
         }
 
-        GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
+        GuildMusicManager guildMusicManager = PlayerManager.getInstance().getGuildMusicManager(event.getGuild());
         boolean isRepeat = !guildMusicManager.getTrackScheduler().isRepeat();
         guildMusicManager.getTrackScheduler().setRepeat(isRepeat);
 

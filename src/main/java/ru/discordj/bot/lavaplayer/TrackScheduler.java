@@ -50,9 +50,9 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
-    public void removeTrack(String Identifier) {
-        if (!Identifier.isEmpty()) {
-            getQueue().removeIf(e -> e.getInfo().title.equals(Identifier));
+    public void removeTrack(String identifier) {
+        if (!identifier.isEmpty()) {
+            getQueue().removeIf(e -> e.getInfo().title.equals(identifier));
         }
     }
 
