@@ -44,8 +44,6 @@ public class JdaConfig {
         MANAGER.add(new Stop());
         MANAGER.add(new ClearPlayList());
 
-        stringRoleMap.put(EMOJI_ACCESS, ROLE_ACCESS);
-        stringRoleMap.put(EMOJI_JAVA, ROLE_JAVA);
     }
 
     private JdaConfig (){

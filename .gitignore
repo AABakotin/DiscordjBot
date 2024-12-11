@@ -38,4 +38,4 @@ build/
 ### Mac OS ###
 .DS_Store
 /.idea/
-properties.env
+src/main/resources/.env

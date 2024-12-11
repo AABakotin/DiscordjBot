@@ -3,29 +3,25 @@ package ru.discordj.bot.config;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.jetbrains.annotations.NotNull;
+import ru.discordj.bot.config.utility.JsonHandler;
+import ru.discordj.bot.config.utility.JsonParse;
+
 
 public final class Constant {
     @NotNull
     private static final Dotenv dotenv =
             Dotenv.configure()
-                    .filename("properties.env")
+                    .filename(".env")
                     .ignoreIfMalformed()
                     .load();
 
+    public static JsonHandler jsonHandler = JsonParse.getInstance();
 
-    public static final String OWNER = dotenv.get("OWNER");
-    public static final String ADMIN_CHANNEL = dotenv.get("ADMIN_CHANNEL");
-    public static final String GUEST_CHANNEL = dotenv.get("GUEST_CHANNEL");
-    public static final String EMOJI_ACCESS = dotenv.get("EMOJI_ACCESS");
-    public static final String ROLE_ACCESS = dotenv.get("ROLE_ACCESS");
-    public static final String EMOJI_JAVA = dotenv.get("EMOJI_JAVA");
-    public static final String ROLE_JAVA = dotenv.get("ROLE_JAVA");
-    public static final String NON_AVATAR_URL = dotenv.get("NON_AVATAR_URL");
-    public static final String TOKEN_FROM_FILE_PROPERTIES = dotenv.get("TOKEN_FROM_FILE");
-    public static final String INVITATION_LINK = dotenv.get("INVITATION_LINK");
+    public static  String NON_AVATAR_URL = "http://i.servimg.com/u/f33/17/73/99/79/no_ava10.png";
+    public static  String TOKEN_FROM_FILE_PROPERTIES = jsonHandler.read().getToken();
+    public static  String INVITATION_LINK = jsonHandler.read().getInvite_link();
 
     public static final String TEST_CHANNEL = "1300539782874529802";
-
 
 
     public static final byte INFO_RESPONSE = 0x49;
@@ -40,6 +36,7 @@ public final class Constant {
     private Constant() {
         throw new IllegalStateException("Constant class");
     }
+
 }
 
 
