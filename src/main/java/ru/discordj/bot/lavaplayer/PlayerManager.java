@@ -6,10 +6,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
-import dev.lavalink.youtube.clients.AndroidTestsuiteWithThumbnail;
-import dev.lavalink.youtube.clients.MusicWithThumbnail;
-import dev.lavalink.youtube.clients.WebWithThumbnail;
-import dev.lavalink.youtube.clients.skeleton.Client;
 
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
@@ -27,7 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PlayerManager {
-    
+
 
     private static PlayerManager instance;
     private final Map<Long, GuildMusicManager> musicManagers;
@@ -38,12 +34,7 @@ public class PlayerManager {
     private PlayerManager() {
         this.musicManagers = new HashMap<>();
         this.audioPlayerManager = new DefaultAudioPlayerManager();
-        YoutubeAudioSourceManager youtube = new YoutubeAudioSourceManager(
-            true,
-             new Client[] { new MusicWithThumbnail(),
-                 new WebWithThumbnail(),
-                  new AndroidTestsuiteWithThumbnail() 
-                });
+        YoutubeAudioSourceManager youtube = new dev.lavalink.youtube.YoutubeAudioSourceManager();
         audioPlayerManager.registerSourceManager(youtube);
         AudioSourceManagers.registerRemoteSources(this.audioPlayerManager);
         AudioSourceManagers.registerLocalSource(this.audioPlayerManager);
@@ -70,39 +61,38 @@ public class PlayerManager {
         this.audioPlayerManager.loadItemOrdered(
                 guildMusicManager,
                 trackURL,
-                new AudioLoadResultHandler()
-                {
-            @Override
-            public void trackLoaded(AudioTrack track) {
-                guildMusicManager.getTrackScheduler().queue(track.makeClone());
-                EmbedCreation.get().playListEmbed(textChannel);
-            }
-
-            @Override
-            public void playlistLoaded(AudioPlaylist playlist) {
-                final List<AudioTrack> tracks = playlist.getTracks()
-                        .stream()
-                        .limit(MAX_SIZE)
-                        .collect(Collectors.toList());
-
-                if (!tracks.isEmpty()) {
-                    for (AudioTrack track : tracks) {
-                        guildMusicManager.getTrackScheduler().queue(track);
+                new AudioLoadResultHandler() {
+                    @Override
+                    public void trackLoaded(AudioTrack track) {
+                        guildMusicManager.getTrackScheduler().queue(track.makeClone());
+                        EmbedCreation.get().playListEmbed(textChannel);
                     }
-                    EmbedCreation.get().playListEmbed(textChannel);
-                }
-            }
 
-            @Override
-            public void noMatches() {
-                textChannel.sendMessage("Не нашел :(").queue();
-                logger.warn("noMatches.");
-            }
+                    @Override
+                    public void playlistLoaded(AudioPlaylist playlist) {
+                        final List<AudioTrack> tracks = playlist.getTracks()
+                                .stream()
+                                .limit(MAX_SIZE)
+                                .collect(Collectors.toList());
 
-            @Override
-            public void loadFailed(FriendlyException exception) {
-                logger.warn("Something broke when playing the track. {}", exception.getMessage());
-            }
-        });
+                        if (!tracks.isEmpty()) {
+                            for (AudioTrack track : tracks) {
+                                guildMusicManager.getTrackScheduler().queue(track);
+                            }
+                            EmbedCreation.get().playListEmbed(textChannel);
+                        }
+                    }
+
+                    @Override
+                    public void noMatches() {
+                        textChannel.sendMessage("Не нашел :(").queue();
+                        logger.warn("noMatches.");
+                    }
+
+                    @Override
+                    public void loadFailed(FriendlyException exception) {
+                        logger.warn("Something broke when playing the track. {}", exception.getMessage());
+                    }
+                });
     }
 }
