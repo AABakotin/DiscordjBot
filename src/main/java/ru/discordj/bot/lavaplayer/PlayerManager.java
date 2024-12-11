@@ -47,6 +47,7 @@ public class PlayerManager {
         return instance;
     }
 
+
     public GuildMusicManager getGuildMusicManager(Guild guild) {
         return this.musicManagers.computeIfAbsent(guild.getIdLong(), guildId -> {
             final GuildMusicManager guildMusicManager = new GuildMusicManager(this.audioPlayerManager, guild);
