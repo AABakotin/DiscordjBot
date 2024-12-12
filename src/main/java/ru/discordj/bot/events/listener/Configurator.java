@@ -29,7 +29,7 @@ public class Configurator extends ListenerAdapter {
             switch (command[0]) {
                 case "!read_conf":
                     if (jsonHandler.read().getOwner() == null || jsonHandler.read().getOwner().equals("empty")) {
-                        event.getChannel().sendMessage("В базе нет ID администратора, введите !id. Настройки будут сброшены.").queue();
+                        event.getChannel().sendMessage("В базе нет ID администратора, введите !id.").queue();
                         break;
                     } else if (event.getMessage().getAuthor().getId().equals(jsonHandler.read().getOwner())) {
                         event.getChannel().sendMessageEmbeds(embedConfiguration()).queue();
