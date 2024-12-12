@@ -30,11 +30,13 @@ public class EmbedCreation {
     private final Date date = new Date();
     private static EmbedCreation instance;
     private static final Logger logger = LoggerFactory.getLogger(EmbedCreation.class);
-    private final JDA jda = JdaConfig.getJda().getSelfUser().getJDA();
-    private static final JsonHandler jsonHandler = JsonParse.getInstance();
+    private final JDA jda;
+    private final JsonHandler jsonHandler;
 
 
     private EmbedCreation() {
+        this.jsonHandler = JsonParse.getInstance();
+        this.jda = JdaConfig.getJda().getSelfUser().getJDA();
     }
 
     public static EmbedCreation get() {
