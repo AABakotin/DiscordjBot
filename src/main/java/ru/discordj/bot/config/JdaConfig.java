@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.discordj.bot.config.utility.JsonHandler;
+import ru.discordj.bot.config.utility.JsonParse;
 import ru.discordj.bot.events.CommandManager;
 import ru.discordj.bot.events.listener.AddRoleListener;
 import ru.discordj.bot.events.listener.Configurator;
@@ -25,6 +27,7 @@ public class JdaConfig {
     private static final Logger logger = LoggerFactory.getLogger(JdaConfig.class);
     private static final CommandManager MANAGER = new CommandManager();
     private static final Map<String, String> stringRoleMap = new HashMap<>();
+    public static JsonHandler jsonHandler = JsonParse.getInstance();
     private static JDA jda;
 
 
@@ -84,13 +87,8 @@ public class JdaConfig {
             return System.getenv("TOKEN");
         } else {
             logger.info("Loading token key form properties file...");
-            return TOKEN_FROM_FILE_PROPERTIES;
+            return jsonHandler.read().getToken();
         }
-    }
-
-
-    public static String getRoleToEmoji(String emoji) {
-        return stringRoleMap.get(emoji);
     }
 
     public static JDA getJda() {

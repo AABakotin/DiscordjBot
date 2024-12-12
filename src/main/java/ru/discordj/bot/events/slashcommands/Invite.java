@@ -2,14 +2,15 @@ package ru.discordj.bot.events.slashcommands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import ru.discordj.bot.config.utility.JsonHandler;
+import ru.discordj.bot.config.utility.JsonParse;
 import ru.discordj.bot.events.ICommand;
 
 import java.util.Collections;
 import java.util.List;
 
-import static ru.discordj.bot.config.Constant.INVITATION_LINK;
-
 public class Invite implements ICommand {
+    private static final JsonHandler jsonHandler = JsonParse.getInstance();
     @Override
     public String getName() {
         return "invite";
@@ -27,6 +28,6 @@ public class Invite implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        event.reply(INVITATION_LINK).setEphemeral(true).queue();
+        event.reply(jsonHandler.read().getInvite_link()).setEphemeral(true).queue();
     }
 }

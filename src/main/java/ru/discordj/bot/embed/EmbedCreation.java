@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.config.JdaConfig;
+import ru.discordj.bot.config.utility.JsonHandler;
+import ru.discordj.bot.config.utility.JsonParse;
 import ru.discordj.bot.lavaplayer.PlayerManager;
 
 import java.awt.*;
@@ -21,7 +23,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.danger;
-import static ru.discordj.bot.config.Constant.INVITATION_LINK;
 import static ru.discordj.bot.config.Constant.TEST_CHANNEL;
 
 public class EmbedCreation {
@@ -30,6 +31,11 @@ public class EmbedCreation {
     private static EmbedCreation instance;
     private static final Logger logger = LoggerFactory.getLogger(EmbedCreation.class);
     private final JDA jda = JdaConfig.getJda().getSelfUser().getJDA();
+    private static final JsonHandler jsonHandler = JsonParse.getInstance();
+
+
+    private EmbedCreation() {
+    }
 
     public static EmbedCreation get() {
         if (instance == null) {
@@ -54,7 +60,7 @@ public class EmbedCreation {
                                 "🔹 Запрещена спам-рассылка рекламы; 🧐 \n" +
                                 "🔹 Запрещено включать музыку в микрофон; 😕 \n" +
                                 "🔹 Запрещено издавать громкие звуки в микрофон. 🤫 \n" +
-                                "3️⃣ Реферальная ссылка " + INVITATION_LINK + " 🤩. \n" +
+                                "3️⃣ Реферальная ссылка " + jsonHandler.read().getInvite_link() + " 🤩. \n" +
                                 "4️⃣ Надеемся, что тебе понравится с нами. 🫡",
                         false)
                 .setFooter("📩 " + "requested by @" + author + " " + date, imageServer);
@@ -66,7 +72,7 @@ public class EmbedCreation {
                 .setColor(Color.BLUE)
                 .setTitle("█▓▒░⡷⠂𝚃𝚑𝚎 𝚂𝚝𝚎𝚊𝚕𝚝𝚑 𝙳𝚞𝚍𝚎⠐⢾░▒▓█")
                 .addField("👋😊 До скорых встреч! ", author.toUpperCase(), true)
-                .addField("😉 Ждем тебя снова!", INVITATION_LINK, false)
+                .addField("😉 Ждем тебя снова!", jsonHandler.read().getInvite_link(), false)
                 .setFooter("📩 " + "requested by @" + author + " " + date, imageServer);
         return builder.build();
     }
@@ -132,6 +138,30 @@ public class EmbedCreation {
             textChannelById.deleteMessageById(latestMessageId)
                     .queue(ok -> message.queue(), not -> message.queue());
         }
+    }
+
+    public MessageEmbed embedConfiguration() {
+        EmbedBuilder builder = new EmbedBuilder()
+                .setColor(Color.BLUE)
+                .setTitle("█▓▒░⡷⠂Configuration⠐⢾░▒▓█")
+                .addField("Token", jsonHandler.read().getToken(), false)
+                .addField("Owner", jsonHandler.read().getOwner(), false)
+                .addField("invite_link", jsonHandler.read().getInvite_link(), false);
+        jsonHandler.read().getRoles().forEach(
+                e -> builder.addField("\nChannel :" + e.getChannel() +
+                                "\nRole: " + e.getRole() +
+                                "\nEmoji: " + e.getEmoji(),
+                        "", false));
+        builder.setDescription("Убедитесь, что только ВЫ видите переписку с ботом!");
+        builder.setFooter("Список команд: " +
+                "\n!read_conf - показывает настройки бота, " +
+                "\n!id - копирует ID админа автоматически, " +
+                "\n!id_del - удаляет ID админа. Только админ может удалить себя из списка, " +
+                "\n!role - добавляет правило для авто-роли (id_канал id_роль id_емодзи), " +
+                "\n!token - записывает токен (токен), " +
+                "\n!link - ссылка приглашения в дискорд (URL), " +
+                "\n!del_role - удаляет правило авто-роли (число)");
+        return builder.build();
     }
 
     private String statusRepeat(TextChannel textChannel) {

@@ -1,17 +1,9 @@
 package ru.discordj.bot.config;
 
 
-import ru.discordj.bot.config.utility.JsonHandler;
-import ru.discordj.bot.config.utility.JsonParse;
-
-
 public final class Constant {
 
-    public static JsonHandler jsonHandler = JsonParse.getInstance();
-
     public static  String NON_AVATAR_URL = "http://i.servimg.com/u/f33/17/73/99/79/no_ava10.png";
-    public static  String TOKEN_FROM_FILE_PROPERTIES = jsonHandler.read().getToken();
-    public static  String INVITATION_LINK = jsonHandler.read().getInvite_link();
 
     public static final String TEST_CHANNEL = "1300539782874529802";
 
