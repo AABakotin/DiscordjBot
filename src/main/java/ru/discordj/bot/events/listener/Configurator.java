@@ -8,7 +8,6 @@ import ru.discordj.bot.config.utility.JsonHandler;
 import ru.discordj.bot.config.utility.JsonParse;
 import ru.discordj.bot.config.utility.pojo.Roles;
 import ru.discordj.bot.config.utility.pojo.Root;
-import ru.discordj.bot.informer.parser.Parser;
 
 import java.awt.*;
 import java.util.ArrayList;
