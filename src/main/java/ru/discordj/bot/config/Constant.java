@@ -1,19 +1,11 @@
 package ru.discordj.bot.config;
 
 
-import io.github.cdimascio.dotenv.Dotenv;
-import org.jetbrains.annotations.NotNull;
 import ru.discordj.bot.config.utility.JsonHandler;
 import ru.discordj.bot.config.utility.JsonParse;
 
 
 public final class Constant {
-    @NotNull
-    private static final Dotenv dotenv =
-            Dotenv.configure()
-                    .filename(".env")
-                    .ignoreIfMalformed()
-                    .load();
 
     public static JsonHandler jsonHandler = JsonParse.getInstance();
 
