@@ -46,14 +46,14 @@ public class Configurator extends ListenerAdapter {
                     event.getChannel().sendMessage("Уже установлен ID администратора: " + root.getOwner())
                             .queue(e -> event.getChannel().sendMessageEmbeds(embedConfiguration()).queue());
                     break;
-                case "id_del":
+                case "!id_del":
                     if (event.getMessage().getAuthor().getId().equals(root.getOwner())) {
                         root.setOwner("empty");
                         jsonHandler.write(root);
                     }
                     event.getChannel().sendMessageEmbeds(embedConfiguration()).queue();
                     break;
-                case "!roles":
+                case "!role":
                     try {
                         Roles role = new Roles(command[1], command[2], command[3]);
                         rolesList.add(role);
@@ -74,7 +74,7 @@ public class Configurator extends ListenerAdapter {
                     jsonHandler.write(root);
                     event.getChannel().sendMessageEmbeds(embedConfiguration()).queue();
                     break;
-                case "!del_roles":
+                case "!del_role":
                     if (command[1].equals("all")) {
                         List<Roles> newRoles = new ArrayList<>();
                         root.setRoles(newRoles);
@@ -119,10 +119,10 @@ public class Configurator extends ListenerAdapter {
                 "\n!read_conf - показывает настройки бота, " +
                 "\n!id - копирует ID админа автоматически, " +
                 "\n!id_del - удаляет ID админа. Только админ может удалить себя из списка, " +
-                "\n!roles - добавляет правило для авто-роли (id_канал id_роль id_емодзи), " +
+                "\n!role - добавляет правило для авто-роли (id_канал id_роль id_емодзи), " +
                 "\n!token - записывает токен (токен), " +
                 "\n!link - ссылка приглашения в дискорд (URL), " +
-                "\n!del_roles - удаляет правило авто-роли (число)");
+                "\n!del_role - удаляет правило авто-роли (число)");
         return builder.build();
     }
 
