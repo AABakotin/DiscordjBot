@@ -2,63 +2,131 @@ package ru.discordj.bot.config.utility.pojo;
 
 import java.util.List;
 
+/**
+ * POJO класс, представляющий корневую конфигурацию бота Discord.
+ * Используется для сериализации/десериализации настроек бота в JSON формат.
+ *
+ * 
+ * @version 1.0
+ */
 public class Root {
 
+    /** Токен авторизации бота Discord */
     private String token;
+    
+    /** ID пользователя Discord, имеющего права администратора бота */
     private String owner;
-    private String invite_link;
+    
+    /** Ссылка для приглашения бота на сервер */
+    private String inviteLink;
 
+    /** Список правил автоматической выдачи ролей */
     private List<Roles> roles;
 
+    /**
+     * Создает пустой объект конфигурации.
+     */
     public Root() {
     }
 
-    public Root(String token, String owner, String invite_link, List<Roles> roles) {
+    /**
+     * Создает объект конфигурации с заданными параметрами.
+     *
+     * @param token токен авторизации бота
+     * @param owner ID администратора бота
+     * @param inviteLink ссылка для приглашения
+     * @param roles список правил выдачи ролей
+     */
+    public Root(String token, String owner, String inviteLink, List<Roles> roles) {
         this.token = token;
         this.owner = owner;
-        this.invite_link = invite_link;
+        this.inviteLink = inviteLink;
         this.roles = roles;
     }
 
+    /**
+     * Возвращает токен авторизации бота.
+     *
+     * @return токен Discord бота
+     */
     public String getToken() {
         return token;
     }
 
+    /**
+     * Устанавливает токен авторизации бота.
+     *
+     * @param token новый токен Discord бота
+     */
     public void setToken(String token) {
         this.token = token;
     }
 
+    /**
+     * Возвращает ID владельца (администратора) бота.
+     *
+     * @return ID пользователя Discord, который является администратором
+     */
     public String getOwner() {
         return owner;
     }
 
+    /**
+     * Устанавливает ID владельца (администратора) бота.
+     *
+     * @param owner новый ID администратора бота
+     */
     public void setOwner(String owner) {
         this.owner = owner;
     }
 
-    public String getInvite_link() {
-        return invite_link;
+    /**
+     * Возвращает ссылку для приглашения бота.
+     *
+     * @return ссылка-приглашение на сервер Discord
+     */
+    public String getInviteLink() {
+        return inviteLink;
     }
 
-    public void setInvite_link(String invite_link) {
-        this.invite_link = invite_link;
+    /**
+     * Устанавливает ссылку для приглашения бота.
+     *
+     * @param inviteLink новая ссылка-приглашение
+     */
+    public void setInviteLink(String inviteLink) {
+        this.inviteLink = inviteLink;
     }
 
-
+    /**
+     * Возвращает список правил автоматической выдачи ролей.
+     *
+     * @return список объектов {@link Roles}, описывающих правила выдачи ролей
+     */
     public List<Roles> getRoles() {
         return roles;
     }
 
+    /**
+     * Устанавливает список правил автоматической выдачи ролей.
+     *
+     * @param roles новый список правил выдачи ролей
+     */
     public void setRoles(List<Roles> roles) {
         this.roles = roles;
     }
 
+    /**
+     * Возвращает строковое представление конфигурации бота.
+     *
+     * @return строка с информацией о токене, владельце, ссылке и правилах ролей
+     */
     @Override
     public String toString() {
         return "Root{" +
                 "token='" + token + '\'' +
                 ", owner='" + owner + '\'' +
-                ", invite_link='" + invite_link + '\'' +
+                ", inviteLink='" + inviteLink + '\'' +
                 ", roles=" + roles +
                 '}';
     }
