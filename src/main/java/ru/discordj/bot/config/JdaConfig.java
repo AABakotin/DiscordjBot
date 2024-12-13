@@ -11,22 +11,18 @@ import ru.discordj.bot.config.utility.JsonHandler;
 import ru.discordj.bot.config.utility.JsonParse;
 import ru.discordj.bot.events.CommandManager;
 import ru.discordj.bot.events.listener.AddRoleListener;
-import ru.discordj.bot.events.listener.Configurator;
 import ru.discordj.bot.events.listener.PlayerButtonListener;
+import ru.discordj.bot.events.listener.configurator.Configurator;
 import ru.discordj.bot.events.slashcommands.*;
 import ru.discordj.bot.events.slashcommands.music.*;
-import java.util.HashMap;
-import java.util.Map;
 
 import static net.dv8tion.jda.api.requests.GatewayIntent.*;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.CLIENT_STATUS;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.VOICE_STATE;
-import static ru.discordj.bot.config.Constant.*;
 
 public class JdaConfig {
     private static final Logger logger = LoggerFactory.getLogger(JdaConfig.class);
     private static final CommandManager MANAGER = new CommandManager();
-    private static final Map<String, String> stringRoleMap = new HashMap<>();
     public static JsonHandler jsonHandler = JsonParse.getInstance();
     private static JDA jda;
 

@@ -28,6 +28,6 @@ public class Invite implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        event.reply(jsonHandler.read().getInvite_link()).setEphemeral(true).queue();
+        event.reply(jsonHandler.read().getInviteLink()).setEphemeral(true).queue();
     }
 }

@@ -1,12 +1,12 @@
 {
   "token": "empty",
   "owner": "empty",
-  "invite_link": "empty",
+  "inviteLink": "empty",
   "roles": [
     {
-      "channel": "empty",
-      "role": "empty",
-      "emoji": "empty"
+      "channelId": "empty",
+      "roleId": "empty",
+      "emojiId": "empty"
     }
   ]
 }

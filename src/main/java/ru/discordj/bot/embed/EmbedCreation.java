@@ -62,7 +62,7 @@ public class EmbedCreation {
                                 "🔹 Запрещена спам-рассылка рекламы; 🧐 \n" +
                                 "🔹 Запрещено включать музыку в микрофон; 😕 \n" +
                                 "🔹 Запрещено издавать громкие звуки в микрофон. 🤫 \n" +
-                                "3️⃣ Реферальная ссылка " + jsonHandler.read().getInvite_link() + " 🤩. \n" +
+                                "3️⃣ Реферальная ссылка " + jsonHandler.read().getInviteLink() + " 🤩. \n" +
                                 "4️⃣ Надеемся, что тебе понравится с нами. 🫡",
                         false)
                 .setFooter("📩 " + "requested by @" + author + " " + date, imageServer);
@@ -74,7 +74,7 @@ public class EmbedCreation {
                 .setColor(Color.BLUE)
                 .setTitle("█▓▒░⡷⠂𝚃𝚑𝚎 𝚂𝚝𝚎𝚊𝚕𝚝𝚑 𝙳𝚞𝚍𝚎⠐⢾░▒▓█")
                 .addField("👋😊 До скорых встреч! ", author.toUpperCase(), true)
-                .addField("😉 Ждем тебя снова!", jsonHandler.read().getInvite_link(), false)
+                .addField("😉 Ждем тебя снова!", jsonHandler.read().getInviteLink(), false)
                 .setFooter("📩 " + "requested by @" + author + " " + date, imageServer);
         return builder.build();
     }
@@ -148,11 +148,11 @@ public class EmbedCreation {
                 .setTitle("█▓▒░⡷⠂Configuration⠐⢾░▒▓█")
                 .addField("Token", jsonHandler.read().getToken(), false)
                 .addField("Owner", jsonHandler.read().getOwner(), false)
-                .addField("invite_link", jsonHandler.read().getInvite_link(), false);
+                .addField("invite_link", jsonHandler.read().getInviteLink(), false);
         jsonHandler.read().getRoles().forEach(
-                e -> builder.addField("\nChannel :" + e.getChannel() +
-                                "\nRole: " + e.getRole() +
-                                "\nEmoji: " + e.getEmoji(),
+                e -> builder.addField("\nChannel :" + e.getChannelId() +
+                                "\nRole: " + e.getRoleId() +
+                                "\nEmoji: " + e.getEmojiId(),
                         "", false));
         builder.setDescription("Убедитесь, что только ВЫ видите переписку с ботом!");
         builder.setFooter("Список команд: " +

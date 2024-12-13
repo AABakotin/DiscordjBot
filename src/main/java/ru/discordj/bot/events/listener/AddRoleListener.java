@@ -85,15 +85,15 @@ public class AddRoleListener extends ListenerAdapter {
 
     private String getChannelByEmoji(String emoji) {
        return  jsonHandler.read().getRoles().stream()
-                .filter(e -> e.getEmoji().equals(emoji))
-                .findFirst().get().getChannel();
+                .filter(e -> e.getEmojiId().equals(emoji))
+                .findFirst().get().getChannelId();
 
     }
 
     private  String getRoleByEmoji(String emoji) {
         return jsonHandler.read().getRoles()
                 .stream()
-                .filter(e -> e.getEmoji().equals(emoji)).findFirst().get().getRole();
+                .filter(e -> e.getEmojiId().equals(emoji)).findFirst().get().getRoleId();
     }
 }
 
