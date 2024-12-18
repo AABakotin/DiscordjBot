@@ -24,7 +24,6 @@ public class MusicEmbed extends BaseEmbed {
     private static final String EMOJI_DURATION = "⌛";
     private static final String EMOJI_AUTHOR = "👑";
     private static final String EMOJI_LINK = "🔗";
-    private static final String EMOJI_EMPTY = "⬜";
     private static final String EMOJI_PLAYING = "▶️";
     private static final String EMOJI_WARNING = "⚠";
     private static final String EMOJI_PAUSED = "⏸️";
@@ -125,7 +124,7 @@ public class MusicEmbed extends BaseEmbed {
             }
 
             // Добавляем информацию о треках
-            embed.addField("В очереди:", queueText.toString(), false);
+            embed.addField(EMOJI_QUEUE + " В очереди:", queueText.toString(), false);
         }
     }
 

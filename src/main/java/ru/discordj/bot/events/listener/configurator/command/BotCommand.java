@@ -15,7 +15,8 @@ public enum BotCommand {
     ROLE("!role", new RoleAddCommand()),
     TOKEN("!token", new TokenSetCommand()),
     LINK("!link", new LinkSetCommand()),
-    DEL_ROLE("!del_role", new RoleDeleteCommand());
+    DEL_ROLE("!del_role", new RoleDeleteCommand()),
+    MONITOR("!monitor", new MonitoringCommand());
 
     private final String command;
     private final BotCommandExecutor executor;

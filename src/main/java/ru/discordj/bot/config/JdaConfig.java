@@ -3,6 +3,7 @@ package ru.discordj.bot.config;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import ru.discordj.bot.events.listener.configurator.Configurator;
 import ru.discordj.bot.events.slashcommands.*;
 import ru.discordj.bot.events.listener.MusicControlsListener;
 import ru.discordj.bot.events.listener.MemberListener;
+import ru.discordj.bot.events.listener.ReadyListener;
 
 
 import static net.dv8tion.jda.api.requests.GatewayIntent.*;
@@ -66,7 +68,8 @@ public class JdaConfig {
                         new PlayerButtonListener(),
                         new Configurator(),
                         new MusicControlsListener(),
-                        new MemberListener()
+                        new MemberListener(),
+                        new ReadyListener()
                 )
                 .build();
     }
@@ -87,5 +90,6 @@ public class JdaConfig {
     public static JDA getJda() {
         return jda;
     }
+
 }
 
