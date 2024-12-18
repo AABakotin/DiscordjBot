@@ -14,7 +14,7 @@ public class GuildMusicManager {
         this.player = manager.createPlayer();
         this.trackScheduler = new TrackScheduler(this.player);
         this.player.addListener(this.trackScheduler);
-        this.sendHandler = new AudioPlayerSendHandler(this.player, guild);
+        this.sendHandler = new AudioPlayerSendHandler(this.player);
     }
 
     public TrackScheduler getTrackScheduler() {
@@ -23,5 +23,9 @@ public class GuildMusicManager {
 
     public AudioPlayerSendHandler getSendHandler() {
         return sendHandler;
+    }
+
+    public AudioPlayer getPlayer() {
+        return player;
     }
 }

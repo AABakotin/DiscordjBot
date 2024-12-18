@@ -5,75 +5,150 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import ru.discordj.bot.embed.EmbedCreation;
+import ru.discordj.bot.embed.EmbedFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledFuture;
 
 public class TrackScheduler extends AudioEventAdapter {
 
     private final AudioPlayer player;
     private final BlockingQueue<AudioTrack> queue;
     private boolean isRepeat = false;
+    private String playerMessageId;
+    private TextChannel textChannel;
+    private TrackSelectionData trackSelectionData;
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> updateTask;
 
     public TrackScheduler(AudioPlayer player) {
-        this.queue = new LinkedBlockingQueue<>();
         this.player = player;
+        this.queue = new LinkedBlockingQueue<>();
+    }
+
+    public void setPlayerMessage(TextChannel channel, String messageId) {
+        this.textChannel = channel;
+        this.playerMessageId = messageId;
+        updatePlayerMessage();
+    }
+
+    private void updatePlayerMessage() {
+        if (textChannel != null && playerMessageId != null) {
+            EmbedFactory.getInstance().createMusicEmbed()
+                .updatePlayerMessage(textChannel, playerMessageId);
+        }
+    }
+
+    public void startUpdateTask() {
+        stopUpdateTask(); // Останавливаем предыдущую задачу если она существует
+        
+        updateTask = scheduler.scheduleAtFixedRate(() -> {
+            if (player.getPlayingTrack() != null && textChannel != null && playerMessageId != null) {
+                updatePlayerMessage();
+            }
+        }, 0, 5, TimeUnit.SECONDS);
+    }
+
+    public void stopUpdateTask() {
+        if (updateTask != null) {
+            updateTask.cancel(false);
+            updateTask = null;
+        }
+    }
+
+    @Override
+    public void onTrackStart(AudioPlayer player, AudioTrack track) {
+        startUpdateTask();
     }
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if (endReason.mayStartNext) {
             if (isRepeat) {
-                player.startTrack(track.makeClone(), false);
+                this.player.startTrack(track.makeClone(), false);
             } else {
-                player.startTrack(this.queue.poll(), false);
+                nextTrack();
             }
         }
-    }
-
-    public void skip(TextChannel textChannel) {
-        if (this.queue.peek() != null) {
-            this.player.startTrack(this.queue.peek().makeClone(), false);
-            getQueue().poll();
-            EmbedCreation.get().playListEmbed(textChannel);
-        } else {
-            EmbedCreation.get().playListEmbed(textChannel);
+        
+        if (player.getPlayingTrack() == null) {
+            stopUpdateTask();
         }
+        
+        updatePlayerMessage();
     }
 
     public void queue(AudioTrack track) {
-        if (!this.player.startTrack(track, true)) {
+        if (!player.startTrack(track, true)) {
             queue.offer(track);
         }
+        updatePlayerMessage();
     }
 
-    public void removeTrack(String identifier) {
-        if (!identifier.isEmpty()) {
-            getQueue().removeIf(e -> e.getInfo().title.equals(identifier));
+    public void skip() {
+        if (isRepeat) {
+            AudioTrack currentTrack = player.getPlayingTrack();
+            if (currentTrack != null) {
+                player.startTrack(currentTrack.makeClone(), false);
+            }
+        } else {
+            nextTrack();
         }
+        updatePlayerMessage();
     }
 
-    public AudioPlayer getPlayer() {
-        return player;
+    public void togglePause() {
+        player.setPaused(!player.isPaused());
+        updatePlayerMessage();
     }
 
-    public BlockingQueue<AudioTrack> getQueue() {
-        return queue;
+    public void stop() {
+        queue.clear();
+        player.stopTrack();
+        stopUpdateTask();
+        updatePlayerMessage();
     }
 
-    public boolean isRepeat() {
-        return isRepeat;
+    public void toggleRepeat() {
+        isRepeat = !isRepeat;
+        updatePlayerMessage();
     }
 
-    public void setRepeat(boolean repeat) {
-        isRepeat = repeat;
+    public void removeTrack(String title) {
+        List<AudioTrack> currentQueue = new ArrayList<>(queue);
+        queue.clear();
+        currentQueue.stream()
+            .filter(track -> !track.getInfo().title.equals(title))
+            .forEach(queue::offer);
+        updatePlayerMessage();
     }
+
+    public void setTrackSelectionData(TrackSelectionData data) {
+        this.trackSelectionData = data;
+    }
+
+    public TrackSelectionData getTrackSelectionData() {
+        return trackSelectionData;
+    }
+
+    // Геттеры
+    public AudioPlayer getPlayer() { return player; }
+    public BlockingQueue<AudioTrack> getQueue() { return queue; }
+    public boolean isRepeat() { return isRepeat; }
+    public String getPlayerMessageId() { return playerMessageId; }
 
     public List<AudioTrack> getPlayList() {
         return new ArrayList<>(queue);
+    }
+
+    private void nextTrack() {
+        player.startTrack(queue.poll(), false);
     }
 
 }

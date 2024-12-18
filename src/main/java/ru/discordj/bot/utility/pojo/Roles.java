@@ -1,4 +1,4 @@
-package ru.discordj.bot.config.utility.pojo;
+package ru.discordj.bot.utility.pojo;
 
 /**
  * POJO класс, представляющий правило автоматической выдачи роли в Discord.

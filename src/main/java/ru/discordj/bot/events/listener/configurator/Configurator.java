@@ -1,17 +1,18 @@
 package ru.discordj.bot.events.listener.configurator;
-
+import ru.discordj.bot.events.listener.configurator.command.BotCommand;
+import ru.discordj.bot.utility.IJsonHandler;
+import ru.discordj.bot.utility.JsonParse;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import ru.discordj.bot.config.utility.JsonHandler;
-import ru.discordj.bot.config.utility.JsonParse;
-import ru.discordj.bot.config.utility.pojo.Root;
+
+import ru.discordj.bot.utility.pojo.Root;
 
 /**
  * Основной класс для обработки команд конфигурации бота.
  * Обрабатывает входящие сообщения и делегирует их соответствующим командам.
  */
 public class Configurator extends ListenerAdapter {
-    private final JsonHandler jsonHandler = JsonParse.getInstance();
+    private final IJsonHandler jsonHandler = JsonParse.getInstance();
     private static final String EMPTY = "empty";
 
     /**

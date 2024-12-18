@@ -1,25 +1,29 @@
 package ru.discordj.bot.events.slashcommands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ru.discordj.bot.embed.EmbedCreation;
 import ru.discordj.bot.events.ICommand;
-
+import ru.discordj.bot.utility.IJsonHandler;
+import ru.discordj.bot.utility.JsonParse;
+import ru.discordj.bot.utility.pojo.RulesMessage;
+import net.dv8tion.jda.api.EmbedBuilder;
+import java.awt.Color;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Rules implements ICommand {
-    private static final Logger logger = LoggerFactory.getLogger(Rules.class);
+    private final IJsonHandler jsonHandler = JsonParse.getInstance();
 
+    @Override
     public String getName() {
         return "rules";
     }
 
     @Override
     public String getDescription() {
-        return "Rules this TSD Discord";
+        return "Show server rules";
     }
 
     @Override
@@ -29,18 +33,17 @@ public class Rules implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        String imageServer = event.getGuild().getIconUrl();
-        String author = event.getUser().getName();
+        RulesMessage rules = jsonHandler.readRules();
+        
+        EmbedBuilder builder = new EmbedBuilder()
+            .setColor(Color.BLUE)
+            .setTitle(rules.getTitle())
+            .addField("Добро пожаловать!", rules.getWelcomeField(), false)
+            .addField("✨ ***ВНИМАНИЕ*** ✨", rules.getRulesField(), false)
+            .setFooter(rules.getFooter()
+                .replace("{date}", ZonedDateTime.now().format(DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy")))
+                .replace("{author}", event.getMember().getUser().getName()));
 
-        event.getUser()
-                .openPrivateChannel()
-                .complete()
-                .sendMessageEmbeds(EmbedCreation.get().embedWelcomeGuild(imageServer, author))
-                .queue(
-                        success -> event.reply("Rules has been sent to private message!")
-                                .setEphemeral(true)
-                                .queue(s -> logger.info("requested 'rules' by @{}", author)),
-                        failure -> logger.error("Some error occurred in 'ping', try again!")
-                );
+        event.replyEmbeds(builder.build()).queue();
     }
 }

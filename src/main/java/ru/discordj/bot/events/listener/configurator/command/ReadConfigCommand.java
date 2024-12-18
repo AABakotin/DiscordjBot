@@ -1,9 +1,10 @@
 package ru.discordj.bot.events.listener.configurator.command;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import ru.discordj.bot.config.utility.pojo.Root;
-import ru.discordj.bot.embed.EmbedCreation;
+import ru.discordj.bot.embed.EmbedFactory;
+import ru.discordj.bot.events.listener.configurator.BaseCommand;
 import ru.discordj.bot.events.listener.configurator.ConfiguratorError;
+import ru.discordj.bot.utility.pojo.Root;
 
 /**
  * Команда для чтения текущей конфигурации.
@@ -28,7 +29,7 @@ public class ReadConfigCommand extends BaseCommand {
         }
         
         if (event.getAuthor().getId().equals(root.getOwner())) {
-            sendEmbed(event, EmbedCreation.get().embedConfiguration());
+            sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration());
         }
     }
 } 

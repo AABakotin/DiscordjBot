@@ -1,17 +1,18 @@
 package ru.discordj.bot.events.listener.configurator.command;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import ru.discordj.bot.config.utility.JsonHandler;
-import ru.discordj.bot.config.utility.JsonParse;
-import ru.discordj.bot.config.utility.pojo.Root;
-import ru.discordj.bot.embed.EmbedCreation;
+import ru.discordj.bot.utility.IJsonHandler;
+import ru.discordj.bot.utility.JsonParse;
+import ru.discordj.bot.embed.EmbedFactory;
+import ru.discordj.bot.events.listener.configurator.BaseCommand;
+import ru.discordj.bot.utility.pojo.Root;
 
 /**
  * Команда для установки токена бота.
  * Позволяет обновить токен авторизации Discord бота.
  */
 public class TokenSetCommand extends BaseCommand {
-    private final JsonHandler jsonHandler = JsonParse.getInstance();
+    private final IJsonHandler jsonHandler = JsonParse.getInstance();
 
     /**
      * Устанавливает новый токен бота.
@@ -26,6 +27,6 @@ public class TokenSetCommand extends BaseCommand {
         
         root.setToken(args[1]);
         jsonHandler.write(root);
-        sendEmbed(event, EmbedCreation.get().embedConfiguration());
+        sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration());
     }
 } 

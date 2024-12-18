@@ -1,11 +1,12 @@
 package ru.discordj.bot.events.listener.configurator.command;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import ru.discordj.bot.config.utility.JsonHandler;
-import ru.discordj.bot.config.utility.JsonParse;
-import ru.discordj.bot.config.utility.pojo.Root;
-import ru.discordj.bot.embed.EmbedCreation;
+import ru.discordj.bot.utility.IJsonHandler;
+import ru.discordj.bot.utility.JsonParse;
+import ru.discordj.bot.embed.EmbedFactory;
+import ru.discordj.bot.events.listener.configurator.BaseCommand;
 import ru.discordj.bot.events.listener.configurator.ConfiguratorError;
+import ru.discordj.bot.utility.pojo.Root;
 
 /**
  * Команда для установки ID администратора.
@@ -13,7 +14,7 @@ import ru.discordj.bot.events.listener.configurator.ConfiguratorError;
  */
 public class SetIdCommand extends BaseCommand {
     private static final String EMPTY = "empty";
-    private final JsonHandler jsonHandler = JsonParse.getInstance();
+    private final IJsonHandler jsonHandler = JsonParse.getInstance();
 
     /**
      * Устанавливает ID администратора бота.
@@ -29,11 +30,11 @@ public class SetIdCommand extends BaseCommand {
         if (root.getOwner() == null || root.getOwner().equals(EMPTY)) {
             root.setOwner(authorId);
             jsonHandler.write(root);
-            sendEmbed(event, EmbedCreation.get().embedConfiguration());
+            sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration());
             return;
         }
         
         sendMessage(event, ConfiguratorError.ADMIN_EXISTS.getMessage() + root.getOwner())
-            .thenRun(() -> sendEmbed(event, EmbedCreation.get().embedConfiguration()));
+            .thenRun(() -> sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration()));
     }
 } 

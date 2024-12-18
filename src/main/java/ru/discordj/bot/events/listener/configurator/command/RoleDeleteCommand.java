@@ -1,12 +1,13 @@
 package ru.discordj.bot.events.listener.configurator.command;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import ru.discordj.bot.config.utility.JsonHandler;
-import ru.discordj.bot.config.utility.JsonParse;
-import ru.discordj.bot.config.utility.pojo.Root;
-import ru.discordj.bot.config.utility.pojo.Roles;
-import ru.discordj.bot.embed.EmbedCreation;
+import ru.discordj.bot.utility.IJsonHandler;
+import ru.discordj.bot.utility.JsonParse;
+import ru.discordj.bot.embed.EmbedFactory;
+import ru.discordj.bot.events.listener.configurator.BaseCommand;
 import ru.discordj.bot.events.listener.configurator.ConfiguratorError;
+import ru.discordj.bot.utility.pojo.Roles;
+import ru.discordj.bot.utility.pojo.Root;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * Позволяет удалить существующее правило или все правила сразу.
  */
 public class RoleDeleteCommand extends BaseCommand {
-    private final JsonHandler jsonHandler = JsonParse.getInstance();
+    private final IJsonHandler jsonHandler = JsonParse.getInstance();
 
     /**
      * Удаляет правило выдачи роли по индексу или все правила.
@@ -36,7 +37,7 @@ public class RoleDeleteCommand extends BaseCommand {
             rolesList.add(new Roles("empty", "empty", "empty"));
             root.setRoles(rolesList);
             jsonHandler.write(root);
-            sendEmbed(event, EmbedCreation.get().embedConfiguration());
+            sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration());
             return;
         }
 
@@ -56,7 +57,7 @@ public class RoleDeleteCommand extends BaseCommand {
             
             root.setRoles(rolesList);
             jsonHandler.write(root);
-            sendEmbed(event, EmbedCreation.get().embedConfiguration());
+            sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration());
         } catch (NumberFormatException e) {
             sendMessage(event, ConfiguratorError.DEL_ROLE_FORMAT.getMessage());
         }
