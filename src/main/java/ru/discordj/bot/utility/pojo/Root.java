@@ -1,6 +1,7 @@
 package ru.discordj.bot.utility.pojo;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * POJO класс, представляющий корневую конфигурацию бота Discord.
@@ -22,6 +23,15 @@ public class Root {
 
     /** Список правил автоматической выдачи ролей */
     private List<Roles> roles;
+
+    /** ID канала мониторинга */
+    private String monitoringChannelId;
+
+    /** Список серверов для мониторинга */
+    private List<ServerInfo> servers = new ArrayList<>();
+
+    /** Состояние мониторинга (включен/выключен) */
+    private boolean monitoringEnabled = false;
 
     /**
      * Создает пустой объект конфигурации.
@@ -129,5 +139,29 @@ public class Root {
                 ", inviteLink='" + inviteLink + '\'' +
                 ", roles=" + roles +
                 '}';
+    }
+
+    public String getMonitoringChannelId() {
+        return monitoringChannelId;
+    }
+
+    public void setMonitoringChannelId(String monitoringChannelId) {
+        this.monitoringChannelId = monitoringChannelId;
+    }
+
+    public List<ServerInfo> getServers() {
+        return servers;
+    }
+
+    public void setServers(List<ServerInfo> servers) {
+        this.servers = servers;
+    }
+
+    public boolean isMonitoringEnabled() {
+        return monitoringEnabled;
+    }
+
+    public void setMonitoringEnabled(boolean monitoringEnabled) {
+        this.monitoringEnabled = monitoringEnabled;
     }
 }

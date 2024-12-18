@@ -1,13 +1,33 @@
 package ru.discordj.bot.informer.parser;
 
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+
+import ru.discordj.bot.informer.tools.Tools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Parser {
 
+    private static final Logger logger = LoggerFactory.getLogger(Parser.class);
+    private final List<ServerQuery> queryHandlers;
+
+    public Parser() {
+        queryHandlers = Arrays.asList(
+            new DayZServerQuery(),
+            new Arma3ServerQuery()
+            // Добавлять новые обработчики здесь
+        );
+    }
 
     public static Map<String, String> getInformation(DatagramPacket packet) {
         Map<String, String> stringMap = new LinkedHashMap<>();
@@ -70,5 +90,29 @@ public class Parser {
             }
         }
         return stringMap;
+    }
+
+    public Map<String, String> getServerInfo(String ip, int port) {
+        for (ServerQuery handler : queryHandlers) {
+            if (handler.supportsPort(port)) {
+                Map<String, String> info = handler.getServerInfo(ip, port);
+                if (!info.isEmpty()) {
+                    return info;
+                }
+            }
+        }
+        logger.warn("No suitable query handler found for port {}", port);
+        return new HashMap<>();
+    }
+
+    private String readString(DataInputStream dis) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        byte b;
+        while ((b = dis.readByte()) != 0) {
+            if (b >= 32 && b < 127) { // Только читаемые ASCII символы
+                sb.append((char) b);
+            }
+        }
+        return sb.toString();
     }
 }

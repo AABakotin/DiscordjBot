@@ -23,4 +23,12 @@ public class Tools {
         return new String(hexChars);
     }
 
+    public static String getString(byte[] data, int offset) {
+        StringBuilder result = new StringBuilder();
+        while (offset < data.length && data[offset] != 0) {
+            result.append((char) data[offset++]);
+        }
+        return result.toString();
+    }
+
 }
