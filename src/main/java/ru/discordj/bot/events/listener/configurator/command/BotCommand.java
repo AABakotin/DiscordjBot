@@ -1,15 +1,8 @@
-package ru.discordj.bot.events.listener.configurator;
+package ru.discordj.bot.events.listener.configurator.command;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import ru.discordj.bot.config.utility.pojo.Root;
-import ru.discordj.bot.events.listener.configurator.command.BotCommandExecutor;
-import ru.discordj.bot.events.listener.configurator.command.DeleteIdCommand;
-import ru.discordj.bot.events.listener.configurator.command.LinkSetCommand;
-import ru.discordj.bot.events.listener.configurator.command.ReadConfigCommand;
-import ru.discordj.bot.events.listener.configurator.command.RoleAddCommand;
-import ru.discordj.bot.events.listener.configurator.command.RoleDeleteCommand;
-import ru.discordj.bot.events.listener.configurator.command.SetIdCommand;
-import ru.discordj.bot.events.listener.configurator.command.TokenSetCommand;
+import ru.discordj.bot.events.listener.configurator.BotCommandExecutor;
+import ru.discordj.bot.utility.pojo.Root;
 
 /**
  * Enum для управления командами бота.

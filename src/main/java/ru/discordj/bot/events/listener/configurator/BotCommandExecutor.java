@@ -1,7 +1,7 @@
-package ru.discordj.bot.events.listener.configurator.command;
+package ru.discordj.bot.events.listener.configurator;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import ru.discordj.bot.config.utility.pojo.Root;
+import ru.discordj.bot.utility.pojo.Root;
 
 /**
  * Интерфейс для выполнения команд бота.

@@ -1,4 +1,4 @@
-package ru.discordj.bot.config.utility.pojo;
+package ru.discordj.bot.utility.pojo;
 
 import java.util.List;
 

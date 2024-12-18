@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.config.Constant;
 import ru.discordj.bot.events.ICommand;
 
 import java.awt.*;
@@ -21,6 +20,7 @@ import java.util.List;
 
 public class Info implements ICommand {
     private static final Logger logger = LoggerFactory.getLogger(Info.class);
+    public static  String NON_AVATAR_URL = "http://i.servimg.com/u/f33/17/73/99/79/no_ava10.png";
 
 
     public String getName() {
@@ -47,7 +47,7 @@ public class Info implements ICommand {
 
         User target = event.getOption("information", OptionMapping::getAsUser);
         Member member = event.getOption("information", OptionMapping::getAsMember);
-        String avatar = target.getAvatarUrl() == null ? Constant.NON_AVATAR_URL : target.getAvatarUrl();
+        String avatar = target.getAvatarUrl() == null ? NON_AVATAR_URL : target.getAvatarUrl();
 
         EmbedBuilder avatarEmbed = new EmbedBuilder()
                 .setColor(Color.YELLOW)

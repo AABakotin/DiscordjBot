@@ -12,15 +12,9 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ru.discordj.bot.embed.EmbedCreation;
-
-
+import ru.discordj.bot.embed.EmbedFactory;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PlayerManager {
 
@@ -28,8 +22,6 @@ public class PlayerManager {
     private static PlayerManager instance;
     private final Map<Long, GuildMusicManager> musicManagers;
     private final AudioPlayerManager audioPlayerManager;
-    private static final Logger logger = LoggerFactory.getLogger(PlayerManager.class);
-    private static final long MAX_SIZE = 1L;
 
     private PlayerManager() {
         this.musicManagers = new HashMap<>();
@@ -57,43 +49,67 @@ public class PlayerManager {
     }
 
 
-    public void play(TextChannel textChannel, String trackURL) {
-        final GuildMusicManager guildMusicManager = getGuildMusicManager(textChannel.getGuild());
-        this.audioPlayerManager.loadItemOrdered(
-                guildMusicManager,
-                trackURL,
-                new AudioLoadResultHandler() {
-                    @Override
-                    public void trackLoaded(AudioTrack track) {
-                        guildMusicManager.getTrackScheduler().queue(track.makeClone());
-                        EmbedCreation.get().playListEmbed(textChannel);
-                    }
+    public void play(TextChannel textChannel, String trackUrl) {
+        final GuildMusicManager musicManager = getGuildMusicManager(textChannel.getGuild());
+        
+        // Создаем сообщение плеера, если его еще нет
+        if (musicManager.getTrackScheduler().getPlayerMessageId() == null) {
+            textChannel.sendMessage(EmbedFactory.getInstance().createMusicEmbed()
+                .createPlayerMessage(textChannel).build())
+                .queue(message -> 
+                    musicManager.getTrackScheduler().setPlayerMessage(textChannel, message.getId())
+                );
+        }
 
-                    @Override
-                    public void playlistLoaded(AudioPlaylist playlist) {
-                        final List<AudioTrack> tracks = playlist.getTracks()
-                                .stream()
-                                .limit(MAX_SIZE)
-                                .collect(Collectors.toList());
+        audioPlayerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
+            @Override
+            public void trackLoaded(AudioTrack track) {
+                musicManager.getTrackScheduler().queue(track);
+            }
 
-                        if (!tracks.isEmpty()) {
-                            for (AudioTrack track : tracks) {
-                                guildMusicManager.getTrackScheduler().queue(track);
-                            }
-                            EmbedCreation.get().playListEmbed(textChannel);
-                        }
-                    }
+            @Override
+            public void playlistLoaded(AudioPlaylist playlist) {
+                // Берем только первый трек из плейлиста
+                AudioTrack track = playlist.getTracks().get(0);
+                musicManager.getTrackScheduler().queue(track);
+            }
 
-                    @Override
-                    public void noMatches() {
-                        textChannel.sendMessage("Не нашел :(").queue();
-                        logger.warn("noMatches.");
-                    }
+            @Override
+            public void noMatches() {
+                textChannel.sendMessage("Трек не найден: " + trackUrl).queue();
+            }
 
-                    @Override
-                    public void loadFailed(FriendlyException exception) {
-                        logger.warn("Something broke when playing the track. {}", exception.getMessage());
-                    }
-                });
+            @Override
+            public void loadFailed(FriendlyException exception) {
+                textChannel.sendMessage("Ошибка загрузки: " + exception.getMessage()).queue();
+            }
+        });
+    }
+
+    public void searchAndPlay(TextChannel textChannel, String searchQuery) {
+        final GuildMusicManager musicManager = getGuildMusicManager(textChannel.getGuild());
+
+        audioPlayerManager.loadItemOrdered(musicManager, "ytsearch:" + searchQuery, new AudioLoadResultHandler() {
+            @Override
+            public void trackLoaded(AudioTrack track) {
+                musicManager.getTrackScheduler().queue(track);
+            }
+
+            @Override
+            public void playlistLoaded(AudioPlaylist playlist) {
+                AudioTrack track = playlist.getTracks().get(0);
+                musicManager.getTrackScheduler().queue(track);
+            }
+
+            @Override
+            public void noMatches() {
+                textChannel.sendMessage("Ничего не найдено по запросу: " + searchQuery).queue();
+            }
+
+            @Override
+            public void loadFailed(FriendlyException exception) {
+                textChannel.sendMessage("Ошибка при загрузке: " + exception.getMessage()).queue();
+            }
+        });
     }
 }

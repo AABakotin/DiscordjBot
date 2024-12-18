@@ -1,9 +1,11 @@
 package ru.discordj.bot.informer;
 
-import ru.discordj.bot.embed.EmbedCreation;
+
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+import ru.discordj.bot.embed.EmbedFactory;
 
 public class Run {
 
@@ -15,7 +17,7 @@ public class Run {
                         "195.18.27.92",
                         2343)
                         .listenerServers();
-                EmbedCreation.get().embedServerStatus(Informer.getReceive());
+                        EmbedFactory.getInstance().createServerStatusEmbed().embedServerStatus(Informer.getReceive());
             }
         };
 

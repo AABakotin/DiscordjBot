@@ -1,14 +1,13 @@
 package ru.discordj.bot.utility.pojo;
 
 public class RulesMessage {
-    private String serverName;
+    private String title;
     private String welcomeField;
     private String rulesField;
     private String footer;
 
-    // Геттеры и сеттеры
-    public String getserverName() { return serverName; }
-    public void setserverName(String serverName) { this.serverName = serverName; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
     public String getWelcomeField() { return welcomeField; }
     public void setWelcomeField(String welcomeField) { this.welcomeField = welcomeField; }
     public String getRulesField() { return rulesField; }

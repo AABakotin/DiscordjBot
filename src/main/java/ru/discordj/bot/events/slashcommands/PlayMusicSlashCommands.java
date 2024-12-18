@@ -10,7 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.embed.EmbedFactory;
-import ru.discordj.bot.events.ISlashcommands;
+import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.lavaplayer.PlayerManager;
 
 /**
@@ -18,7 +18,7 @@ import ru.discordj.bot.lavaplayer.PlayerManager;
  * Позволяет добавлять треки в очередь воспроизведения по URL или поисковому запросу.
  * Поддерживает автоматическое подключение к голосовому каналу.
  */
-public class PlayMusicSlashCommands implements ISlashcommands {
+public class PlayMusicSlashCommands implements ICommand {
     private static final Logger logger = LoggerFactory.getLogger(PlayMusicSlashCommands.class);
 
     @Override
@@ -90,8 +90,8 @@ public class PlayMusicSlashCommands implements ISlashcommands {
                 );
                 
             // Обновляем плеер и удаляем ответ
-            EmbedFactory.getMusicCreator()
-                .updatePlayerMessage(event.getChannel().asTextChannel());
+            EmbedFactory.getInstance().createMusicEmbed()
+                .updatePlayerMessage(event.getChannel().asTextChannel(), null);
             event.getHook().deleteOriginal().queue();
                 
             logger.info("Added track to queue: {}", name);
