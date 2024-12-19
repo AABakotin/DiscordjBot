@@ -1,7 +1,17 @@
-version: '3.7'
+version: '3.8'
 
 services:
-  arm:
+  discord-bot:
     build: .
-    platform: linux/amd64
-    restart: always
+    container_name: discord-bot
+    restart: unless-stopped
+    volumes:
+      - ./json:/app/json  
+    environment:
+      - TOKEN=${DISCORD_TOKEN}
+    networks:
+      - bot-network
+
+networks:
+  bot-network:
+    driver: bridge
