@@ -1,8 +1,10 @@
-package ru.discordj.bot.informer.query;
+package ru.discordj.bot.monitor.query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.informer.parser.SteamInputStream;
+
+import ru.discordj.bot.monitor.parser.SteamInputStream;
+
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;

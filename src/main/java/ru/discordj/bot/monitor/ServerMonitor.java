@@ -1,4 +1,4 @@
-package ru.discordj.bot.informer;
+package ru.discordj.bot.monitor;
 
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import ru.discordj.bot.config.JdaConfig;
 import ru.discordj.bot.embed.EmbedFactory;
 import ru.discordj.bot.embed.ServerStatusEmbed;
-import ru.discordj.bot.informer.parser.Parser;
+import ru.discordj.bot.monitor.parser.Parser;
 import ru.discordj.bot.utility.pojo.Root;
 import ru.discordj.bot.utility.pojo.ServerInfo;
 

@@ -1,4 +1,4 @@
-package ru.discordj.bot.informer.parser;
+package ru.discordj.bot.monitor.parser;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;

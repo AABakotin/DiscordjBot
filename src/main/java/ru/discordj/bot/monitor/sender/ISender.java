@@ -1,4 +1,4 @@
-package ru.discordj.bot.informer.sender;
+package ru.discordj.bot.monitor.sender;
 
 import java.util.Map;
 

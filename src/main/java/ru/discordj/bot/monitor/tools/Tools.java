@@ -1,4 +1,4 @@
-package ru.discordj.bot.informer.tools;
+package ru.discordj.bot.monitor.tools;
 
 public class Tools {
 

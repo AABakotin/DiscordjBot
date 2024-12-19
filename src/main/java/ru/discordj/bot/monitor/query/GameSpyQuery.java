@@ -1,4 +1,4 @@
-package ru.discordj.bot.informer.query;
+package ru.discordj.bot.monitor.query;
 
 import java.util.Map;
 import java.util.HashMap;

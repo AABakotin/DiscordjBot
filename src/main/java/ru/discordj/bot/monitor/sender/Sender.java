@@ -1,6 +1,4 @@
-package ru.discordj.bot.informer.sender;
-
-import ru.discordj.bot.informer.parser.Parser;
+package ru.discordj.bot.monitor.sender;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -8,6 +6,8 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Map;
+
+import ru.discordj.bot.monitor.parser.Parser;
 
 /**
  * Класс для отправки и получения данных от игровых серверов по протоколу UDP.

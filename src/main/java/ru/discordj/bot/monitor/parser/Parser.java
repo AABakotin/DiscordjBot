@@ -1,8 +1,10 @@
-package ru.discordj.bot.informer.parser;
+package ru.discordj.bot.monitor.parser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.informer.query.GameServerQueryFactory;
+
+import ru.discordj.bot.monitor.query.GameServerQueryFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.io.ByteArrayInputStream;

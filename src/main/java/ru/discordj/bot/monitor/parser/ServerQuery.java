@@ -1,4 +1,4 @@
-package ru.discordj.bot.informer.parser;
+package ru.discordj.bot.monitor.parser;
 
 import java.util.Map;
 
