@@ -40,7 +40,6 @@ public class MonitoringCommand extends BaseCommand {
                 if (args.length < 4) {
                     sendMessage(event, "Использование: !monitor add <ip:port> <тип>\n" +
                         "Поддерживаемые типы:\n" +
-                        "- arma3 - для серверов ARMA 3\n" +
                         "- dayz - для серверов DayZ\n" +
                         "- source - для Source серверов (CS:GO, TF2)\n" +
                         "Пример: !monitor add 192.168.1.1:27015 dayz");

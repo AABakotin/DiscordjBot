@@ -1,22 +1,27 @@
 package ru.discordj.bot.informer;
 
-import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.config.JdaConfig;
+import ru.discordj.bot.embed.EmbedFactory;
+import ru.discordj.bot.embed.ServerStatusEmbed;
 import ru.discordj.bot.informer.parser.Parser;
 import ru.discordj.bot.utility.pojo.Root;
 import ru.discordj.bot.utility.pojo.ServerInfo;
 
-import java.awt.Color;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Класс для мониторинга состояния игровых серверов.
+ * Реализует периодический опрос серверов и отображение их статуса в Discord канале.
+ * Использует паттерн Singleton для обеспечения единственного экземпляра монитора.
+ */
 public class ServerMonitor {
     private static final Logger logger = LoggerFactory.getLogger(ServerMonitor.class);
     private static ServerMonitor instance;
@@ -28,39 +33,46 @@ public class ServerMonitor {
     private boolean isRunning = false;
     private Thread monitoringThread;
 
-    private static final Map<String, String> IP_REGIONS = new HashMap<>();
-
-    static {
-        // Российские IP диа��азоны (примеры)
-        IP_REGIONS.put("195.18.", "ru");
-        IP_REGIONS.put("185.189.", "ru");
-        IP_REGIONS.put("62.122.", "ru");
-        IP_REGIONS.put("51.79.", "sg"); // Сингапур
-        IP_REGIONS.put("51.161.", "ca"); // Канада
-    }
-
+    /**
+     * Возвращает единственный экземпляр монитора.
+     *
+     * @return экземпляр ServerMonitor
+     */
     public static ServerMonitor getInstance() {
         return instance;
     }
 
+    /**
+     * Создает новый экземпляр монитора с указанной конфигурацией.
+     *
+     * @param config конфигурация с настройками серверов и каналов
+     */
     public ServerMonitor(Root config) {
         this.config = config;
         this.parser = new Parser();
         instance = this;
     }
 
+    /**
+     * Запускает мониторинг серверов.
+     * Создает отдельный поток для периодического опроса серверов.
+     */
     public void start() {
         if (!isRunning) {
             scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
                 monitoringThread = new Thread(r, "MonitoringThread");
                 return monitoringThread;
             });
-            scheduler.scheduleAtFixedRate(this::updateServersStatus, 0, 5, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(this::updateServersStatus, 0, 30, TimeUnit.SECONDS);
             isRunning = true;
-            logger.info("Server monitoring started");
+            logger.info("Monitoring service started");
         }
     }
 
+    /**
+     * Останавливает мониторинг серверов.
+     * Освобождает все ресурсы и очищает сообщения.
+     */
     public void stop() {
         if (isRunning) {
             try {
@@ -78,18 +90,26 @@ public class ServerMonitor {
                 instance = null;
                 scheduler = null;
                 monitoringThread = null;
-                logger.info("Server monitoring forcefully stopped");
+                logger.info("Monitoring service stopped");
             }
         }
     }
 
+    /**
+     * Проверяет, запущен ли мониторинг.
+     *
+     * @return true если мониторинг активен, false в противном случае
+     */
     public boolean isRunning() {
         return isRunning;
     }
 
+    /**
+     * Обновляет статус всех серверов.
+     * Опрашивает каждый сервер и обновляет сообщения в Discord канале.
+     */
     private void updateServersStatus() {
         if (Thread.currentThread().isInterrupted()) {
-            logger.info("Monitoring thread interrupted, stopping...");
             return;
         }
         
@@ -108,123 +128,52 @@ public class ServerMonitor {
                     messages.stream()
                         .filter(m -> m.getAuthor().equals(JdaConfig.getJda().getSelfUser()))
                         .forEach(m -> m.delete().queue());
-                    logger.info("Deleted old bot messages from channel");
                 });
         }
 
-        // Обновляем каждый сервер отдельно
+        ServerStatusEmbed embedBuilder = EmbedFactory.getInstance().createServerStatusEmbed();
+
         for (ServerInfo server : config.getServers()) {
-            Map<String, String> serverInfo = new HashMap<>();
-            EmbedBuilder embed = new EmbedBuilder()
-                .setTitle("🎮 Статус игрового сервера")
-                .setColor(getStatusColor(serverInfo))
-                .setTimestamp(Instant.now());
-
             try {
-                serverInfo = parser.getServerInfo(server.getIp(), server.getPort());
-                if (!serverInfo.isEmpty()) {
-                    String[] players = serverInfo.get("players").split("/");
-                    int current = Integer.parseInt(players[0]);
-                    int max = Integer.parseInt(players[1]);
-                    
-                    embed.setDescription("**" + serverInfo.get("name") + "**")
-                        .addField("📊 Статус", "🟢 Онлайн", true)
-                        .addField("🌍 Регион", getRegionFlag(server.getIp()), true)
-                        .addField("🎲 Игра", server.getGame().toUpperCase(), true)
-                        .addField("🔗 Подключение", String.format("`%s:%d`", server.getIp(), server.getPort()), true)
-                        .addField("🗺️ Карта", serverInfo.get("map"), true)
-                        .addField("👥 Игроки", String.format("%d/%d %s", 
-                            current, max, 
-                            getProgressBar(current, max)), false);
-
-                    // Добавляем дополнительные поля если они есть
-                    if (serverInfo.containsKey("version")) {
-                        embed.addField("📌 Версия", serverInfo.get("version"), true);
-                    }
-                    if (serverInfo.containsKey("mode")) {
-                        embed.addField("🎯 Режим", serverInfo.get("mode"), true);
-                    }
-                } else {
-                    embed.setDescription("**" + server.getName() + "**")
-                        .addField("📊 Статус", "🔴 Оффлайн", true)
-                        .addField("🌍 Регион", getRegionFlag(server.getIp()), true)
-                        .addField("🎲 Игра", server.getGame().toUpperCase(), true)
-                        .addField("🔗 Подключение", String.format("`%s:%d`", server.getIp(), server.getPort()), true);
-                }
-
-                // Добавляем подвал с временем обновления
-                embed.setFooter("Последнее обновление", null);
-
+                Map<String, String> serverInfo = parser.getServerInfo(server.getIp(), server.getPort());
+                MessageEmbed embed = embedBuilder.createServerEmbed(server, serverInfo);
+                
+                String serverId = server.getIp() + ":" + server.getPort();
+                updateMessage(channel, serverId, embed);
             } catch (Exception e) {
-                embed.setDescription("**" + server.getName() + "**")
-                    .addField("📊 Статус", "⚠️ Ошибка", true)
-                    .addField("🌍 Регион", getRegionFlag(server.getIp()), true)
-                    .addField("🎲 Игра", server.getGame().toUpperCase(), true)
-                    .addField("🔗 Подключение", String.format("`%s:%d`", server.getIp(), server.getPort()), true)
-                    .addField("❌ Ошибка", e.getMessage(), false);
-            }
-
-            String serverId = server.getIp() + ":" + server.getPort();
-            String messageId = messageIds.get(serverId);
-
-            if (messageId == null) {
-                // Первая отправка сообщения для этого сервера
-                channel.sendMessageEmbeds(embed.build())
-                    .queue(message -> messageIds.put(serverId, message.getId()));
-            } else {
-                // Обновление существующего сообщения
-                channel.editMessageEmbedsById(messageId, embed.build())
-                    .queue(null, error -> {
-                        // Если сообщение не найдено, создаем новое
-                        channel.sendMessageEmbeds(embed.build())
-                            .queue(message -> messageIds.put(serverId, message.getId()));
-                    });
+                MessageEmbed embed = embedBuilder.createErrorEmbed(server, e.getMessage());
+                String serverId = server.getIp() + ":" + server.getPort();
+                updateMessage(channel, serverId, embed);
             }
         }
     }
 
-    private Color getStatusColor(Map<String, String> serverInfo) {
-        if (serverInfo.isEmpty()) {
-            return Color.RED; // Оффлайн
-        }
-        String[] players = serverInfo.get("players").split("/");
-        int current = Integer.parseInt(players[0]);
-        int max = Integer.parseInt(players[1]);
-        
-        if (current >= max) {
-            return Color.decode("#ff5555"); // Сервер полный
-        } else if (current >= max * 0.7) {
-            return Color.decode("#ffaa00"); // Сервер почти полный
+    /**
+     * Обновляет или создает сообщение в канале Discord.
+     *
+     * @param channel канал для отправки сообщения
+     * @param serverId идентификатор сервера
+     * @param embed сообщение для отправки
+     */
+    private void updateMessage(TextChannel channel, String serverId, MessageEmbed embed) {
+        String messageId = messageIds.get(serverId);
+        if (messageId == null) {
+            channel.sendMessageEmbeds(embed)
+                .queue(message -> messageIds.put(serverId, message.getId()));
         } else {
-            return Color.decode("#55ff55"); // Есть места
+            channel.editMessageEmbedsById(messageId, embed)
+                .queue(null, error -> {
+                    channel.sendMessageEmbeds(embed)
+                        .queue(message -> messageIds.put(serverId, message.getId()));
+                });
         }
     }
 
-    private String getProgressBar(int current, int max) {
-        int bars = 10;
-        int filled = (int) Math.round((double) current / max * bars);
-        
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < bars; i++) {
-            if (i < filled) {
-                sb.append("█");
-            } else {
-                sb.append("░");
-            }
-        }
-        sb.append("]");
-        return sb.toString();
-    }
-
-    private String getRegionFlag(String ip) {
-        return IP_REGIONS.entrySet().stream()
-            .filter(entry -> ip.startsWith(entry.getKey()))
-            .map(Map.Entry::getValue)
-            .findFirst()
-            .map(code -> ":flag_" + code + ":")
-            .orElse(":flag_white:"); // Неизвестный регион
-    }
-
+    /**
+     * Обновляет конфигурацию монитора.
+     *
+     * @param newConfig новая конфигурация
+     */
     public void updateConfig(Root newConfig) {
         this.config = newConfig;
     }
