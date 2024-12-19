@@ -1,6 +1,8 @@
 package ru.discordj.bot.utility;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ru.discordj.bot.utility.pojo.Root;
 import ru.discordj.bot.utility.pojo.RulesMessage;
@@ -9,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class JsonParse implements IJsonHandler {
+    private static final Logger logger = LoggerFactory.getLogger(JsonParse.class);
     private static final String RULES_FILE = "json/rules.json";
     private static final String CONFIG_FILE = "json/config.json";
     private static final String DEFAULT_CONFIG = "{"
@@ -101,9 +104,26 @@ public class JsonParse implements IJsonHandler {
     @Override
     public void write(Root root) {
         try {
+            // Создаем временный объект для сериализации
+            Root tempRoot = new Root();
+            tempRoot.setToken(root.getToken());
+            tempRoot.setOwner(root.getOwner());
+            tempRoot.setInviteLink(root.getInviteLink());
+            tempRoot.setRoles(root.getRoles());
+            tempRoot.setMonitoringChannelId(root.getMonitoringChannelId());
+            tempRoot.setServers(root.getServers());
+            tempRoot.setMonitoringEnabled(root.isMonitoringEnabled());
+            // Не сохраняем currentMonitor, так как он transient
+
+            // Создаем директорию, если её нет
+            File configFile = new File(getConfigPath());
+            configFile.getParentFile().mkdirs();
+
+            // Записываем конфигурацию
             mapper.writerWithDefaultPrettyPrinter()
-                .writeValue(new File(getConfigPath()), root);
+                .writeValue(configFile, tempRoot);
         } catch (IOException e) {
+            logger.error("Failed to write config.json: {}", e.getMessage());
             throw new RuntimeException("Failed to write config.json", e);
         }
     }

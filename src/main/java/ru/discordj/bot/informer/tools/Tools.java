@@ -31,4 +31,9 @@ public class Tools {
         return result.toString();
     }
 
+    public static String cleanString(String input) {
+        if (input == null) return "";
+        return input.replaceAll("[^\\x20-\\x7E]", "").trim();
+    }
+
 }

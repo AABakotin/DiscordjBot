@@ -2,6 +2,7 @@ package ru.discordj.bot.utility.pojo;
 
 import java.util.List;
 import java.util.ArrayList;
+import ru.discordj.bot.informer.ServerMonitor;
 
 /**
  * POJO класс, представляющий корневую конфигурацию бота Discord.
@@ -127,7 +128,7 @@ public class Root {
     }
 
     /**
-     * Возвращает строковое представление конфигурации бота.
+     * Возвращает стр��ковое представление конфигурации бота.
      *
      * @return строка с информацией о токене, владельце, ссылке и правилах ролей
      */
@@ -163,5 +164,15 @@ public class Root {
 
     public void setMonitoringEnabled(boolean monitoringEnabled) {
         this.monitoringEnabled = monitoringEnabled;
+    }
+
+    private transient ServerMonitor currentMonitor;
+
+    public ServerMonitor getCurrentMonitor() {
+        return currentMonitor;
+    }
+
+    public void setCurrentMonitor(ServerMonitor monitor) {
+        this.currentMonitor = monitor;
     }
 }
