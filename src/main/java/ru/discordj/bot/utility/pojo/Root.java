@@ -1,8 +1,10 @@
 package ru.discordj.bot.utility.pojo;
 
 import java.util.List;
+
+import ru.discordj.bot.monitor.ServerMonitor;
+
 import java.util.ArrayList;
-import ru.discordj.bot.informer.ServerMonitor;
 
 /**
  * POJO класс, представляющий корневую конфигурацию бота Discord.

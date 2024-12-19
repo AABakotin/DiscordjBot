@@ -2,7 +2,8 @@ package ru.discordj.bot.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.informer.ServerMonitor;
+
+import ru.discordj.bot.monitor.ServerMonitor;
 import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.utility.pojo.Root;
 

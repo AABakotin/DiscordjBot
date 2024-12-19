@@ -1,4 +1,4 @@
-package ru.discordj.bot.informer.query;
+package ru.discordj.bot.monitor.query;
 
 public class GameServerQueryFactory {
     private static final SourceQuery sourceQuery = new SourceQuery();

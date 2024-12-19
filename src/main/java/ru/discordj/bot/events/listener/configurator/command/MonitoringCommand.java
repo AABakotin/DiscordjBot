@@ -2,14 +2,14 @@ package ru.discordj.bot.events.listener.configurator.command;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import ru.discordj.bot.events.listener.configurator.BaseCommand;
+import ru.discordj.bot.monitor.ServerMonitor;
+import ru.discordj.bot.monitor.parser.Parser;
+import ru.discordj.bot.monitor.query.GameServerQuery;
+import ru.discordj.bot.monitor.query.GameServerQueryFactory;
 import ru.discordj.bot.utility.IJsonHandler;
 import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.utility.pojo.Root;
 import ru.discordj.bot.utility.pojo.ServerInfo;
-import ru.discordj.bot.informer.ServerMonitor;
-import ru.discordj.bot.informer.parser.Parser;
-import ru.discordj.bot.informer.query.GameServerQueryFactory;
-import ru.discordj.bot.informer.query.GameServerQuery;
 import ru.discordj.bot.config.MonitoringManager;
 
 import java.util.Map;
