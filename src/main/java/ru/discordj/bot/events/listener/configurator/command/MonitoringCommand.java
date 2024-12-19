@@ -8,6 +8,9 @@ import ru.discordj.bot.utility.pojo.Root;
 import ru.discordj.bot.utility.pojo.ServerInfo;
 import ru.discordj.bot.informer.ServerMonitor;
 import ru.discordj.bot.informer.parser.Parser;
+import ru.discordj.bot.informer.query.GameServerQueryFactory;
+import ru.discordj.bot.informer.query.GameServerQuery;
+import ru.discordj.bot.config.MonitoringManager;
 
 import java.util.Map;
 
@@ -17,7 +20,6 @@ import org.slf4j.LoggerFactory;
 public class MonitoringCommand extends BaseCommand {
     private static final Logger logger = LoggerFactory.getLogger(MonitoringCommand.class);
     private final IJsonHandler jsonHandler = JsonParse.getInstance();
-    private ServerMonitor currentMonitor;
 
     @Override
     public void execute(String[] args, MessageReceivedEvent event, Root root) {
@@ -35,8 +37,12 @@ public class MonitoringCommand extends BaseCommand {
                 setMonitoringChannel(args[2], event, root);
                 break;
             case "add":
-                if (args.length < 3) {
-                    sendMessage(event, "Использование: !monitor add <ip:port>");
+                if (args.length < 4) {
+                    sendMessage(event, "Использование: !monitor add <ip:port> <тип>\n" +
+                        "Поддерживаемые типы:\n" +
+                        "- dayz - для серверов DayZ\n" +
+                        "- source - для Source серверов (CS:GO, TF2)\n" +
+                        "Пример: !monitor add 192.168.1.1:27015 dayz");
                     return;
                 }
                 String[] serverAddress = args[2].split(":");
@@ -44,7 +50,7 @@ public class MonitoringCommand extends BaseCommand {
                     sendMessage(event, "Неверный формат адреса. Используйте: ip:port");
                     return;
                 }
-                addServer(serverAddress[0], serverAddress[1], event, root);
+                addServer(serverAddress[0], serverAddress[1], args[3].toLowerCase(), event, root);
                 break;
             case "remove":
                 if (args.length < 3) {
@@ -57,7 +63,7 @@ public class MonitoringCommand extends BaseCommand {
                 listServers(event, root);
                 break;
             case "start":
-                if (currentMonitor != null) {
+                if (MonitoringManager.getInstance().isMonitoringActive()) {
                     sendMessage(event, "Мониторинг уже запущен");
                     return;
                 }
@@ -69,14 +75,16 @@ public class MonitoringCommand extends BaseCommand {
                     sendMessage(event, "Добавьте серверы для мониторинга: !monitor add <ip:port>");
                     return;
                 }
-                startMonitoring(event, root);
+                MonitoringManager.getInstance().startMonitoring(root);
+                sendMessage(event, "Мониторинг серверов запущен");
                 break;
             case "stop":
-                if (currentMonitor == null) {
+                if (!MonitoringManager.getInstance().isMonitoringActive()) {
                     sendMessage(event, "Мониторинг не запущен");
                     return;
                 }
-                stopMonitoring(event, root);
+                MonitoringManager.getInstance().stopMonitoring();
+                sendMessage(event, "Мониторинг серверов остановлен");
                 break;
         }
     }
@@ -87,38 +95,37 @@ public class MonitoringCommand extends BaseCommand {
         sendMessage(event, "Канал мониторинга установлен: " + channelId);
     }
 
-    private void addServer(String ip, String portStr, MessageReceivedEvent event, Root root) {
+    private void addServer(String ip, String portStr, String game, MessageReceivedEvent event, Root root) {
         try {
             int port = Integer.parseInt(portStr);
             
-            // Получаем информацию о сервере
-            Parser parser = new Parser();
-            Map<String, String> serverInfo = parser.getServerInfo(ip, port);
+            // Получаем нужный обработчик запросов
+            GameServerQuery queryHandler = GameServerQueryFactory.getQueryHandler(game);
+            Map<String, String> serverInfo = queryHandler.query(ip, port);
             
             if (serverInfo.isEmpty()) {
                 sendMessage(event, "Не удалось получить информацию о сервере. Проверьте IP и порт.");
                 return;
             }
 
-            // Создаем объект сервера с полученным именем
             ServerInfo server = new ServerInfo();
             server.setName(serverInfo.get("name"));
             server.setIp(ip);
             server.setPort(port);
+            server.setGame(game);
+            server.setProtocol(queryHandler.getProtocolName());
             server.setEnabled(true);
             
             root.getServers().add(server);
             jsonHandler.write(root);
             
-            // Если монитор запущен, перезапускаем его с новой конфигурацией
-            if (currentMonitor != null) {
-                currentMonitor.stop();
-                currentMonitor = new ServerMonitor(root);
-                currentMonitor.start();
+            // Обновляем конфигурацию в существующем мониторе
+            if (root.getCurrentMonitor() != null) {
+                root.getCurrentMonitor().updateConfig(root);
             }
             
-            sendMessage(event, String.format("Сервер добавлен: %s (%s:%d)", 
-                server.getName(), ip, port));
+            sendMessage(event, String.format("Сервер добавлен: %s (%s:%d) [%s]", 
+                server.getName(), ip, port, game));
             
         } catch (NumberFormatException e) {
             sendMessage(event, "Неверный формат порта");
@@ -148,33 +155,5 @@ public class MonitoringCommand extends BaseCommand {
                 server.isEnabled() ? "активен" : "отключен"));
         }
         sendMessage(event, sb.toString());
-    }
-
-    private void startMonitoring(MessageReceivedEvent event, Root root) {
-        currentMonitor = new ServerMonitor(root);
-        currentMonitor.start();
-        root.setMonitoringEnabled(true);
-        jsonHandler.write(root);
-        sendMessage(event, "Мониторинг серверов запущен");
-    }
-
-    private void stopMonitoring(MessageReceivedEvent event, Root root) {
-        if (currentMonitor != null) {
-            currentMonitor.stop();
-            currentMonitor = null;
-            root.setMonitoringEnabled(false);
-            jsonHandler.write(root);
-            sendMessage(event, "Мониторинг серверов остановлен");
-        }
-    }
-
-    // Метод для автоматического запуска мониторинга при старте бота
-    public void initMonitoring() {
-        Root root = jsonHandler.read();
-        if (root.isMonitoringEnabled() && root.getMonitoringChannelId() != null && !root.getServers().isEmpty()) {
-            currentMonitor = new ServerMonitor(root);
-            currentMonitor.start();
-            logger.info("Monitoring auto-started");
-        }
     }
 } 

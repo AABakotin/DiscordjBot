@@ -9,15 +9,15 @@ public abstract class EmbedFactory {
     
     public abstract MusicEmbed createMusicEmbed();
     public abstract WelcomeEmbed createWelcomeEmbed();
-    public abstract ServerStatusEmbed createServerStatusEmbed();
     public abstract ConfigEmbed createConfigEmbed();
+    public abstract ServerStatusEmbed createServerStatusEmbed();
 }
 
 class DefaultEmbedFactory extends EmbedFactory {
     private final MusicEmbed musicEmbed = new MusicEmbed();
     private final WelcomeEmbed welcomeEmbed = new WelcomeEmbed();
+    private final ConfigEmbed configEmbed = new ConfigEmbed();
     private final ServerStatusEmbed serverStatusEmbed = new ServerStatusEmbed();
-    private ConfigEmbed configEmbed;
     
     @Override
     public MusicEmbed createMusicEmbed() {
@@ -30,15 +30,12 @@ class DefaultEmbedFactory extends EmbedFactory {
     }
     
     @Override
-    public ServerStatusEmbed createServerStatusEmbed() {
-        return serverStatusEmbed;
+    public ConfigEmbed createConfigEmbed() {
+        return configEmbed;
     }
     
     @Override
-    public ConfigEmbed createConfigEmbed() {
-        if (configEmbed == null) {
-            configEmbed = new ConfigEmbed();
-        }
-        return configEmbed;
+    public ServerStatusEmbed createServerStatusEmbed() {
+        return serverStatusEmbed;
     }
 } 
