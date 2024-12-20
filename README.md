@@ -78,7 +78,7 @@ java -jar target/DiscordjBot-1.0-jar-with-dependencies.jar [token]
 1. Установите [Docker](https://www.docker.com/products/docker-desktop/) и Docker Compose
 2. Склонируйте репозиторий:
 ```bash
-git clone https://github.com/megabart/DiscordjBot.git
+git clone https://github.com/YOUR-USERNAME/DiscordjBot.git
 cd DiscordjBot
 ```
 
