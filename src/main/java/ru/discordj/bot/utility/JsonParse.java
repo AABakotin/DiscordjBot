@@ -49,9 +49,28 @@ public class JsonParse implements IJsonHandler {
             try {
                 rulesFile.getParentFile().mkdirs();
                 RulesMessage defaultRules = new RulesMessage();
-                defaultRules.setTitle("█▓▒░⡷⠂𝚃𝚑𝚎 𝚂𝚝𝚎𝚊𝚕𝚝𝚑 𝙳𝚞𝚍𝚎⠐⢾░▒▓█");
-                defaultRules.setWelcomeField("WELCOME");
-                defaultRules.setRulesField("️1️⃣ Все участники сервера имеют равные права...");
+                defaultRules.setTitle("✨ ***Добро пожаловать на сервер!*** ✨");
+                defaultRules.setWelcomeField("*** :warning: Наши правила сервера:***");
+   
+                // Читаем конфигурацию для получения ссылки
+                String inviteLink = read().getInviteLink();
+                if (inviteLink == null || inviteLink.equals("empty")) {
+                    inviteLink = "https://discord.gg/invite";
+                }
+                
+                defaultRules.setRulesField(
+                    "️1️⃣ Все участники сервера имеют равные права независимо от их времени нахождения на сервере и занимаемой роли. 🤗\n" +
+                    "2️⃣ Строго запрещены:\n" +
+                    "🔹 Флуд, злоупотребление матом, троллинг в сообщениях; 🫢\n" +
+                    "🔹 Использование шок-контента; 🫨\n" +
+                    "🔹 Оскорбление других пользователей; 🤨\n" +
+                    "🔹 Злоупотребление CAPS LOCK; 🫣\n" +
+                    "🔹 Запрещена спам-рассылка рекламы; 🧐\n" +
+                    "🔹 Запрещено включать музыку в микрофон; 😕\n" +
+                    "🔹 Запрещено издавать громкие звуки в микрофон. 🤫\n" +
+                    "3️⃣ Реферальная ссылка " + inviteLink + " 🤩\n" +
+                    "4️⃣ Надеемся, что тебе понравится с нами. 🫡"
+                );
                 defaultRules.setFooter("📩 requested by @{author} {date}");
                 writeRules(defaultRules);
             } catch (Exception e) {

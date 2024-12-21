@@ -12,6 +12,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class RulesSlashcommand implements ICommand {
     private final IJsonHandler jsonHandler = JsonParse.getInstance();
@@ -33,17 +35,30 @@ public class RulesSlashcommand implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        RulesMessage rules = jsonHandler.readRules();
+        RulesMessage rules = JsonParse.getInstance().readRules();
         
-        EmbedBuilder builder = new EmbedBuilder()
-            .setColor(Color.BLUE)
-            .setTitle(rules.getTitle())
-            .addField("Добро пожаловать!", rules.getWelcomeField(), false)
-            .addField("✨ ***ВНИМАНИЕ*** ✨", rules.getRulesField(), false)
-            .setFooter(rules.getFooter()
-                .replace("{date}", ZonedDateTime.now().format(DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy")))
-                .replace("{author}", event.getMember().getUser().getName()));
-
-        event.replyEmbeds(builder.build()).queue();
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setColor(Color.decode("#2f3136"));
+        
+        if (rules.getTitle() != null) {
+            embed.setTitle(rules.getTitle());
+        }
+        
+        if (rules.getWelcomeField() != null) {
+            embed.addField("", rules.getWelcomeField(), false);
+        }
+        
+        if (rules.getRulesField() != null) {
+            embed.addField("", rules.getRulesField(), false);
+        }
+        
+        if (rules.getFooter() != null) {
+            String footer = rules.getFooter()
+                .replace("{author}", event.getUser().getName())
+                .replace("{date}", new SimpleDateFormat("dd.MM.yyyy").format(new Date()));
+            embed.setFooter(footer);
+        }
+        
+        event.replyEmbeds(embed.build()).queue();
     }
 }

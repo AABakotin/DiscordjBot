@@ -18,8 +18,8 @@ import ru.discordj.bot.lavaplayer.PlayerManager;
  * Позволяет добавлять треки в очередь воспроизведения по URL или поисковому запросу.
  * Поддерживает автоматическое подключение к голосовому каналу.
  */
-public class PlayMusicSlashCommands implements ICommand {
-    private static final Logger logger = LoggerFactory.getLogger(PlayMusicSlashCommands.class);
+public class PlayMusicSlashCommand implements ICommand {
+    private static final Logger logger = LoggerFactory.getLogger(PlayMusicSlashCommand.class);
 
     @Override
     public String getName() {
