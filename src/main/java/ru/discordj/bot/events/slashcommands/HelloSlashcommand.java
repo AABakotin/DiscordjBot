@@ -9,8 +9,8 @@ import ru.discordj.bot.events.ICommand;
 import java.util.Collections;
 import java.util.List;
 
-public class Hello implements ICommand {
-    private static final Logger logger = LoggerFactory.getLogger(Hello.class);
+public class HelloSlashcommand implements ICommand {
+    private static final Logger logger = LoggerFactory.getLogger(HelloSlashcommand.class);
 
 
     public String getName() {

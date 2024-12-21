@@ -9,7 +9,7 @@ import ru.discordj.bot.events.ICommand;
 import java.util.Collections;
 import java.util.List;
 
-public class Invite implements ICommand {
+public class InviteSlashcommand implements ICommand {
     private static final IJsonHandler jsonHandler = JsonParse.getInstance();
     @Override
     public String getName() {

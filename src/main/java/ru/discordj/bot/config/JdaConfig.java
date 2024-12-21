@@ -3,7 +3,6 @@ package ru.discordj.bot.config;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.slf4j.Logger;
@@ -33,11 +32,11 @@ public class JdaConfig {
 
     static {
 
-        MANAGER.add(new Ping());
-        MANAGER.add(new Rules());
-        MANAGER.add(new Info());
-        MANAGER.add(new Hello());
-        MANAGER.add(new Invite());
+        MANAGER.add(new PingSlashcommand());
+        MANAGER.add(new RulesSlashcommand());
+        MANAGER.add(new InfoSlashcommand());
+        MANAGER.add(new HelloSlashcommand());
+        MANAGER.add(new InviteSlashcommand());
         MANAGER.add(new PlayMusicSlashCommands());
 
     }
@@ -47,7 +46,6 @@ public class JdaConfig {
     }
 
     public static void start(String[] args) {
-//        Run.main(args);
         jda = JDABuilder.createDefault(checkToken(args))
                 .setEnabledIntents(
                         GUILD_PRESENCES,

@@ -18,8 +18,8 @@ import java.util.Date;
 import java.util.List;
 
 
-public class Info implements ICommand {
-    private static final Logger logger = LoggerFactory.getLogger(Info.class);
+public class InfoSlashcommand implements ICommand {
+    private static final Logger logger = LoggerFactory.getLogger(InfoSlashcommand.class);
     public static  String NON_AVATAR_URL = "http://i.servimg.com/u/f33/17/73/99/79/no_ava10.png";
 
 

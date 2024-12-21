@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-public class Rules implements ICommand {
+public class RulesSlashcommand implements ICommand {
     private final IJsonHandler jsonHandler = JsonParse.getInstance();
 
     @Override

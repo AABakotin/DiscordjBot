@@ -9,8 +9,8 @@ import ru.discordj.bot.events.ICommand;
 import java.util.Collections;
 import java.util.List;
 
-public class Ping implements ICommand {
-    private static final Logger logger = LoggerFactory.getLogger(Ping.class);
+public class PingSlashcommand implements ICommand {
+    private static final Logger logger = LoggerFactory.getLogger(PingSlashcommand.class);
 
     @Override
     public String getName() {
