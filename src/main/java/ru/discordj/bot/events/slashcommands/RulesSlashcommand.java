@@ -2,13 +2,11 @@ package ru.discordj.bot.events.slashcommands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import ru.discordj.bot.events.ICommand;
-import ru.discordj.bot.utility.IJsonHandler;
 import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.utility.pojo.RulesMessage;
 import net.dv8tion.jda.api.EmbedBuilder;
 import java.awt.Color;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.Collections;
 import java.util.List;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -16,7 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class RulesSlashcommand implements ICommand {
-    private final IJsonHandler jsonHandler = JsonParse.getInstance();
+
 
     @Override
     public String getName() {

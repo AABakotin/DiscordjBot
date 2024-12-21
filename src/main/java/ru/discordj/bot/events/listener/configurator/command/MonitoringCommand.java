@@ -2,8 +2,6 @@ package ru.discordj.bot.events.listener.configurator.command;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import ru.discordj.bot.events.listener.configurator.BaseCommand;
-import ru.discordj.bot.monitor.ServerMonitor;
-import ru.discordj.bot.monitor.parser.Parser;
 import ru.discordj.bot.monitor.query.GameServerQuery;
 import ru.discordj.bot.monitor.query.GameServerQueryFactory;
 import ru.discordj.bot.utility.IJsonHandler;
@@ -14,11 +12,8 @@ import ru.discordj.bot.config.MonitoringManager;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MonitoringCommand extends BaseCommand {
-    private static final Logger logger = LoggerFactory.getLogger(MonitoringCommand.class);
     private final IJsonHandler jsonHandler = JsonParse.getInstance();
 
     @Override
