@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import ru.discordj.bot.audio.GuildMusicManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -22,7 +23,6 @@ import java.util.function.Consumer;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class MusicService {
     private static final String LOG_TRACK_LOADED = "Загружен трек: {}";
     private static final String LOG_PLAYLIST_LOADED = "Загружен плейлист: {} треков";
@@ -31,9 +31,15 @@ public class MusicService {
     private static final String LOG_TRACK_INFO = "Сейчас играет: {} ({}/{})";
     private static final String NO_TRACK_PLAYING = "Сейчас ничего не играет";
 
-    private final AudioPlayerManager playerManager;
-    private final JDA jda;
+    private AudioPlayerManager playerManager;
+    private JDA jda;
     private final Map<String, GuildMusicManager> musicManagers = new ConcurrentHashMap<>();
+
+    @Autowired
+    public void setDependencies(AudioPlayerManager playerManager, JDA jda) {
+        this.playerManager = playerManager;
+        this.jda = jda;
+    }
 
     /**
      * Воспроизводит трек или плейлист

@@ -5,6 +5,7 @@ spring:
     active: dev
   main:
     banner-mode: console
+    allow-circular-references: true
 
 logging:
   charset:

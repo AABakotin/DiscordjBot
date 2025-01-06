@@ -4,8 +4,8 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ru.discordj.bot.service.MusicService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class MusicControlHandler extends ListenerAdapter {
     // Константы для эмодзи
     private static final String EMOJI_PLAY_PAUSE = "⏯️";
@@ -33,7 +32,12 @@ public class MusicControlHandler extends ListenerAdapter {
     private static final String ERROR_CONTROL = "❌ Ошибка при управлении музыкой: {}";
     private static final String SUCCESS_MESSAGE = "✅ Команда выполнена";
 
-    private final MusicService musicService;
+    private MusicService musicService;
+
+    @Autowired
+    public void setMusicService(MusicService musicService) {
+        this.musicService = musicService;
+    }
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
