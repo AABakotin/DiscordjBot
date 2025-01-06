@@ -2,16 +2,14 @@ package ru.discordj.bot.config;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.CommandManager;
+import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.events.listener.AddRoleListener;
-import ru.discordj.bot.events.listener.PlayerButtonListener;
+import ru.discordj.bot.events.listener.MusicControlHandler;
 import ru.discordj.bot.events.listener.configurator.Configurator;
-import ru.discordj.bot.events.slashcommands.*;
-import ru.discordj.bot.events.listener.MusicControlsListener;
 import ru.discordj.bot.events.listener.MemberListener;
 import ru.discordj.bot.events.listener.ReadyListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,103 +17,85 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Collection;
 
-import static net.dv8tion.jda.api.requests.GatewayIntent.*;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.CLIENT_STATUS;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.VOICE_STATE;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
+@Slf4j
 public class JdaConfig {
-    private static final Logger logger = LoggerFactory.getLogger(JdaConfig.class);
-    private static final CommandManager MANAGER = new CommandManager();
     private static JDA jda;
+    private final CommandManager commandManager;
+    private final List<ICommand> commands;
+    private final List<Object> listeners;
 
     @Value("${discord.token}")
     private String token;
 
     @Autowired
-    private ReadyListener readyListener;
-    
-    @Autowired
-    private MemberListener memberListener;
-
-    @Autowired
-    private PlayMusicSlashCommand playMusicCommand;
-
-    @Autowired
-    private AddRoleListener addRoleListener;
-    
-    @Autowired
-    private PlayerButtonListener playerButtonListener;
-    
-    @Autowired
-    private Configurator configurator;
-    
-    @Autowired
-    private MusicControlsListener musicControlsListener;
-
-    @Autowired
-    private PingSlashcommand pingCommand;
-    
-    @Autowired
-    private RulesSlashcommand rulesCommand;
-    
-    @Autowired
-    private InfoSlashcommand infoCommand;
-    
-    @Autowired
-    private HelloSlashcommand helloCommand;
-    
-    @Autowired
-    private InviteSlashcommand inviteCommand;
-    
-    @Autowired
-    private UpdateCommandsSlashCommand updateCommand;
+    public JdaConfig(
+            ReadyListener readyListener,
+            MemberListener memberListener,
+            AddRoleListener addRoleListener,
+            MusicControlHandler musicControlHandler,
+            Configurator configurator,
+            List<ICommand> commands 
+    ) {
+        this.commandManager = new CommandManager();
+        this.commands = commands;
+        this.listeners = Arrays.asList(
+            readyListener,
+            memberListener,
+            addRoleListener,
+            musicControlHandler,
+            configurator
+        );
+    }
 
     @PostConstruct
     public void init() {
-        MANAGER.add(pingCommand);
-        MANAGER.add(rulesCommand);
-        MANAGER.add(infoCommand);
-        MANAGER.add(helloCommand);
-        MANAGER.add(inviteCommand);
-        MANAGER.add(playMusicCommand);
-        MANAGER.add(updateCommand);
+        commands.forEach(commandManager::add);
+        log.info("Registered {} slash commands", commands.size());
     }
 
     @Bean
     public JDA jda() {
-        logger.info("Initializing JDA with token: {}...", token.substring(0, 10));
+        log.info("Initializing JDA with token: {}...", token.substring(0, 10));
         
-        return JDABuilder.createDefault(token)
-                .setEnabledIntents(
-                        GUILD_PRESENCES,
-                        GUILD_MESSAGES,
-                        GUILD_MEMBERS,
-                        GUILD_MESSAGE_REACTIONS,
-                        GUILD_MESSAGES,
-                        GUILD_EXPRESSIONS,
-                        SCHEDULED_EVENTS,
-                        GUILD_VOICE_STATES,
-                        MESSAGE_CONTENT)
+        jda = JDABuilder.createDefault(token)
+                .setEnabledIntents(getRequiredIntents())
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .enableCache(CLIENT_STATUS, VOICE_STATE)
-                .addEventListeners(
-                        MANAGER,
-                        addRoleListener,
-                        playerButtonListener,
-                        configurator,
-                        musicControlsListener,
-                        memberListener,
-                        readyListener
-                )
+                .addEventListeners(getEventListeners())
                 .build();
+        return jda;
     }
 
     public static JDA getJda() {
         return jda;
     }
 
+    private Collection<GatewayIntent> getRequiredIntents() {
+        return Arrays.asList(
+            GatewayIntent.GUILD_PRESENCES,
+            GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.GUILD_MEMBERS,
+            GatewayIntent.GUILD_MESSAGE_REACTIONS,
+            GatewayIntent.GUILD_VOICE_STATES,
+            GatewayIntent.MESSAGE_CONTENT
+        );
+    }
+
+    private Object[] getEventListeners() {
+        List<Object> allListeners = new ArrayList<>(listeners);
+        allListeners.add(commandManager);
+        return allListeners.toArray();
+    }
 }
 

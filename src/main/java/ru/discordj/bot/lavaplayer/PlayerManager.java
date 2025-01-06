@@ -4,6 +4,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+
 
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
@@ -18,7 +20,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import ru.discordj.bot.utility.Spring;
-import dev.lavalink.youtube.YoutubeAudioSourceManager;
 
 @Component
 public class PlayerManager implements ApplicationContextAware {
@@ -33,15 +34,12 @@ public class PlayerManager implements ApplicationContextAware {
         this.musicManagers = new HashMap<>();
         this.audioPlayerManager = new DefaultAudioPlayerManager();
         
-        // Регистрируем YouTube source manager
-        YoutubeAudioSourceManager youtube = new dev.lavalink.youtube.YoutubeAudioSourceManager();
-        audioPlayerManager.registerSourceManager(youtube);
+        // Регистрируем только YouTube и локальные источники
+        audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
         
-        // Регистрируем остальные источники
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
         AudioSourceManagers.registerLocalSource(audioPlayerManager);
         
-        // Настраиваем конфигурацию
         this.audioPlayerManager.getConfiguration().setFilterHotSwapEnabled(true);
     }
 

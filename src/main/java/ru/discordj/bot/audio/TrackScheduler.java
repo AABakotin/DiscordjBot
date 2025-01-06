@@ -11,6 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
     private final BlockingQueue<AudioTrack> queue;
+    private boolean repeating = false;
 
     public TrackScheduler(AudioPlayer player) {
         this.player = player;
@@ -30,11 +31,32 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if (endReason.mayStartNext) {
-            nextTrack();
+            if (repeating) {
+                player.startTrack(track.makeClone(), false);
+            } else {
+                nextTrack();
+            }
         }
     }
 
     public void clearQueue() {
         queue.clear();
+    }
+
+    public void stop() {
+        player.stopTrack();
+        clearQueue();
+    }
+
+    public boolean isPaused() {
+        return player.isPaused();
+    }
+
+    public void togglePause() {
+        player.setPaused(!player.isPaused());
+    }
+
+    public void toggleRepeat() {
+        repeating = !repeating;
     }
 } 

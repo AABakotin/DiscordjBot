@@ -130,7 +130,7 @@ public class Root {
     }
 
     /**
-     * Возвращает стр��ковое представление конфигурации бота.
+     * Возвращает строковое представление конфигурации бота.
      *
      * @return строка с информацией о токене, владельце, ссылке и правилах ролей
      */
@@ -176,5 +176,15 @@ public class Root {
 
     public void setCurrentMonitor(ServerMonitor monitor) {
         this.currentMonitor = monitor;
+    }
+
+    private String defaultRole = "empty";
+
+    public String getDefaultRole() {
+        return defaultRole;
+    }
+
+    public void setDefaultRole(String defaultRole) {
+        this.defaultRole = defaultRole;
     }
 }

@@ -15,6 +15,8 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.discordj.bot.utility.IJsonHandler;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 @Component
 public class RulesSlashcommand implements ICommand {
@@ -63,5 +65,9 @@ public class RulesSlashcommand implements ICommand {
         }
         
         event.replyEmbeds(embed.build()).queue();
+    }
+
+    public CommandData getCommandData() {
+        return Commands.slash("rules", "Показать правила сервера");
     }
 }

@@ -14,6 +14,8 @@ import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.lavaplayer.PlayerManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 /**
  * Обработчик slash-команды для воспроизведения музыки.
@@ -92,12 +94,24 @@ public class PlayMusicSlashCommand implements ICommand {
             // Сначала подтверждаем взаимодействие
             event.deferReply().setEphemeral(true).queue();
             
-            // Затем выполняем действия
-            PlayerManager.getInstance()
-                .play(
-                    event.getChannel().asTextChannel(),
-                    name.startsWith("http") ? name : "ytsearch:" + name
-                );
+            // Определяем источник по префиксу
+            String prefix = "";
+            if (!name.startsWith("http")) {
+                if (name.startsWith("sc:")) {
+                    prefix = "scsearch:";
+                    name = name.substring(3);
+                } else if (name.startsWith("sp:")) {
+                    prefix = "spsearch:";
+                    name = name.substring(3);
+                } else {
+                    prefix = "ytsearch:";
+                }
+            }
+            
+            PlayerManager.getInstance().play(
+                event.getChannel().asTextChannel(),
+                prefix + name
+            );
                 
             // Обновляем плеер и удаляем ответ
             embedFactory.createMusicEmbed()
@@ -111,5 +125,10 @@ public class PlayMusicSlashCommand implements ICommand {
                 .setEphemeral(true)
                 .queue();
         }
+    }
+
+    public CommandData getCommandData() {
+        return Commands.slash("play", "Воспроизвести музыку")
+            .addOption(OptionType.STRING, "url", "URL трека или плейлиста", true);
     }
 }

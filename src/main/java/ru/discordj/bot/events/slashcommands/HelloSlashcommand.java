@@ -1,42 +1,62 @@
 package ru.discordj.bot.events.slashcommands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ru.discordj.bot.events.ICommand;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-
+/**
+ * Обработчик приветственной слэш-команды.
+ * Отправляет приветственное сообщение в ответ на команду /hello.
+ */
+@Slf4j
 @Component
-public class HelloSlashcommand implements ICommand {
-    private static final Logger logger = LoggerFactory.getLogger(HelloSlashcommand.class);
-
-
-    public String getName() {
-        return "hello";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Hello My Friend ;)";
-    }
+public class HelloSlashcommand extends ListenerAdapter {
+    private static final String COMMAND_NAME = "hello";
+    private static final String COMMAND_DESCRIPTION = "Получить приветственное сообщение";
+    private static final String GREETING_FORMAT = "Привет, %s! 👋";
+    private static final String LOG_COMMAND = "Выполнена команда /hello от пользователя: {}";
+    private static final String ERROR_COMMAND = "❌ Ошибка при выполнении команды /hello: {}";
 
     @Override
-    public List<OptionData> getOptions() {
-        return Collections.emptyList();
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        if (!event.getName().equals(COMMAND_NAME)) return;
+
+        try {
+            handleHelloCommand(event);
+        } catch (Exception e) {
+            handleError(event, e);
+        }
     }
 
-    @Override
-    public void execute(SlashCommandInteractionEvent event) {
-        String userName = event.getMember().getUser().getName();
-        event.reply("Hello " + userName + " ,my friend " + event.getUser().getAvatarUrl())
-                .setEphemeral(true)
-                .queue(
-                        success -> logger.info("requested 'hello' by @{}", event.getUser().getName()),
-                        failure -> logger.error("Some error occurred in 'hello', try again!")
-                );
+    /**
+     * Возвращает данные для регистрации команды
+     */
+    public CommandData getCommandData() {
+        return Commands.slash(COMMAND_NAME, COMMAND_DESCRIPTION);
+    }
+
+    /**
+     * Обрабатывает команду /hello
+     */
+    private void handleHelloCommand(SlashCommandInteractionEvent event) {
+        String userName = event.getUser().getName();
+        String response = String.format(GREETING_FORMAT, userName);
+        
+        event.reply(response)
+            .setEphemeral(true)
+            .queue(success -> log.info(LOG_COMMAND, userName));
+    }
+
+    /**
+     * Обрабатывает ошибки выполнения команды
+     */
+    private void handleError(SlashCommandInteractionEvent event, Exception e) {
+        log.error(ERROR_COMMAND, e.getMessage());
+        event.reply(ERROR_COMMAND.formatted(e.getMessage()))
+            .setEphemeral(true)
+            .queue();
     }
 }

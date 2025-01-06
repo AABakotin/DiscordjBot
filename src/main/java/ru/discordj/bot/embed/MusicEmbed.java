@@ -3,139 +3,137 @@ package ru.discordj.bot.embed;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import ru.discordj.bot.lavaplayer.PlayerManager;
 import ru.discordj.bot.utility.IJsonHandler;
-
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class MusicEmbed extends BaseEmbed {
     private static final int PROGRESS_BAR_LENGTH = 15;
     private static final String PROGRESS_START = "『";
     private static final String PROGRESS_END = "』";
     private static final String PROGRESS_LINE = "═";
     private static final String PROGRESS_CURRENT = "🔮";
-    private static final String EMOJI_MUSIC = "🎵";
-    private static final String EMOJI_QUEUE = "📝";
-    private static final String EMOJI_DURATION = "⌛";
-    private static final String EMOJI_AUTHOR = "👑";
-    private static final String EMOJI_LINK = "🔗";
-    private static final String EMOJI_PLAYING = "▶️";
-    private static final String EMOJI_WARNING = "⚠";
-    private static final String EMOJI_PAUSED = "⏸️";
-    private static final String EMOJI_STOP = "⏹️";
-    private static final String EMOJI_REPEAT = "🔄";
-    private static final String EMOJI_SKIP = "⏭️";
+    
+    // Эмодзи для плеера
+    private static final Map<String, String> EMOJI = Map.ofEntries(
+        Map.entry("MUSIC", "🎵"),
+        Map.entry("QUEUE", "📝"),
+        Map.entry("DURATION", "⌛"),
+        Map.entry("AUTHOR", "👑"),
+        Map.entry("LINK", "🔗"),
+        Map.entry("PLAYING", "▶️"),
+        Map.entry("WARNING", "⚠"),
+        Map.entry("PAUSED", "⏸️"),
+        Map.entry("STOP", "⏹️"),
+        Map.entry("REPEAT", "🔄"),
+        Map.entry("SKIP", "⏭️")
+    );
 
     @Autowired
     public MusicEmbed(IJsonHandler jsonHandler) {
         super(jsonHandler);
     }
 
+    /**
+     * Обновляет сообщение плеера
+     */
     public void updatePlayerMessage(TextChannel textChannel, String messageId) {
         if (messageId == null) return;
         
         textChannel.retrieveMessageById(messageId)
-            .queue(message -> {
-                MessageCreateBuilder newMessage = createPlayerMessage(textChannel);
-                message.editMessageEmbeds(newMessage.getEmbeds())
-                    .setComponents(newMessage.getComponents())
-                    .queue(null, error -> {
-                        // Если сообщение не найдено, создаем новое
-                        textChannel.sendMessage(newMessage.build())
-                            .queue(msg -> {
-                                PlayerManager.getInstance()
-                                    .getGuildMusicManager(textChannel.getGuild())
-                                    .getTrackScheduler()
-                                    .setPlayerMessage(textChannel, msg.getId());
-                            });
-                    });
-            }, error -> {
-                // Если сообщение не найдено, создаем новое
-                MessageCreateBuilder newMessage = createPlayerMessage(textChannel);
-                textChannel.sendMessage(newMessage.build())
-                    .queue(msg -> {
-                        PlayerManager.getInstance()
-                            .getGuildMusicManager(textChannel.getGuild())
-                            .getTrackScheduler()
-                            .setPlayerMessage(textChannel, msg.getId());
-                    });
-            });
+            .queue(
+                message -> updateExistingMessage(message, textChannel),
+                error -> createNewMessage(textChannel)
+            );
     }
 
+    /**
+     * Создает сообщение плеера
+     */
     public MessageCreateBuilder createPlayerMessage(TextChannel textChannel) {
         MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
         EmbedBuilder embed = createDefaultBuilder();
         
-        AudioTrack currentTrack = PlayerManager.getInstance()
-            .getGuildMusicManager(textChannel.getGuild())
-            .getAudioPlayer()
-            .getPlayingTrack();
-
-        if (currentTrack == null) {
-            embed.setColor(Color.decode("#2f3136"))
-                .setTitle(EMOJI_WARNING + " Нет активного трека")
-                .setDescription("Используйте `/play` чтобы включить музыку");
-        } else {
-            String thumbnailUrl = "https://img.youtube.com/vi/" + currentTrack.getIdentifier() + "/default.jpg";
-            
-            embed.setColor(Color.decode("#5865F2"))
-                .setTitle(EMOJI_PLAYING + " Сейчас играет")
-                .setDescription(EMOJI_MUSIC + " **" + currentTrack.getInfo().title + "**\n" +
-                              createProgressBar(currentTrack))
-                .setThumbnail(thumbnailUrl)
-                .addField(EMOJI_DURATION + " Время", 
-                    "`" + formatTime(currentTrack.getPosition()) + " / " + formatTime(currentTrack.getDuration()) + "`", true)
-                .addField(EMOJI_AUTHOR + " Исполнитель", 
-                    "`" + currentTrack.getInfo().author + "`", true)
-                .setFooter(EMOJI_LINK + " Источник • " + currentTrack.getInfo().uri);
-
-            addQueueInfo(embed, textChannel, messageBuilder);
-        }
-
+        AudioTrack currentTrack = getCurrentTrack(textChannel);
+        updateEmbedWithTrackInfo(embed, currentTrack, textChannel);
+        addQueueInfo(embed, textChannel);
+        
         messageBuilder.setEmbeds(embed.build());
         addControlButtons(messageBuilder, textChannel);
+        
         return messageBuilder;
     }
 
-    private void addQueueInfo(EmbedBuilder embed, TextChannel textChannel, MessageCreateBuilder messageBuilder) {
+    private void updateExistingMessage(Message message, TextChannel textChannel) {
+        MessageCreateBuilder newMessage = createPlayerMessage(textChannel);
+        message.editMessageEmbeds(newMessage.getEmbeds())
+            .setComponents(newMessage.getComponents())
+            .queue(null, error -> createNewMessage(textChannel));
+    }
+
+    private void createNewMessage(TextChannel textChannel) {
+        MessageCreateBuilder newMessage = createPlayerMessage(textChannel);
+        textChannel.sendMessage(newMessage.build())
+            .queue(msg -> updateTrackScheduler(textChannel, msg.getId()));
+    }
+
+    private AudioTrack getCurrentTrack(TextChannel textChannel) {
+        return PlayerManager.getInstance()
+            .getGuildMusicManager(textChannel.getGuild())
+            .getAudioPlayer()
+            .getPlayingTrack();
+    }
+
+    private void updateEmbedWithTrackInfo(EmbedBuilder embed, AudioTrack track, TextChannel textChannel) {
+        if (track != null) {
+            embed.setTitle(EMOJI.get("MUSIC") + " Сейчас играет:")
+                .addField(EMOJI.get("MUSIC") + " Название:", track.getInfo().title, false)
+                .addField(EMOJI.get("AUTHOR") + " Автор:", track.getInfo().author, true)
+                .addField(EMOJI.get("DURATION") + " Длительность:", 
+                    formatTime(track.getPosition()) + "/" + formatTime(track.getDuration()), true)
+                .addField(EMOJI.get("LINK") + " Ссылка:", track.getInfo().uri, false)
+                .addField("Прогресс:", createProgressBar(track), false);
+        } else {
+            embed.setTitle(EMOJI.get("WARNING") + " Нет активного трека");
+        }
+    }
+
+    private void addQueueInfo(EmbedBuilder embed, TextChannel textChannel) {
         Queue<AudioTrack> queue = PlayerManager.getInstance()
             .getGuildMusicManager(textChannel.getGuild())
             .getTrackScheduler()
             .getQueue();
 
         if (!queue.isEmpty()) {
-            StringBuilder queueText = new StringBuilder();
-            int trackCount = 0;
-
-            // Добавляем треки в список
-            for (AudioTrack track : queue) {
-                trackCount++;
-                String trackTitle = track.getInfo().title;
-                if (trackTitle.length() > 50) {
-                    trackTitle = trackTitle.substring(0, 47) + "...";
-                }
-                
-                queueText.append(trackCount)
-                    .append(". ")
-                    .append(trackTitle)
-                    .append(" (")
-                    .append(formatTime(track.getDuration()))
-                    .append(")\n");
-            }
-
-            // Добавляем информацию о треках
-            embed.addField(EMOJI_QUEUE + " В очереди:", queueText.toString(), false);
+            embed.addField(EMOJI.get("QUEUE") + " В очереди:", formatQueueInfo(queue), false);
         }
+    }
+
+    private String formatQueueInfo(Queue<AudioTrack> queue) {
+        StringBuilder queueText = new StringBuilder();
+        int trackCount = 0;
+
+        for (AudioTrack track : queue) {
+            trackCount++;
+            String trackTitle = truncateString(track.getInfo().title, 50);
+            queueText.append(String.format("%d. %s (%s)\n", 
+                trackCount, trackTitle, formatTime(track.getDuration())));
+        }
+
+        return queueText.toString();
     }
 
     private void addControlButtons(MessageCreateBuilder messageBuilder, TextChannel textChannel) {
@@ -144,18 +142,29 @@ public class MusicEmbed extends BaseEmbed {
         boolean isPaused = guildManager.getAudioPlayer().isPaused();
         boolean isRepeat = guildManager.getTrackScheduler().isRepeat();
         
-        List<Button> buttons = new ArrayList<>();
-        buttons.add(Button.primary("play_pause", isPaused ? EMOJI_PLAYING : EMOJI_PAUSED));
-        buttons.add(Button.danger("stop", EMOJI_STOP));
-        buttons.add(Button.success("repeat", isRepeat ? EMOJI_REPEAT : "➡"));
-        
-        if (!guildManager.getTrackScheduler().getQueue().isEmpty()) {
-            buttons.add(Button.primary("skip", EMOJI_SKIP));
-        }
-        
         if (isPlaying) {
+            List<Button> buttons = new ArrayList<>();
+            buttons.add(Button.primary("play_pause", isPaused ? EMOJI.get("PLAYING") : EMOJI.get("PAUSED")));
+            buttons.add(Button.danger("stop", EMOJI.get("STOP")));
+            buttons.add(Button.success("repeat", isRepeat ? EMOJI.get("REPEAT") : "➡"));
+            
+            if (!guildManager.getTrackScheduler().getQueue().isEmpty()) {
+                buttons.add(Button.primary("skip", EMOJI.get("SKIP")));
+            }
+            
             messageBuilder.setActionRow(buttons);
         }
+    }
+
+    private String truncateString(String str, int length) {
+        return str.length() > length ? str.substring(0, length - 3) + "..." : str;
+    }
+
+    private void updateTrackScheduler(TextChannel textChannel, String messageId) {
+        PlayerManager.getInstance()
+            .getGuildMusicManager(textChannel.getGuild())
+            .getTrackScheduler()
+            .setPlayerMessage(textChannel, messageId);
     }
 
     private String createProgressBar(AudioTrack track) {
@@ -165,11 +174,7 @@ public class MusicEmbed extends BaseEmbed {
         
         StringBuilder progressBar = new StringBuilder(PROGRESS_START);
         for (int i = 0; i < PROGRESS_BAR_LENGTH; i++) {
-            if (i == progressFilled) {
-                progressBar.append(PROGRESS_CURRENT);
-            } else {
-                progressBar.append(PROGRESS_LINE);
-            }
+            progressBar.append(i == progressFilled ? PROGRESS_CURRENT : PROGRESS_LINE);
         }
         progressBar.append(PROGRESS_END);
         return "\n" + progressBar.toString();
@@ -182,10 +187,8 @@ public class MusicEmbed extends BaseEmbed {
         long minutes = seconds / 60;
         seconds %= 60;
         
-        if (hours > 0) {
-            return String.format("%d:%02d:%02d", hours, minutes, seconds);
-        } else {
-            return String.format("%02d:%02d", minutes, seconds);
-        }
+        return hours > 0 
+            ? String.format("%d:%02d:%02d", hours, minutes, seconds)
+            : String.format("%02d:%02d", minutes, seconds);
     }
 } 

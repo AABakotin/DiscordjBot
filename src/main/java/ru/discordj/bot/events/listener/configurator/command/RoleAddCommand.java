@@ -1,64 +1,88 @@
 package ru.discordj.bot.events.listener.configurator.command;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import ru.discordj.bot.utility.IJsonHandler;
 import ru.discordj.bot.embed.EmbedFactory;
-import ru.discordj.bot.events.listener.configurator.BaseCommand;
-import ru.discordj.bot.events.listener.configurator.ConfiguratorError;
+import ru.discordj.bot.events.listener.configurator.BotCommandExecutor;
+import ru.discordj.bot.utility.IJsonHandler;
 import ru.discordj.bot.utility.pojo.Roles;
 import ru.discordj.bot.utility.pojo.Root;
-
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * Команда для добавления новой роли.
- * Позволяет создать новое правило автоматической выдачи роли.
+ * Команда для добавления роли в конфигурацию бота.
  */
 @Component
-public class RoleAddCommand extends BaseCommand {
-    @Autowired
-    private IJsonHandler jsonHandler;
-    
-    @Autowired
-    private EmbedFactory embedFactory;
+@Slf4j
+@RequiredArgsConstructor
+public class RoleAddCommand implements BotCommandExecutor {
+    private static final String SUCCESS_MESSAGE = "✅ Роль успешно добавлена";
+    private static final String ERROR_MESSAGE = "❌ Ошибка при добавлении роли";
+    private static final String INVALID_ARGS = "❌ Использование: !role <channelId> <roleId> <emojiId>";
+    private static final int REQUIRED_ARGS = 4;
 
-    /**
-     * Добавляет новое правило выдачи роли.
-     *
-     * @param args аргументы команды: args[1] - ID канала, args[2] - ID роли, args[3] - ID эмодзи
-     * @param event событие сообщения Discord
-     * @param root корневой объект конфигурации
-     */
+    private final IJsonHandler jsonHandler;
+    private final EmbedFactory embedFactory;
+
     @Override
     public void execute(String[] args, MessageReceivedEvent event, Root root) {
-        if (args.length < 4) {
-            sendMessage(event, ConfiguratorError.ROLE_FORMAT.getMessage());
+        if (!validateArgs(args, event)) {
             return;
         }
 
-        List<Roles> rolesList = root.getRoles();
-        
-        // Проверяем наличие empty значений и перезаписываем их
-        for (Roles role : rolesList) {
-            if ("empty".equals(role.getChannelId()) && 
-                "empty".equals(role.getRoleId()) && 
-                "empty".equals(role.getEmojiId())) {
-                role.setChannelId(args[1]);
-                role.setRoleId(args[2]);
-                role.setEmojiId(args[3]);
-                jsonHandler.write(root);
-                sendEmbed(event, embedFactory.createConfigEmbed().embedConfiguration());
-                return;
-            }
+        try {
+            addRole(args, root);
+            updateConfigAndNotify(event, root);
+            log.info("Role added by user: {} (Channel: {}, Role: {}, Emoji: {})", 
+                event.getAuthor().getName(), args[1], args[2], args[3]);
+        } catch (Exception e) {
+            handleError(event, e);
         }
+    }
 
-        // Если нет empty значений, добавляем новое правило
-        rolesList.add(new Roles(args[1], args[2], args[3]));
-        root.setRoles(rolesList);
+    /**
+     * Проверяет корректность аргументов команды
+     */
+    private boolean validateArgs(String[] args, MessageReceivedEvent event) {
+        if (args.length < REQUIRED_ARGS) {
+            event.getChannel().sendMessage(INVALID_ARGS).queue();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Добавляет новую роль в конфигурацию
+     */
+    private void addRole(String[] args, Root root) {
+        Roles role = new Roles();
+        role.setChannelId(args[1]);
+        role.setRoleId(args[2]);
+        role.setEmojiId(args[3]);
+        
+        root.getRoles().add(role);
+    }
+
+    /**
+     * Обновляет конфигурацию и отправляет уведомление
+     */
+    private void updateConfigAndNotify(MessageReceivedEvent event, Root root) {
         jsonHandler.write(root);
-        sendEmbed(event, embedFactory.createConfigEmbed().embedConfiguration());
+        
+        event.getChannel().sendMessageEmbeds(
+            embedFactory.createConfigEmbed()
+                .embedConfiguration()
+        ).queue();
+        
+        event.getChannel().sendMessage(SUCCESS_MESSAGE).queue();
+    }
+
+    /**
+     * Обрабатывает ошибки при выполнении команды
+     */
+    private void handleError(MessageReceivedEvent event, Exception e) {
+        log.error("Error while adding role", e);
+        event.getChannel().sendMessage(ERROR_MESSAGE + ": " + e.getMessage()).queue();
     }
 } 

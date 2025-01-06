@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Member;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.List;
 
 @Service
 public class RoleService {

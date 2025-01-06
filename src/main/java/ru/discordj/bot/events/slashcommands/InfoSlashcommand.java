@@ -1,72 +1,87 @@
 package ru.discordj.bot.events.slashcommands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ru.discordj.bot.events.ICommand;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import java.awt.Color;
+import java.time.Instant;
+import ru.discordj.bot.utility.BotConstants;
 
-import java.awt.*;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-
+/**
+ * Слэш-команда для отображения информации о боте.
+ */
+@Slf4j
 @Component
-public class InfoSlashcommand implements ICommand {
-    private static final Logger logger = LoggerFactory.getLogger(InfoSlashcommand.class);
-    public static  String NON_AVATAR_URL = "http://i.servimg.com/u/f33/17/73/99/79/no_ava10.png";
-
-
-    public String getName() {
-        return "info";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Information about user.";
-    }
-
-    @Override
-    public List<OptionData> getOptions() {
-        List<OptionData> dataList = new ArrayList<>();
-        dataList.add(new OptionData(
-                OptionType.USER, "information", "Information about User", true));
-        return dataList;
-    }
+@RequiredArgsConstructor
+public class InfoSlashcommand extends ListenerAdapter {
+    private static final String COMMAND_NAME = "info";
+    private static final String COMMAND_DESCRIPTION = "Показать информацию о боте";
+    private static final String EMBED_TITLE = BotConstants.BOT_NAME + " - Информация";
+    private static final Color EMBED_COLOR = new Color(BotConstants.EMBED_COLOR_HEX);
+    
+    private static final String FIELD_VERSION = "Версия";
+    private static final String FIELD_AUTHOR = "Автор";
+    private static final String FIELD_GITHUB = "GitHub";
+    
+    private static final String LOG_COMMAND = "Выполнена команда /info от пользователя: {}";
+    private static final String ERROR_COMMAND = "❌ Ошибка при выполнении команды /info: {}";
 
     @Override
-    public void execute(SlashCommandInteractionEvent event) {
-        DateTimeFormatter frm = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-        Date date = new Date();
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        if (!event.getName().equals(COMMAND_NAME)) return;
 
-        User target = event.getOption("information", OptionMapping::getAsUser);
-        Member member = event.getOption("information", OptionMapping::getAsMember);
-        String avatar = target.getAvatarUrl() == null ? NON_AVATAR_URL : target.getAvatarUrl();
+        try {
+            handleInfoCommand(event);
+        } catch (Exception e) {
+            handleError(event, e);
+        }
+    }
 
-        EmbedBuilder avatarEmbed = new EmbedBuilder()
-                .setColor(Color.YELLOW)
-                .setTitle(target.getName() + "'s info:")
-                .setDescription("Join on " + member.getTimeJoined().format(frm))
-                .addField("Name", target.getName(), true)
-                .addField("Online Status: ", member.getOnlineStatus().getKey(), true)
-                .addField("Avatar: ", "The Avatar is below ", false)
-                .setImage(avatar)
-                .setFooter("requested by " + date, event.getGuild().getIconUrl());
+    /**
+     * Возвращает данные для регистрации команды
+     */
+    public CommandData getCommandData() {
+        return Commands.slash(COMMAND_NAME, COMMAND_DESCRIPTION);
+    }
 
-        event.reply("Requested 'info' @" + target.getName() + " by @" + event.getUser().getName())
-                .setEmbeds(avatarEmbed.build())
-                .setEphemeral(true)
-                .queue(
-                        success -> logger.info("requested 'info' @{} by @{}", target.getName(), event.getUser().getName()),
-                        failure -> logger.error("Some error occurred in 'info', try again!")
-                );
+    /**
+     * Обрабатывает команду /info
+     */
+    private void handleInfoCommand(SlashCommandInteractionEvent event) {
+        EmbedBuilder embed = createInfoEmbed();
+        
+        event.replyEmbeds(embed.build())
+            .setEphemeral(true)
+            .queue(success -> log.info(LOG_COMMAND, event.getUser().getName()));
+    }
+
+    /**
+     * Создает эмбед с информацией о боте
+     */
+    private EmbedBuilder createInfoEmbed() {
+        return new EmbedBuilder()
+            .setTitle(EMBED_TITLE)
+            .setDescription(BotConstants.BOT_DESCRIPTION)
+            .setColor(EMBED_COLOR)
+            .addField(FIELD_VERSION, BotConstants.BOT_VERSION, true)
+            .addField(FIELD_AUTHOR, BotConstants.BOT_AUTHOR, true)
+            .addField(FIELD_GITHUB, BotConstants.GITHUB_LINK, false)
+            .setTimestamp(Instant.now())
+            .setFooter(BotConstants.BOT_NAME, null);
+    }
+
+    /**
+     * Обрабатывает ошибки выполнения команды
+     */
+    private void handleError(SlashCommandInteractionEvent event, Exception e) {
+        log.error(ERROR_COMMAND, e.getMessage());
+        event.reply(ERROR_COMMAND.formatted(e.getMessage()))
+            .setEphemeral(true)
+            .queue();
     }
 }

@@ -8,86 +8,99 @@ import ru.discordj.bot.utility.IJsonHandler;
 import ru.discordj.bot.utility.pojo.ServerInfo;
 import java.awt.Color;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class ServerStatusEmbed extends BaseEmbed {
+    private static final String ONLINE = "🟢 Онлайн";
+    private static final String OFFLINE = "🔴 Оффлайн";
+    private static final Color ONLINE_COLOR = Color.GREEN;
+    private static final Color OFFLINE_COLOR = Color.RED;
     
+    private static final Map<String, String> GAME_ICONS = Map.ofEntries(
+        Map.entry("minecraft", "⛏️"),
+        Map.entry("csgo", "🔫"),
+        Map.entry("valorant", "🎯"),
+        Map.entry("default", "🎮")
+    );
+
     @Autowired
     public ServerStatusEmbed(IJsonHandler jsonHandler) {
         super(jsonHandler);
     }
-    
+
+    /**
+     * Создает embed для отображения статуса сервера
+     */
     public MessageEmbed createServerEmbed(ServerInfo server, Map<String, String> serverInfo) {
-        EmbedBuilder embed = new EmbedBuilder()
-            .setTitle(null)
-            .setColor(getStatusColor(serverInfo));
+        EmbedBuilder builder = createDefaultBuilder()
+            .setTitle(getServerTitle(server, serverInfo))
+            .setColor(isServerOnline(serverInfo) ? ONLINE_COLOR : OFFLINE_COLOR);
 
-        if (!serverInfo.isEmpty()) {
-            embed.setDescription(String.format("**%s**\n" +
-                "```\n" +
-                "Status    : %s\n" +
-                "Map       : %s\n" +
-                "Players   : %s\n" +
-                "Address   : %s:%d\n" +
-                "```",
-                serverInfo.get("name"),
-                "🟢 Online",
-                serverInfo.get("map"),
-                serverInfo.get("players"),
-                server.getIp(), server.getPort()));
-        } else {
-            embed.setDescription(String.format("**%s**\n" +
-                "```\n" +
-                "Status    : %s\n" +
-                "Address   : %s:%d\n" +
-                "```",
-                server.getName(),
-                "🔴 Offline",
-                server.getIp(), server.getPort()));
-        }
-
-        return embed.build();
+        addServerFields(builder, server, serverInfo);
+        return builder.build();
     }
 
-    public MessageEmbed createErrorEmbed(ServerInfo server, String error) {
-        return new EmbedBuilder()
-            .setTitle(null)
-            .setColor(Color.decode("#2f3136"))
-            .setDescription(String.format("**%s**\n" +
-                "```\n" +
-                "Status    : %s\n" +
-                "Address   : %s:%d\n" +
-                "Error     : %s\n" +
-                "```",
-                server.getName(),
-                "⚠️ Error",
-                server.getIp(), server.getPort(),
-                error))
+    /**
+     * Создает embed с сообщением об ошибке
+     */
+    public MessageEmbed createErrorEmbed(ServerInfo server, String errorMessage) {
+        return createDefaultBuilder()
+            .setTitle(getGameIcon(server.getGame()) + " " + server.getName())
+            .setColor(OFFLINE_COLOR)
+            .addField("Статус", OFFLINE, false)
+            .addField("Ошибка", errorMessage, false)
             .build();
     }
 
-    private Color getStatusColor(Map<String, String> serverInfo) {
-        if (serverInfo.isEmpty()) {
-            return Color.decode("#2f3136");
+    private String getServerTitle(ServerInfo server, Map<String, String> serverInfo) {
+        String status = isServerOnline(serverInfo) ? ONLINE : OFFLINE;
+        return String.format("%s %s | %s", 
+            getGameIcon(server.getGame()),
+            server.getName(),
+            status
+        );
+    }
+
+    private void addServerFields(EmbedBuilder builder, ServerInfo server, Map<String, String> serverInfo) {
+        // Базовая информация
+        builder.addField("IP", formatAddress(server.getIp(), server.getPort()), true)
+               .addField("Игра", server.getGame(), true);
+
+        // Информация о карте и игроках
+        if (isServerOnline(serverInfo)) {
+            addOnlineServerInfo(builder, serverInfo);
+        }
+    }
+
+    private void addOnlineServerInfo(EmbedBuilder builder, Map<String, String> serverInfo) {
+        String map = serverInfo.get("map");
+        if (map != null && !map.isEmpty()) {
+            builder.addField("Карта", map, true);
         }
 
-        try {
-            String[] players = serverInfo.get("players").split("/");
-            int current = Integer.parseInt(players[0]);
-            int max = Integer.parseInt(players[1]);
-            float percentage = (float) current / max;
-            
-            if (percentage < 0.3) {
-                return Color.decode("#43b581");
-            } else if (percentage < 0.7) {
-                return Color.decode("#faa61a");
-            } else if (percentage < 0.9) {
-                return Color.decode("#f26522");
-            } else {
-                return Color.decode("#f04747");
-            }
-        } catch (Exception e) {
-            return Color.decode("#2f3136");
+        String players = serverInfo.get("players");
+        String maxPlayers = serverInfo.get("maxPlayers");
+        if (players != null && maxPlayers != null) {
+            builder.addField("Игроки", String.format("%s/%s", players, maxPlayers), true);
         }
+
+        String version = serverInfo.get("version");
+        if (version != null && !version.isEmpty()) {
+            builder.addField("Версия", version, true);
+        }
+    }
+
+    private String formatAddress(String ip, int port) {
+        return String.format("%s:%d", ip, port);
+    }
+
+    private String getGameIcon(String game) {
+        return GAME_ICONS.getOrDefault(game.toLowerCase(), GAME_ICONS.get("default"));
+    }
+
+    private boolean isServerOnline(Map<String, String> serverInfo) {
+        return serverInfo != null && !serverInfo.isEmpty();
     }
 } 
