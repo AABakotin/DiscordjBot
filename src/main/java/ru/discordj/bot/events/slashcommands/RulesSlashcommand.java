@@ -12,9 +12,14 @@ import java.util.List;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import ru.discordj.bot.utility.IJsonHandler;
 
+@Component
 public class RulesSlashcommand implements ICommand {
-
+    @Autowired
+    private IJsonHandler jsonHandler;
 
     @Override
     public String getName() {
@@ -33,7 +38,7 @@ public class RulesSlashcommand implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        RulesMessage rules = JsonParse.getInstance().readRules();
+        RulesMessage rules = jsonHandler.readRules();
         
         EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(Color.decode("#2f3136"));

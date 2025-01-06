@@ -1,7 +1,6 @@
 package ru.discordj.bot.events.listener.configurator.command;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import ru.discordj.bot.events.listener.configurator.BotCommandExecutor;
 import ru.discordj.bot.utility.pojo.Root;
 
 /**
@@ -9,38 +8,23 @@ import ru.discordj.bot.utility.pojo.Root;
  * Содержит все доступные команды и их исполнителей.
  */
 public enum BotCommand {
-    READ_CONF("!read_conf", new ReadConfigCommand()),
-    ID("!id", new SetIdCommand()),
-    ID_DEL("!id_del", new DeleteIdCommand()),
-    ROLE("!role", new RoleAddCommand()),
-    TOKEN("!token", new TokenSetCommand()),
-    LINK("!link", new LinkSetCommand()),
-    DEL_ROLE("!del_role", new RoleDeleteCommand()),
-    MONITOR("!monitor", new MonitoringCommand());
+    READ_CONF("!read_conf"),
+    ID("!id"),
+    ID_DEL("!id_del"),
+    ROLE("!role"),
+    TOKEN("!token"),
+    LINK("!link"),
+    DEL_ROLE("!del_role"),
+    MONITOR("!monitor");
 
     private final String command;
-    private final BotCommandExecutor executor;
 
-    /**
-     * Создает новую команду с заданным текстовым идентификатором и исполнителем.
-     *
-     * @param command текстовая команда
-     * @param executor исполнитель команды
-     */
-    BotCommand(String command, BotCommandExecutor executor) {
+    BotCommand(String command) {
         this.command = command;
-        this.executor = executor;
     }
 
-    /**
-     * Выполняет команду с заданными параметрами.
-     *
-     * @param args аргументы команды
-     * @param event событие сообщения Discord
-     * @param root корневой объект конфигурации
-     */
-    public void execute(String[] args, MessageReceivedEvent event, Root root) {
-        executor.execute(args, event, root);
+    public void execute(String[] args, MessageReceivedEvent event, Root root, BotCommandFactory factory) {
+        factory.getCommand(this).execute(args, event, root);
     }
 
     public static BotCommand fromString(String text) {

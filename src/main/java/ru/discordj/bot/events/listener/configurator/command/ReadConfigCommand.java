@@ -5,13 +5,23 @@ import ru.discordj.bot.embed.EmbedFactory;
 import ru.discordj.bot.events.listener.configurator.BaseCommand;
 import ru.discordj.bot.events.listener.configurator.ConfiguratorError;
 import ru.discordj.bot.utility.pojo.Root;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Команда для чтения текущей конфигурации.
  * Отображает все настройки бота в текущем канале.
  */
+@Component
 public class ReadConfigCommand extends BaseCommand {
     private static final String EMPTY = "empty";
+    
+    private final EmbedFactory embedFactory;
+
+    @Autowired
+    public ReadConfigCommand(EmbedFactory embedFactory) {
+        this.embedFactory = embedFactory;
+    }
 
     /**
      * Отображает текущую конфигурацию бота.
@@ -29,7 +39,7 @@ public class ReadConfigCommand extends BaseCommand {
         }
         
         if (event.getAuthor().getId().equals(root.getOwner())) {
-            sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration());
+            sendEmbed(event, embedFactory.createConfigEmbed().embedConfiguration());
         }
     }
 } 

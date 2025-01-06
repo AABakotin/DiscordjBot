@@ -3,6 +3,7 @@ package ru.discordj.bot.utility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import ru.discordj.bot.utility.pojo.Root;
 import ru.discordj.bot.utility.pojo.RulesMessage;
@@ -10,6 +11,7 @@ import ru.discordj.bot.utility.pojo.RulesMessage;
 import java.io.File;
 import java.io.IOException;
 
+@Component
 public class JsonParse implements IJsonHandler {
     private static final Logger logger = LoggerFactory.getLogger(JsonParse.class);
     private static final String RULES_FILE = "json/rules.json";
@@ -28,19 +30,11 @@ public class JsonParse implements IJsonHandler {
         + "}";
 
     private final ObjectMapper mapper;
-    private static JsonParse instance;
 
-    private JsonParse() {
+    public JsonParse() {
         this.mapper = new ObjectMapper();
         createConfigIfNotExists();
         createRulesIfNotExists();
-    }
-
-    public static synchronized JsonParse getInstance() {
-        if (instance == null) {
-            instance = new JsonParse();
-        }
-        return instance;
     }
 
     private void createRulesIfNotExists() {
@@ -165,4 +159,8 @@ public class JsonParse implements IJsonHandler {
         return jarPath + File.separator + CONFIG_FILE;
     }
 
+    @Override
+    public String getToken() {
+        return read().getToken();
+    }
 } 

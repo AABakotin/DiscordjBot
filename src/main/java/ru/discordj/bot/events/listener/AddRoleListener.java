@@ -7,16 +7,20 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.utility.IJsonHandler;
-import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.utility.pojo.Root;
 import ru.discordj.bot.utility.pojo.Roles;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
 
+@Component
 public class AddRoleListener extends ListenerAdapter {
 
-    private final IJsonHandler jsonHandler = JsonParse.getInstance();
+    @Autowired
+    private IJsonHandler jsonHandler;
+    
     private static final Logger logger = LoggerFactory.getLogger(AddRoleListener.class);
 
 

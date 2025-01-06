@@ -1,5 +1,8 @@
 package ru.discordj.bot.embed;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import ru.discordj.bot.utility.IJsonHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import ru.discordj.bot.utility.pojo.RulesMessage;
@@ -8,7 +11,13 @@ import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Component
 public class WelcomeEmbed extends BaseEmbed {
+
+    @Autowired
+    public WelcomeEmbed(IJsonHandler jsonHandler) {
+        super(jsonHandler);
+    }
 
     public MessageEmbed embedWelcomeGuild(String avatarUrl, String username) {
         RulesMessage rules = jsonHandler.readRules();

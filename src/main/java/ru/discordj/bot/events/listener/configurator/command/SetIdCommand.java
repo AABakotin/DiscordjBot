@@ -7,14 +7,22 @@ import ru.discordj.bot.embed.EmbedFactory;
 import ru.discordj.bot.events.listener.configurator.BaseCommand;
 import ru.discordj.bot.events.listener.configurator.ConfiguratorError;
 import ru.discordj.bot.utility.pojo.Root;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Команда для установки ID администратора.
  * Позволяет назначить пользователя администратором бота.
  */
+@Component
 public class SetIdCommand extends BaseCommand {
     private static final String EMPTY = "empty";
-    private final IJsonHandler jsonHandler = JsonParse.getInstance();
+    
+    @Autowired
+    private IJsonHandler jsonHandler;
+    
+    @Autowired
+    private EmbedFactory embedFactory;
 
     /**
      * Устанавливает ID администратора бота.
@@ -30,11 +38,11 @@ public class SetIdCommand extends BaseCommand {
         if (root.getOwner() == null || root.getOwner().equals(EMPTY)) {
             root.setOwner(authorId);
             jsonHandler.write(root);
-            sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration());
+            sendEmbed(event, embedFactory.createConfigEmbed().embedConfiguration());
             return;
         }
         
         sendMessage(event, ConfiguratorError.ADMIN_EXISTS.getMessage() + root.getOwner())
-            .thenRun(() -> sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration()));
+            .thenRun(() -> sendEmbed(event, embedFactory.createConfigEmbed().embedConfiguration()));
     }
 } 

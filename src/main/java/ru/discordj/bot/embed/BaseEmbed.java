@@ -2,17 +2,20 @@ package ru.discordj.bot.embed;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import ru.discordj.bot.utility.IJsonHandler;
-import ru.discordj.bot.utility.JsonParse;
 import java.awt.Color;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public abstract class BaseEmbed {
     protected final IJsonHandler jsonHandler;
     protected final Color defaultColor = Color.BLUE;
     
-    protected BaseEmbed() {
-        this.jsonHandler = JsonParse.getInstance();
+    @Autowired
+    protected BaseEmbed(IJsonHandler jsonHandler) {
+        this.jsonHandler = jsonHandler;
     }
     
     protected String formatDate() {

@@ -2,9 +2,19 @@ package ru.discordj.bot.embed;
 
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.EmbedBuilder;
+import ru.discordj.bot.utility.IJsonHandler;
 import java.awt.Color;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ConfigEmbed extends BaseEmbed {
+    
+    @Autowired
+    public ConfigEmbed(IJsonHandler jsonHandler) {
+        super(jsonHandler);
+    }
+    
     public MessageEmbed embedConfiguration() {
         EmbedBuilder builder = new EmbedBuilder()
             .setColor(Color.BLUE)

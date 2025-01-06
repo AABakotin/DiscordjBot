@@ -4,12 +4,16 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ru.discordj.bot.config.JdaConfig;
 import ru.discordj.bot.embed.EmbedFactory;
 import ru.discordj.bot.embed.ServerStatusEmbed;
 import ru.discordj.bot.monitor.parser.Parser;
 import ru.discordj.bot.utility.pojo.Root;
 import ru.discordj.bot.utility.pojo.ServerInfo;
+import ru.discordj.bot.utility.IJsonHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,35 +26,30 @@ import java.util.concurrent.TimeUnit;
  * Реализует периодический опрос серверов и отображение их статуса в Discord канале.
  * Использует паттерн Singleton для обеспечения единственного экземпляра монитора.
  */
+@Component
 public class ServerMonitor {
     private static final Logger logger = LoggerFactory.getLogger(ServerMonitor.class);
-    private static ServerMonitor instance;
 
     private ScheduledExecutorService scheduler;
-    private Root config;
+    @Autowired
+    private Root root;
     private final Parser parser;
     private Map<String, String> messageIds = new HashMap<>();
     private boolean isRunning = false;
     private Thread monitoringThread;
 
-    /**
-     * Возвращает единственный экземпляр монитора.
-     *
-     * @return экземпляр ServerMonitor
-     */
-    public static ServerMonitor getInstance() {
-        return instance;
-    }
+    @Autowired
+    private IJsonHandler jsonHandler;
+    @Autowired
+    private EmbedFactory embedFactory;
 
     /**
      * Создает новый экземпляр монитора с указанной конфигурацией.
      *
      * @param config конфигурация с настройками серверов и каналов
      */
-    public ServerMonitor(Root config) {
-        this.config = config;
+    public ServerMonitor() {
         this.parser = new Parser();
-        instance = this;
     }
 
     /**
@@ -87,7 +86,6 @@ public class ServerMonitor {
             } finally {
                 isRunning = false;
                 messageIds.clear();
-                instance = null;
                 scheduler = null;
                 monitoringThread = null;
                 logger.info("Monitoring service stopped");
@@ -113,11 +111,11 @@ public class ServerMonitor {
             return;
         }
         
-        if (config.getMonitoringChannelId() == null || config.getServers().isEmpty()) {
+        if (root.getMonitoringChannelId() == null || root.getServers().isEmpty()) {
             return;
         }
 
-        TextChannel channel = JdaConfig.getJda().getTextChannelById(config.getMonitoringChannelId());
+        TextChannel channel = JdaConfig.getJda().getTextChannelById(root.getMonitoringChannelId());
         if (channel == null) return;
 
         // При первом запуске удаляем старые сообщения
@@ -131,9 +129,9 @@ public class ServerMonitor {
                 });
         }
 
-        ServerStatusEmbed embedBuilder = EmbedFactory.getInstance().createServerStatusEmbed();
+        ServerStatusEmbed embedBuilder = embedFactory.createServerStatusEmbed();
 
-        for (ServerInfo server : config.getServers()) {
+        for (ServerInfo server : root.getServers()) {
             try {
                 Map<String, String> serverInfo = parser.getServerInfo(server.getIp(), server.getPort());
                 MessageEmbed embed = embedBuilder.createServerEmbed(server, serverInfo);
@@ -175,6 +173,6 @@ public class ServerMonitor {
      * @param newConfig новая конфигурация
      */
     public void updateConfig(Root newConfig) {
-        this.config = newConfig;
+        this.root = newConfig;
     }
 } 

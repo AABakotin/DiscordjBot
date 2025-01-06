@@ -1,12 +1,21 @@
 package ru.discordj.bot.embed;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import ru.discordj.bot.utility.IJsonHandler;
 import ru.discordj.bot.utility.pojo.ServerInfo;
 import java.awt.Color;
 import java.util.Map;
 
+@Component
 public class ServerStatusEmbed extends BaseEmbed {
+    
+    @Autowired
+    public ServerStatusEmbed(IJsonHandler jsonHandler) {
+        super(jsonHandler);
+    }
     
     public MessageEmbed createServerEmbed(ServerInfo server, Map<String, String> serverInfo) {
         EmbedBuilder embed = new EmbedBuilder()

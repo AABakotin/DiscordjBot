@@ -12,14 +12,24 @@ import org.slf4j.LoggerFactory;
 import ru.discordj.bot.embed.EmbedFactory;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.lavaplayer.PlayerManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Обработчик slash-команды для воспроизведения музыки.
  * Позволяет добавлять треки в очередь воспроизведения по URL или поисковому запросу.
  * Поддерживает автоматическое подключение к голосовому каналу.
  */
+@Component
 public class PlayMusicSlashCommand implements ICommand {
     private static final Logger logger = LoggerFactory.getLogger(PlayMusicSlashCommand.class);
+
+    private final EmbedFactory embedFactory;
+
+    @Autowired
+    public PlayMusicSlashCommand(EmbedFactory embedFactory) {
+        this.embedFactory = embedFactory;
+    }
 
     @Override
     public String getName() {
@@ -90,7 +100,7 @@ public class PlayMusicSlashCommand implements ICommand {
                 );
                 
             // Обновляем плеер и удаляем ответ
-            EmbedFactory.getInstance().createMusicEmbed()
+            embedFactory.createMusicEmbed()
                 .updatePlayerMessage(event.getChannel().asTextChannel(), null);
             event.getHook().deleteOriginal().queue();
                 

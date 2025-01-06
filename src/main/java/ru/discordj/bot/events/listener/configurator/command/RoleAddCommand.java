@@ -1,8 +1,8 @@
 package ru.discordj.bot.events.listener.configurator.command;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import ru.discordj.bot.utility.IJsonHandler;
-import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.embed.EmbedFactory;
 import ru.discordj.bot.events.listener.configurator.BaseCommand;
 import ru.discordj.bot.events.listener.configurator.ConfiguratorError;
@@ -11,12 +11,19 @@ import ru.discordj.bot.utility.pojo.Root;
 
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 /**
  * Команда для добавления новой роли.
  * Позволяет создать новое правило автоматической выдачи роли.
  */
+@Component
 public class RoleAddCommand extends BaseCommand {
-    private final IJsonHandler jsonHandler = JsonParse.getInstance();
+    @Autowired
+    private IJsonHandler jsonHandler;
+    
+    @Autowired
+    private EmbedFactory embedFactory;
 
     /**
      * Добавляет новое правило выдачи роли.
@@ -43,7 +50,7 @@ public class RoleAddCommand extends BaseCommand {
                 role.setRoleId(args[2]);
                 role.setEmojiId(args[3]);
                 jsonHandler.write(root);
-                sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration());
+                sendEmbed(event, embedFactory.createConfigEmbed().embedConfiguration());
                 return;
             }
         }
@@ -52,6 +59,6 @@ public class RoleAddCommand extends BaseCommand {
         rolesList.add(new Roles(args[1], args[2], args[3]));
         root.setRoles(rolesList);
         jsonHandler.write(root);
-        sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration());
+        sendEmbed(event, embedFactory.createConfigEmbed().embedConfiguration());
     }
 } 

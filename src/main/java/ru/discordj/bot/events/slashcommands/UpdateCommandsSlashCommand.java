@@ -5,7 +5,9 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.discordj.bot.events.ICommand;
 import java.util.Collections;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UpdateCommandsSlashCommand implements ICommand {
     @Override
     public String getName() {

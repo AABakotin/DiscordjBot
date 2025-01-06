@@ -1,25 +1,29 @@
 package ru.discordj.bot.events.listener.configurator;
 import ru.discordj.bot.events.listener.configurator.command.BotCommand;
 import ru.discordj.bot.utility.IJsonHandler;
-import ru.discordj.bot.utility.JsonParse;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.discordj.bot.utility.pojo.Root;
+import ru.discordj.bot.events.listener.configurator.command.BotCommandFactory;
 
 /**
  * Основной класс для обработки команд конфигурации бота.
  * Обрабатывает входящие сообщения и делегирует их соответствующим командам.
  */
+@Component
 public class Configurator extends ListenerAdapter {
-    private final IJsonHandler jsonHandler = JsonParse.getInstance();
+    private final IJsonHandler jsonHandler;
+    private final BotCommandFactory commandFactory;
     private static final String EMPTY = "empty";
+    
+    @Autowired
+    public Configurator(IJsonHandler jsonHandler, BotCommandFactory commandFactory) {
+        this.jsonHandler = jsonHandler;
+        this.commandFactory = commandFactory;
+    }
 
-    /**
-     * Обрабатывает входящие сообщения и выполняет соответствующие команды.
-     *
-     * @param event событие получения сообщения
-     */
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
@@ -31,7 +35,7 @@ public class Configurator extends ListenerAdapter {
         BotCommand command = BotCommand.fromString(commandArgs[0]);
         if (command != null) {
             try {
-                command.execute(commandArgs, event, root);
+                command.execute(commandArgs, event, root, commandFactory);
             } catch (Exception e) {
                 event.getChannel().sendMessage("Произошла ошибка: " + e.getMessage()).queue();
             }

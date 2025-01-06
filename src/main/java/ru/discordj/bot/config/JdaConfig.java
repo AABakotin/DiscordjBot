@@ -1,14 +1,11 @@
 package ru.discordj.bot.config;
 
-
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.utility.IJsonHandler;
-import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.events.CommandManager;
 import ru.discordj.bot.events.listener.AddRoleListener;
 import ru.discordj.bot.events.listener.PlayerButtonListener;
@@ -17,37 +14,80 @@ import ru.discordj.bot.events.slashcommands.*;
 import ru.discordj.bot.events.listener.MusicControlsListener;
 import ru.discordj.bot.events.listener.MemberListener;
 import ru.discordj.bot.events.listener.ReadyListener;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import javax.annotation.PostConstruct;
 
 import static net.dv8tion.jda.api.requests.GatewayIntent.*;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.CLIENT_STATUS;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.VOICE_STATE;
 
+@Configuration
 public class JdaConfig {
     private static final Logger logger = LoggerFactory.getLogger(JdaConfig.class);
     private static final CommandManager MANAGER = new CommandManager();
-    public static IJsonHandler jsonHandler = JsonParse.getInstance();
     private static JDA jda;
 
+    @Value("${discord.token}")
+    private String token;
 
-    static {
+    @Autowired
+    private ReadyListener readyListener;
+    
+    @Autowired
+    private MemberListener memberListener;
 
-        MANAGER.add(new PingSlashcommand());
-        MANAGER.add(new RulesSlashcommand());
-        MANAGER.add(new InfoSlashcommand());
-        MANAGER.add(new HelloSlashcommand());
-        MANAGER.add(new InviteSlashcommand());
-        MANAGER.add(new PlayMusicSlashCommand());
-        MANAGER.add(new UpdateCommandsSlashCommand());
+    @Autowired
+    private PlayMusicSlashCommand playMusicCommand;
 
+    @Autowired
+    private AddRoleListener addRoleListener;
+    
+    @Autowired
+    private PlayerButtonListener playerButtonListener;
+    
+    @Autowired
+    private Configurator configurator;
+    
+    @Autowired
+    private MusicControlsListener musicControlsListener;
+
+    @Autowired
+    private PingSlashcommand pingCommand;
+    
+    @Autowired
+    private RulesSlashcommand rulesCommand;
+    
+    @Autowired
+    private InfoSlashcommand infoCommand;
+    
+    @Autowired
+    private HelloSlashcommand helloCommand;
+    
+    @Autowired
+    private InviteSlashcommand inviteCommand;
+    
+    @Autowired
+    private UpdateCommandsSlashCommand updateCommand;
+
+    @PostConstruct
+    public void init() {
+        MANAGER.add(pingCommand);
+        MANAGER.add(rulesCommand);
+        MANAGER.add(infoCommand);
+        MANAGER.add(helloCommand);
+        MANAGER.add(inviteCommand);
+        MANAGER.add(playMusicCommand);
+        MANAGER.add(updateCommand);
     }
 
-    private JdaConfig (){
-        throw new IllegalStateException("Configuration class");
-    }
-
-    public static void start(String[] args) {
-        jda = JDABuilder.createDefault(checkToken(args))
+    @Bean
+    public JDA jda() {
+        logger.info("Initializing JDA with token: {}...", token.substring(0, 10));
+        
+        return JDABuilder.createDefault(token)
                 .setEnabledIntents(
                         GUILD_PRESENCES,
                         GUILD_MESSAGES,
@@ -63,27 +103,14 @@ public class JdaConfig {
                 .enableCache(CLIENT_STATUS, VOICE_STATE)
                 .addEventListeners(
                         MANAGER,
-                        new AddRoleListener(),
-                        new PlayerButtonListener(),
-                        new Configurator(),
-                        new MusicControlsListener(),
-                        new MemberListener(),
-                        new ReadyListener()
+                        addRoleListener,
+                        playerButtonListener,
+                        configurator,
+                        musicControlsListener,
+                        memberListener,
+                        readyListener
                 )
                 .build();
-    }
-
-    private static String checkToken(String[] args) {
-        if (args.length >= 1) {
-            logger.info("Loading token key form args...");
-            return args[0];
-        } else if (System.getenv().containsKey("TOKEN")) {
-            logger.info("Loading token key form system environment...");
-            return System.getenv("TOKEN");
-        } else {
-            logger.info("Loading token key form properties file...");
-            return jsonHandler.read().getToken();
-        }
     }
 
     public static JDA getJda() {

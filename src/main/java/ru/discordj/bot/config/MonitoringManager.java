@@ -2,49 +2,45 @@ package ru.discordj.bot.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ru.discordj.bot.monitor.ServerMonitor;
-import ru.discordj.bot.utility.JsonParse;
+import ru.discordj.bot.utility.IJsonHandler;
 import ru.discordj.bot.utility.pojo.Root;
 
+@Component
 public class MonitoringManager {
     private static final Logger logger = LoggerFactory.getLogger(MonitoringManager.class);
-    private static MonitoringManager instance;
-    private ServerMonitor currentMonitor;
-    private final JsonParse jsonHandler = JsonParse.getInstance();
+    
+    private final IJsonHandler jsonHandler;
+    private final ServerMonitor serverMonitor;
 
-    private MonitoringManager() {}
-
-    public static synchronized MonitoringManager getInstance() {
-        if (instance == null) {
-            instance = new MonitoringManager();
-        }
-        return instance;
+    @Autowired
+    public MonitoringManager(IJsonHandler jsonHandler, ServerMonitor serverMonitor) {
+        this.jsonHandler = jsonHandler;
+        this.serverMonitor = serverMonitor;
     }
 
-    public synchronized void startMonitoring(Root root) {
-        stopMonitoring(); // Останавливаем предыдущий монитор если есть
-        
-        currentMonitor = new ServerMonitor(root);
-        currentMonitor.start();
+    public void startMonitoring(Root root) {
+        stopMonitoring();
+        serverMonitor.updateConfig(root);
+        serverMonitor.start();
         root.setMonitoringEnabled(true);
         jsonHandler.write(root);
         logger.info("Monitoring started");
     }
 
-    public synchronized void stopMonitoring() {
-        if (currentMonitor != null) {
-            currentMonitor.stop();
-            currentMonitor = null;
-            Root root = jsonHandler.read();
-            root.setMonitoringEnabled(false);
-            jsonHandler.write(root);
-            logger.info("Monitoring stopped");
-        }
+    public void stopMonitoring() {
+        serverMonitor.stop();
+        Root root = jsonHandler.read();
+        root.setMonitoringEnabled(false);
+        jsonHandler.write(root);
+        logger.info("Monitoring stopped");
     }
 
-    public synchronized boolean isMonitoringActive() {
-        return currentMonitor != null && currentMonitor.isRunning();
+    public boolean isMonitoringActive() {
+        return serverMonitor.isRunning();
     }
 
     public void init() {

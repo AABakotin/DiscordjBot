@@ -5,8 +5,13 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ru.discordj.bot.embed.EmbedFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MemberListener extends ListenerAdapter {
+    @Autowired
+    private EmbedFactory embedFactory;
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
@@ -14,7 +19,7 @@ public class MemberListener extends ListenerAdapter {
         // Отправляем приветственное сообщение в личку
         user.openPrivateChannel()
             .queue(channel -> channel.sendMessageEmbeds(
-                EmbedFactory.getInstance().createWelcomeEmbed().embedWelcomeGuild(
+                embedFactory.createWelcomeEmbed().embedWelcomeGuild(
                     user.getEffectiveAvatarUrl(),
                     user.getName()
                 )
@@ -27,7 +32,7 @@ public class MemberListener extends ListenerAdapter {
         // Отправляем прощальное сообщение в личку
         user.openPrivateChannel()
             .queue(channel -> channel.sendMessageEmbeds(
-                EmbedFactory.getInstance().createWelcomeEmbed().embedLeaveGuild(
+                embedFactory.createWelcomeEmbed().embedLeaveGuild(
                     user.getEffectiveAvatarUrl(),
                     user.getName()
                 )

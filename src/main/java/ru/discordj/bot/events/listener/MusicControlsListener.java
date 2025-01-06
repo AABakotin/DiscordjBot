@@ -8,8 +8,15 @@ import ru.discordj.bot.lavaplayer.TrackSelectionData;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import ru.discordj.bot.embed.EmbedFactory;
 
+@Component
 public class MusicControlsListener extends ListenerAdapter {
+    @Autowired
+    private EmbedFactory embedFactory;
+
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         String buttonId = event.getComponentId();
@@ -52,8 +59,11 @@ public class MusicControlsListener extends ListenerAdapter {
             }
         }
         
-        // Подтверждаем взаимодействие и обновляем сообщение
-        event.deferEdit().queue();
+        // Обновляем сообщение после взаимодействия
+        event.deferEdit().queue(response -> 
+            embedFactory.createMusicEmbed()
+                .updatePlayerMessage(event.getChannel().asTextChannel(), event.getMessage().getId())
+        );
     }
 
     private void handleTrackSelection(ButtonInteractionEvent event) {

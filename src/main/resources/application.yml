@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: discord-bot
+  profiles:
+    active: dev
+  main:
+    banner-mode: console
+
+logging:
+  charset:
+    console: UTF-8
+    file: UTF-8
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%-5level] %logger{36} - %msg%n"
+
+discord:
+  token: ${DISCORD_TOKEN:${TOKEN:}} 

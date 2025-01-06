@@ -41,3 +41,13 @@ build/
 src/main/resources/.env
 
 .env
+application-dev.yml
+
+# Конфигурационные файлы
+target/json/config.json
+src/main/resources/application-dev.yml
+
+# Конфигурационные файлы с секретами
+**/config.json
+**/application-dev.yml
+json/config.json

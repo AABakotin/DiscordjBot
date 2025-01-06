@@ -7,12 +7,17 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import ru.discordj.bot.lavaplayer.PlayerManager;
+import ru.discordj.bot.utility.IJsonHandler;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MusicEmbed extends BaseEmbed {
     private static final int PROGRESS_BAR_LENGTH = 15;
     private static final String PROGRESS_START = "『";
@@ -30,6 +35,11 @@ public class MusicEmbed extends BaseEmbed {
     private static final String EMOJI_STOP = "⏹️";
     private static final String EMOJI_REPEAT = "🔄";
     private static final String EMOJI_SKIP = "⏭️";
+
+    @Autowired
+    public MusicEmbed(IJsonHandler jsonHandler) {
+        super(jsonHandler);
+    }
 
     public void updatePlayerMessage(TextChannel textChannel, String messageId) {
         if (messageId == null) return;
@@ -68,7 +78,7 @@ public class MusicEmbed extends BaseEmbed {
         
         AudioTrack currentTrack = PlayerManager.getInstance()
             .getGuildMusicManager(textChannel.getGuild())
-            .getPlayer()
+            .getAudioPlayer()
             .getPlayingTrack();
 
         if (currentTrack == null) {
@@ -130,8 +140,8 @@ public class MusicEmbed extends BaseEmbed {
 
     private void addControlButtons(MessageCreateBuilder messageBuilder, TextChannel textChannel) {
         var guildManager = PlayerManager.getInstance().getGuildMusicManager(textChannel.getGuild());
-        boolean isPlaying = guildManager.getPlayer().getPlayingTrack() != null;
-        boolean isPaused = guildManager.getPlayer().isPaused();
+        boolean isPlaying = guildManager.getAudioPlayer().getPlayingTrack() != null;
+        boolean isPaused = guildManager.getAudioPlayer().isPaused();
         boolean isRepeat = guildManager.getTrackScheduler().isRepeat();
         
         List<Button> buttons = new ArrayList<>();

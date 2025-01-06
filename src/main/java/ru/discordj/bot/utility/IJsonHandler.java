@@ -8,4 +8,5 @@ public interface IJsonHandler {
     void write(Root root);
     RulesMessage readRules();
     void writeRules(RulesMessage rules);
+    String getToken();
 } 

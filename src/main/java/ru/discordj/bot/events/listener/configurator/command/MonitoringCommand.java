@@ -5,16 +5,22 @@ import ru.discordj.bot.events.listener.configurator.BaseCommand;
 import ru.discordj.bot.monitor.query.GameServerQuery;
 import ru.discordj.bot.monitor.query.GameServerQueryFactory;
 import ru.discordj.bot.utility.IJsonHandler;
-import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.utility.pojo.Root;
 import ru.discordj.bot.utility.pojo.ServerInfo;
 import ru.discordj.bot.config.MonitoringManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 
+@Component
 public class MonitoringCommand extends BaseCommand {
-    private final IJsonHandler jsonHandler = JsonParse.getInstance();
+    @Autowired
+    private IJsonHandler jsonHandler;
+    
+    @Autowired
+    private MonitoringManager monitoringManager;
 
     @Override
     public void execute(String[] args, MessageReceivedEvent event, Root root) {
@@ -58,7 +64,7 @@ public class MonitoringCommand extends BaseCommand {
                 listServers(event, root);
                 break;
             case "start":
-                if (MonitoringManager.getInstance().isMonitoringActive()) {
+                if (monitoringManager.isMonitoringActive()) {
                     sendMessage(event, "Мониторинг уже запущен");
                     return;
                 }
@@ -70,15 +76,15 @@ public class MonitoringCommand extends BaseCommand {
                     sendMessage(event, "Добавьте серверы для мониторинга: !monitor add <ip:port>");
                     return;
                 }
-                MonitoringManager.getInstance().startMonitoring(root);
+                monitoringManager.startMonitoring(root);
                 sendMessage(event, "Мониторинг серверов запущен");
                 break;
             case "stop":
-                if (!MonitoringManager.getInstance().isMonitoringActive()) {
+                if (!monitoringManager.isMonitoringActive()) {
                     sendMessage(event, "Мониторинг не запущен");
                     return;
                 }
-                MonitoringManager.getInstance().stopMonitoring();
+                monitoringManager.stopMonitoring();
                 sendMessage(event, "Мониторинг серверов остановлен");
                 break;
         }

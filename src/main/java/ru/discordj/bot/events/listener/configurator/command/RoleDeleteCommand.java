@@ -1,8 +1,9 @@
 package ru.discordj.bot.events.listener.configurator.command;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import ru.discordj.bot.utility.IJsonHandler;
-import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.embed.EmbedFactory;
 import ru.discordj.bot.events.listener.configurator.BaseCommand;
 import ru.discordj.bot.events.listener.configurator.ConfiguratorError;
@@ -15,8 +16,13 @@ import java.util.List;
  * Команда для удаления правила выдачи роли.
  * Позволяет удалить существующее правило или все правила сразу.
  */
+@Component
 public class RoleDeleteCommand extends BaseCommand {
-    private final IJsonHandler jsonHandler = JsonParse.getInstance();
+    @Autowired
+    private IJsonHandler jsonHandler;
+    
+    @Autowired
+    private EmbedFactory embedFactory;
 
     /**
      * Удаляет правило выдачи роли по индексу или все правила.
@@ -37,7 +43,7 @@ public class RoleDeleteCommand extends BaseCommand {
             rolesList.add(new Roles("empty", "empty", "empty"));
             root.setRoles(rolesList);
             jsonHandler.write(root);
-            sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration());
+            sendEmbed(event, embedFactory.createConfigEmbed().embedConfiguration());
             return;
         }
 
@@ -57,7 +63,7 @@ public class RoleDeleteCommand extends BaseCommand {
             
             root.setRoles(rolesList);
             jsonHandler.write(root);
-            sendEmbed(event, EmbedFactory.getInstance().createConfigEmbed().embedConfiguration());
+            sendEmbed(event, embedFactory.createConfigEmbed().embedConfiguration());
         } catch (NumberFormatException e) {
             sendMessage(event, ConfiguratorError.DEL_ROLE_FORMAT.getMessage());
         }

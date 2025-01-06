@@ -5,10 +5,12 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.ICommand;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
 
+@Component
 public class PingSlashcommand implements ICommand {
     private static final Logger logger = LoggerFactory.getLogger(PingSlashcommand.class);
 

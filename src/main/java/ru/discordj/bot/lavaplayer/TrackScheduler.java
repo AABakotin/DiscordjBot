@@ -6,7 +6,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import ru.discordj.bot.embed.EmbedFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -20,15 +19,17 @@ public class TrackScheduler extends AudioEventAdapter {
 
     private final AudioPlayer player;
     private final BlockingQueue<AudioTrack> queue;
-    private boolean isRepeat = false;
+    private final EmbedFactory embedFactory;
     private String playerMessageId;
     private TextChannel textChannel;
     private TrackSelectionData trackSelectionData;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> updateTask;
+    private boolean isRepeat = false;
 
-    public TrackScheduler(AudioPlayer player) {
+    public TrackScheduler(AudioPlayer player, EmbedFactory embedFactory) {
         this.player = player;
+        this.embedFactory = embedFactory;
         this.queue = new LinkedBlockingQueue<>();
     }
 
@@ -40,7 +41,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
     private void updatePlayerMessage() {
         if (textChannel != null && playerMessageId != null) {
-            EmbedFactory.getInstance().createMusicEmbed()
+            embedFactory.createMusicEmbed()
                 .updatePlayerMessage(textChannel, playerMessageId);
         }
     }
@@ -52,7 +53,7 @@ public class TrackScheduler extends AudioEventAdapter {
             if (player.getPlayingTrack() != null && textChannel != null && playerMessageId != null) {
                 updatePlayerMessage();
             }
-        }, 0, 5, TimeUnit.SECONDS);
+        }, 0, 10, TimeUnit.SECONDS);
     }
 
     public void stopUpdateTask() {
