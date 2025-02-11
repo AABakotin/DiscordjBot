@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Queue;
 
 
+
 public class MusicEmbed extends BaseEmbed {
     private static final int PROGRESS_BAR_LENGTH = 15;
     private static final String PROGRESS_START = "『";
@@ -65,7 +66,7 @@ public class MusicEmbed extends BaseEmbed {
     public MessageCreateBuilder createPlayerMessage(TextChannel textChannel) {
         MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
         EmbedBuilder embed = createDefaultBuilder();
-        
+
         AudioTrack currentTrack = PlayerManager.getInstance()
             .getGuildMusicManager(textChannel.getGuild())
             .getPlayer()
@@ -73,14 +74,13 @@ public class MusicEmbed extends BaseEmbed {
 
         if (currentTrack == null) {
             embed.setColor(Color.decode("#2f3136"))
-                .setTitle(EMOJI_WARNING + " Нет активного трека")
-                .setDescription("Используйте `/play` чтобы включить музыку");
+                .setTitle(EMOJI_MUSIC + " Нет активного трека")
+                .setDescription(EMOJI_WARNING + " Используйте `/play` чтобы включить музыку");
         } else {
             String thumbnailUrl = "https://img.youtube.com/vi/" + currentTrack.getIdentifier() + "/default.jpg";
             
             embed.setColor(Color.decode("#5865F2"))
-                .setTitle(EMOJI_PLAYING + " Сейчас играет")
-                .setDescription(EMOJI_MUSIC + " **" + currentTrack.getInfo().title + "**\n" +
+                .setDescription("**" + currentTrack.getInfo().title + "**\n" +
                               createProgressBar(currentTrack))
                 .setThumbnail(thumbnailUrl)
                 .addField(EMOJI_DURATION + " Время", 

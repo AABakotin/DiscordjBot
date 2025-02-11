@@ -1,45 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration debug="false">
-
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{dd.MM.YYYY HH:mm:ss} %boldCyan(%-34.-34thread) %red(%10.10X{jda.shard}) %boldGreen(%-15.-15logger{0})
-                %highlight(%-6level) %msg%n
-            </pattern>
+            <pattern>%d{HH:mm:ss} %-5level %logger{0}: %msg%n</pattern>
         </encoder>
     </appender>
 
-
-    <root level="info">
-        <appender-ref ref="STDOUT"/>
+    <!-- Отключаем ненужные логи -->
+    <logger name="org.apache.http" level="OFF"/>
+    <logger name="com.sedmelluq" level="WARN"/>
+    
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
     </root>
-
-</configuration>
-
-
-
-
-<!--        <?xml version="1.0" encoding="UTF-8" ?>-->
-<!--<configuration scan="true">-->
-
-<!--&lt;!&ndash; Logs we care about &ndash;&gt;-->
-<!--<logger name="io.netty" level="INFO"/>-->
-<!--<logger name="reactor" level="INFO"/>-->
-<!--<logger name="proxy" level="INFO"/>-->
-<!--<logger name="reactor.retry" level="DEBUG"/>-->
-<!--<logger name="discord4j.core" level="INFO"/>-->
-<!--<logger name="discord4j.gateway" level="INFO"/>-->
-<!--<logger name="discord4j.gateway.client" level="INFO"/>-->
-
-<!--&lt;!&ndash; Appenders &ndash;&gt;-->
-<!--<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">-->
-<!--    <encoder>-->
-<!--        <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
-<!--    </encoder>-->
-<!--</appender>-->
-
-<!--&lt;!&ndash; Assigning default appenders &ndash;&gt;-->
-<!--<root level="INFO">-->
-<!--    <appender-ref ref="CONSOLE"/>-->
-<!--</root>-->
-<!--</configuration>-->
+</configuration> 

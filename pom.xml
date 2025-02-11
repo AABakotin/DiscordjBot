@@ -34,7 +34,7 @@
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>v2</artifactId>
-            <version>1.11.1</version>
+            <version>1.11.4</version>
         </dependency>
         <dependency>
             <groupId>net.dv8tion</groupId>
@@ -47,11 +47,6 @@
             <version>2.0.15</version>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.5.10</version>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.13.4.2</version>
@@ -60,6 +55,11 @@
             <groupId>com.github.walkyst</groupId>
             <artifactId>lavaplayer-fork</artifactId>
             <version>1.4.3</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.10</version>
         </dependency>
     </dependencies>
     <build>

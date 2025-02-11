@@ -4,6 +4,12 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import ru.discordj.bot.events.slashcommands.PlayMusicSlashCommand;
+import ru.discordj.bot.utility.MessageCollector;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -45,5 +51,39 @@ public class CommandManager extends ListenerAdapter {
         if (command != null) {
             command.execute(event);
         }
+    }
+
+    @Override
+    public void onStringSelectInteraction(@NotNull StringSelectInteractionEvent event) {
+        String commandName = event.getComponentId().split("_")[0]; // play_source -> play
+        ICommand command = commandsMap.get(commandName);
+        
+        if (command instanceof PlayMusicSlashCommand) {
+            ((PlayMusicSlashCommand) command).onStringSelectInteraction(event);
+        }
+    }
+
+    @Override
+    public void onMessageReceived(MessageReceivedEvent event) {
+        if (event.getAuthor().isBot()) return;
+        
+        for (ICommand command : commands) {
+            if (command instanceof PlayMusicSlashCommand) {
+                MessageCollector collector = ((PlayMusicSlashCommand) command)
+                    .getActiveCollectors()
+                    .get(event.getAuthor().getId());
+                    
+                if (collector != null) {
+                    collector.handleMessage(event.getMessage());
+                }
+            }
+        }
+    }
+
+    public static void registerCommands(JDA jda) {
+        // Регистрируем команду /play без параметров
+        jda.upsertCommand(
+            Commands.slash("play", "Play a song")
+        ).queue();
     }
 }
