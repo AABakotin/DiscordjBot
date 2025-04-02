@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import ru.discordj.bot.events.slashcommands.PlayMusicSlashCommand;
+import ru.discordj.bot.events.slashcommands.RadioSlashCommand;
 import ru.discordj.bot.utility.MessageCollector;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -55,11 +56,13 @@ public class CommandManager extends ListenerAdapter {
 
     @Override
     public void onStringSelectInteraction(@NotNull StringSelectInteractionEvent event) {
-        String commandName = event.getComponentId().split("_")[0]; // play_source -> play
+        String commandName = event.getComponentId().split("_")[0]; // play_source -> play, radio_select -> radio
         ICommand command = commandsMap.get(commandName);
         
         if (command instanceof PlayMusicSlashCommand) {
             ((PlayMusicSlashCommand) command).onStringSelectInteraction(event);
+        } else if (command instanceof RadioSlashCommand && event.getComponentId().equals("radio_select")) {
+            ((RadioSlashCommand) command).onStringSelectInteraction(event);
         }
     }
 
