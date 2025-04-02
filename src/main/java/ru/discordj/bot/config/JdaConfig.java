@@ -38,6 +38,7 @@ public class JdaConfig {
         MANAGER.add(new HelloSlashcommand());
         MANAGER.add(new InviteSlashcommand());
         MANAGER.add(new PlayMusicSlashCommand());
+        MANAGER.add(new RadioSlashCommand());
         MANAGER.add(new UpdateCommandsSlashCommand());
 
     }

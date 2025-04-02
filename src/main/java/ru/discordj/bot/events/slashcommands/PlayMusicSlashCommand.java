@@ -2,8 +2,10 @@ package ru.discordj.bot.events.slashcommands;
 
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -13,9 +15,11 @@ import ru.discordj.bot.lavaplayer.PlayerManager;
 import ru.discordj.bot.utility.MessageCollector;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * Обработчик slash-команды для воспроизведения музыки.
@@ -24,6 +28,14 @@ import java.util.concurrent.TimeUnit;
  */
 public class PlayMusicSlashCommand implements ICommand {
     private final Map<String, MessageCollector> activeCollectors = new HashMap<>();
+    
+    // Регулярные выражения для определения источника по URL
+    private static final Pattern YOUTUBE_URL_PATTERN = Pattern.compile(
+            "(?:https?://)?(?:www\\.)?(?:youtube\\.com|youtu\\.be).*");
+    private static final Pattern TWITCH_URL_PATTERN = Pattern.compile(
+            "(?:https?://)?(?:www\\.)?twitch\\.tv.*");
+    private static final Pattern BANDCAMP_URL_PATTERN = Pattern.compile(
+            "(?:https?://)?(?:[a-zA-Z0-9-]+\\.)?bandcamp\\.com.*");
 
     public Map<String, MessageCollector> getActiveCollectors() {
         return activeCollectors;
@@ -36,92 +48,79 @@ public class PlayMusicSlashCommand implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Play a song";
+        return "Воспроизвести музыку по ссылке или поисковому запросу";
     }
 
     @Override
     public List<OptionData> getOptions() {
-        return List.of();
+        List<OptionData> options = new ArrayList<>();
+        options.add(new OptionData(
+            OptionType.STRING, 
+            "query", 
+            "URL-ссылка или название трека для поиска", 
+            true));
+        return options;
     }
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        StringSelectMenu sourceMenu = StringSelectMenu.create("play_source")
-            .setPlaceholder("Выберите источник")
-            .addOption("Прямая ссылка", "auto", "Воспроизвести музыку по ссылке")
-            .addOption("YouTube", "youtube", "Поиск на YouTube")
-            .addOption("Twitch", "twitch", "Стрим с Twitch")
-            .addOption("Bandcamp", "bandcamp", "Поиск на Bandcamp")
-            .build();
-
-        event.reply("Выберите источник музыки:")
-            .addActionRow(sourceMenu)
-            .setEphemeral(true)
-            .queue();
+        // Проверяем, находится ли пользователь в голосовом канале
+        if (!validateVoiceState(event)) {
+            return;
+        }
+        
+        // Получаем поисковый запрос или URL, с проверкой на null
+        var queryOption = event.getOption("query");
+        if (queryOption == null) {
+            event.reply("Пожалуйста, укажите URL-ссылку или поисковый запрос. Например: `/play https://youtube.com/...` или `/play название песни`")
+                .setEphemeral(true)
+                .queue(response -> {
+                    response.deleteOriginal().queueAfter(10, TimeUnit.SECONDS);
+                });
+            return;
+        }
+        
+        String query = queryOption.getAsString();
+        
+        // Подключаемся к голосовому каналу
+        connectToVoiceChannel(event);
+        
+        // Определяем тип источника по URL или считаем поисковым запросом
+        String searchQuery = determineSearchQuery(query);
+        
+        // Воспроизводим музыку (без вывода эфемерных сообщений об обработке)
+        PlayerManager.getInstance().play(
+            event.getChannel().asTextChannel(),
+            searchQuery
+        );
+    }
+    
+    /**
+     * Определяет поисковый запрос на основе введенного текста
+     * @param query Текст запроса или URL
+     * @return Подготовленный запрос для LavaPlayer
+     */
+    private String determineSearchQuery(String query) {
+        // Если это URL, определяем его тип
+        if (query.startsWith("http")) {
+            if (YOUTUBE_URL_PATTERN.matcher(query).matches()) {
+                return query; // Прямая ссылка на YouTube
+            } else if (TWITCH_URL_PATTERN.matcher(query).matches()) {
+                return query; // Прямая ссылка на Twitch
+            } else if (BANDCAMP_URL_PATTERN.matcher(query).matches()) {
+                return query; // Прямая ссылка на Bandcamp
+            } else {
+                return query; // Любая другая ссылка
+            }
+        } else {
+            // Если это не URL, считаем поисковым запросом YouTube
+            return "ytsearch:" + query;
+        }
     }
 
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
-        if (event.getComponentId().equals("play_source")) {
-            String source = event.getValues().get(0);
-            
-            if (!validateVoiceState(event)) {
-                return;
-            }
-            
-            connectToVoiceChannel(event);
-
-            // Сохраняем сообщение с меню для последующего удаления
-            event.getMessage().delete().queue();
-
-            event.reply("Введите поисковый запрос или ссылку в чат (у вас есть 30 секунд)")
-                .setEphemeral(true)
-                .queue(response -> {
-                    // Создаем коллектор сообщений
-                    MessageCollector collector = MessageCollector.create(
-                        event.getChannel(),
-                        event.getUser(),
-                        message -> {
-                            String query = message.getContentRaw();
-                            String searchQuery;
-                            
-                            switch (source) {
-                                case "youtube":
-                                    searchQuery = "ytsearch:" + query;
-                                    break;
-                                case "twitch":
-                                    if (!query.startsWith("http")) {
-                                        message.delete().queue();
-                                        response.deleteOriginal().queue();
-                                        event.getChannel().asTextChannel().sendMessage("Для Twitch необходимо указать прямую ссылку на стрим")
-                                            .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
-                                        return;
-                                    }
-                                    searchQuery = query;
-                                    break;
-                                case "bandcamp":
-                                    searchQuery = "bcsearch:" + query;
-                                    break;
-                                default: // auto
-                                    searchQuery = query.startsWith("http") ? query : "ytsearch:" + query;
-                                    break;
-                            }
-
-                            message.delete().queue(); // Удаляем сообщение с запросом
-                            response.deleteOriginal().queue(); // Удаляем сообщение "Введите поисковый запрос"
-                            
-                            // Используем play вместо loadAndPlay для отображения плеера
-                            PlayerManager.getInstance().play(
-                                event.getChannel().asTextChannel(),
-                                searchQuery
-                            );
-                        },
-                        30
-                    );
-
-                    activeCollectors.put(event.getUser().getId(), collector);
-                });
-        }
+        // Метод оставлен для обратной совместимости, но не используется
     }
 
     private boolean validateVoiceState(IReplyCallback event) {
@@ -129,7 +128,11 @@ public class PlayMusicSlashCommand implements ICommand {
         GuildVoiceState memberVoiceState = member.getVoiceState();
 
         if (!memberVoiceState.inAudioChannel()) {
-            event.reply("You need to be in a voice channel").setEphemeral(true).queue();
+            event.reply("Вы должны находиться в голосовом канале")
+                .setEphemeral(true)
+                .queue(response -> {
+                    response.deleteOriginal().queueAfter(10, TimeUnit.SECONDS);
+                });
             return false;
         }
         return true;

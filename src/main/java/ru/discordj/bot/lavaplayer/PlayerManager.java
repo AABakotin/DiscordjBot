@@ -8,8 +8,8 @@ import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
-
-import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
@@ -35,14 +35,30 @@ public class PlayerManager {
         this.musicManagers = new HashMap<>();
         this.audioPlayerManager = new DefaultAudioPlayerManager();
 
-        // Настройка YouTube с увеличенными таймаутами
-        YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager();
+        try {
+            // Создаем и настраиваем YouTube API с увеличенными таймаутами
+            YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager();
+            
+            // Используем новый класс для настройки
+            youtubeManager = YoutubeConfig.configure(youtubeManager);
+            
+            // Регистрация источников музыки
+            audioPlayerManager.registerSourceManager(youtubeManager);  // YouTube
+        } catch (Exception e) {
+            System.out.println("Ошибка при настройке YouTube: " + e.getMessage());
+            // В случае ошибки, создаем обычный YoutubeAudioSourceManager
+            audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
+        }
         
-        // Регистрация источников музыки
-        audioPlayerManager.registerSourceManager(youtubeManager);                    // YouTube
+        // Настройка таймаутов для LavaPlayer
+        System.setProperty("http.connection.timeout", "30000");  // 30 секунд
+        System.setProperty("http.socket.timeout", "30000");      // 30 секунд
+        
+        // Регистрация остальных источников музыки
         audioPlayerManager.registerSourceManager(new BandcampAudioSourceManager());   // Bandcamp
         audioPlayerManager.registerSourceManager(new VimeoAudioSourceManager());      // Vimeo
         audioPlayerManager.registerSourceManager(new TwitchStreamAudioSourceManager()); // Twitch
+        audioPlayerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault()); // SoundCloud с настройками по умолчанию
         audioPlayerManager.registerSourceManager(new HttpAudioSourceManager());       // HTTP URLs
         audioPlayerManager.registerSourceManager(new LocalAudioSourceManager());      // Local files
 
@@ -83,38 +99,9 @@ public class PlayerManager {
                     musicManager.getTrackScheduler().setPlayerMessage(textChannel, message.getId())
                 );
         }
-
-        audioPlayerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
-            @Override
-            public void trackLoaded(AudioTrack track) {
-                musicManager.getTrackScheduler().queue(track);
-            }
-
-            @Override
-            public void playlistLoaded(AudioPlaylist playlist) {
-                // Берем только первый трек из плейлиста
-                AudioTrack track = playlist.getTracks().get(0);
-                musicManager.getTrackScheduler().queue(track);
-            }
-
-            @Override
-            public void noMatches() {
-                textChannel.sendMessage("Трек не найден: " + trackUrl)
-                    .queue(message -> {
-                        // Удаляем сообщение через 5 секунд
-                        message.delete().queueAfter(5, TimeUnit.SECONDS);
-                    });
-            }
-
-            @Override
-            public void loadFailed(FriendlyException exception) {
-                textChannel.sendMessage("Не удалось воспроизвести: " + exception.getMessage())
-                    .queue(message -> {
-                        // Удаляем сообщение через 5 секунд
-                        message.delete().queueAfter(5, TimeUnit.SECONDS);
-                    });
-            }
-        });
+        
+        // Используем AlternativeSourceFinder для автоматического выбора источника
+        AlternativeSourceFinder.tryLoadWithAlternatives(audioPlayerManager, musicManager, textChannel, trackUrl);
     }
 
     public void searchAndPlay(TextChannel textChannel, String searchQuery) {
@@ -139,7 +126,22 @@ public class PlayerManager {
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                textChannel.sendMessage("Ошибка при загрузке: " + exception.getMessage()).queue();
+                String errorMessage;
+                if (exception.getCause() instanceof java.net.SocketTimeoutException 
+                    || (exception.getMessage() != null && exception.getMessage().contains("timeout"))) {
+                    errorMessage = "Время ожидания ответа от YouTube истекло. Возможные причины:\n"
+                        + "• Медленное интернет-соединение\n"
+                        + "• YouTube временно блокирует запросы\n"
+                        + "Попробуйте воспроизвести трек позже или использовать другой источник.";
+                } else {
+                    errorMessage = "Ошибка при загрузке: " + exception.getMessage();
+                }
+                
+                textChannel.sendMessage(errorMessage)
+                    .queue(message -> {
+                        // Удаляем сообщение через 15 секунд
+                        message.delete().queueAfter(15, TimeUnit.SECONDS);
+                    });
             }
         });
     }
@@ -174,17 +176,28 @@ public class PlayerManager {
             public void noMatches() {
                 channel.sendMessage("Трек не найден: " + trackUrl)
                     .queue(message -> {
-                        // Удаляем сообщение через 5 секунд
-                        message.delete().queueAfter(5, TimeUnit.SECONDS);
+                        // Удаляем сообщение через 15 секунд
+                        message.delete().queueAfter(15, TimeUnit.SECONDS);
                     });
             }
 
             @Override
             public void loadFailed(FriendlyException e) {
-                channel.sendMessage("Не удалось воспроизвести: " + e.getMessage())
+                String errorMessage;
+                if (e.getCause() instanceof java.net.SocketTimeoutException 
+                    || (e.getMessage() != null && e.getMessage().contains("timeout"))) {
+                    errorMessage = "Время ожидания ответа от YouTube истекло. Возможные причины:\n"
+                        + "• Медленное интернет-соединение\n"
+                        + "• YouTube временно блокирует запросы\n"
+                        + "Попробуйте воспроизвести трек позже или использовать другой источник.";
+                } else {
+                    errorMessage = "Не удалось воспроизвести: " + e.getMessage();
+                }
+                
+                channel.sendMessage(errorMessage)
                     .queue(message -> {
-                        // Удаляем сообщение через 5 секунд
-                        message.delete().queueAfter(5, TimeUnit.SECONDS);
+                        // Удаляем сообщение через 15 секунд (увеличено время для чтения ошибки)
+                        message.delete().queueAfter(15, TimeUnit.SECONDS);
                     });
             }
         });

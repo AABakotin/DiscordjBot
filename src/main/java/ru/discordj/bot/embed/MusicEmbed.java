@@ -79,12 +79,19 @@ public class MusicEmbed extends BaseEmbed {
         } else {
             String thumbnailUrl = "https://img.youtube.com/vi/" + currentTrack.getIdentifier() + "/default.jpg";
             
+            // Формат времени зависит от длительности
+            String timeDisplay;
+            if (currentTrack.getDuration() > 86400000) { // Более 24 часов (радиостанции)
+                timeDisplay = "`" + formatTime(currentTrack.getPosition()) + "`";
+            } else {
+                timeDisplay = "`" + formatTime(currentTrack.getPosition()) + " / " + formatTime(currentTrack.getDuration()) + "`";
+            }
+            
             embed.setColor(Color.decode("#5865F2"))
                 .setDescription("**" + currentTrack.getInfo().title + "**\n" +
                               createProgressBar(currentTrack))
                 .setThumbnail(thumbnailUrl)
-                .addField(EMOJI_DURATION + " Время", 
-                    "`" + formatTime(currentTrack.getPosition()) + " / " + formatTime(currentTrack.getDuration()) + "`", true)
+                .addField(EMOJI_DURATION + " Время", timeDisplay, true)
                 .addField(EMOJI_AUTHOR + " Исполнитель", 
                     "`" + currentTrack.getInfo().author + "`", true)
                 .setFooter(EMOJI_LINK + " Источник • " + currentTrack.getInfo().uri);
@@ -115,12 +122,17 @@ public class MusicEmbed extends BaseEmbed {
                     trackTitle = trackTitle.substring(0, 47) + "...";
                 }
                 
+                // Показываем время только для треков короче 24 часов
+                String durationStr = "";
+                if (track.getDuration() <= 86400000) { // Менее 24 часов
+                    durationStr = " (" + formatTime(track.getDuration()) + ")";
+                }
+                
                 queueText.append(trackCount)
                     .append(". ")
                     .append(trackTitle)
-                    .append(" (")
-                    .append(formatTime(track.getDuration()))
-                    .append(")\n");
+                    .append(durationStr)
+                    .append("\n");
             }
 
             // Добавляем информацию о треках
@@ -151,6 +163,25 @@ public class MusicEmbed extends BaseEmbed {
     private String createProgressBar(AudioTrack track) {
         long duration = track.getDuration();
         long position = track.getPosition();
+        
+        // Для радиостанций и очень длинных треков (более 24 часов)
+        // используем циклический прогресс-бар вместо процентного
+        if (duration > 86400000) { // 24 часа в миллисекундах
+            int progressIndex = (int) ((position / 1000) % PROGRESS_BAR_LENGTH); // Циклический индекс
+            
+            StringBuilder progressBar = new StringBuilder(PROGRESS_START);
+            for (int i = 0; i < PROGRESS_BAR_LENGTH; i++) {
+                if (i == progressIndex) {
+                    progressBar.append(PROGRESS_CURRENT);
+                } else {
+                    progressBar.append(PROGRESS_LINE);
+                }
+            }
+            progressBar.append(PROGRESS_END);
+            return "\n" + progressBar.toString();
+        }
+        
+        // Стандартный прогресс-бар для обычных треков
         int progressFilled = (int) ((position * PROGRESS_BAR_LENGTH) / duration);
         
         StringBuilder progressBar = new StringBuilder(PROGRESS_START);
