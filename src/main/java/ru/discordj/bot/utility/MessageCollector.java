@@ -32,7 +32,7 @@ public class MessageCollector {
         }
     }
 
-    private void stop() {
+    public void stop() {
         if (!timeout.isDone()) {
             timeout.cancel(false);
         }

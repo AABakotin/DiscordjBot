@@ -2,6 +2,7 @@ package ru.discordj.bot.events.slashcommands;
 
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -65,24 +66,29 @@ public class PlayMusicSlashCommand implements ICommand {
         if (event.getComponentId().equals("play_source")) {
             String source = event.getValues().get(0);
             
+            // Сначала проверяем голосовой канал
             if (!validateVoiceState(event)) {
                 return;
             }
             
+            // Первым делом ответить на взаимодействие, чтобы избежать таймаута
+            event.deferEdit().queue();
+            
+            // Подключаемся к голосовому каналу
             connectToVoiceChannel(event);
-
-            // Сохраняем сообщение с меню для последующего удаления
-            event.getMessage().delete().queue();
-
-            event.reply("Введите поисковый запрос или ссылку в чат (у вас есть 30 секунд)")
-                .setEphemeral(true)
-                .queue(response -> {
+            
+            // Отправляем сообщение в канал
+            event.getChannel().asTextChannel().sendMessage("Введите поисковый запрос или ссылку в чат (у вас есть 30 секунд)")
+                .queue(message -> {
+                    // Удалим это сообщение через 30 секунд
+                    message.delete().queueAfter(30, TimeUnit.SECONDS);
+                    
                     // Создаем коллектор сообщений
                     MessageCollector collector = MessageCollector.create(
                         event.getChannel(),
                         event.getUser(),
-                        message -> {
-                            String query = message.getContentRaw();
+                        userMessage -> {
+                            String query = userMessage.getContentRaw();
                             String searchQuery;
                             
                             switch (source) {
@@ -91,8 +97,7 @@ public class PlayMusicSlashCommand implements ICommand {
                                     break;
                                 case "twitch":
                                     if (!query.startsWith("http")) {
-                                        message.delete().queue();
-                                        response.deleteOriginal().queue();
+                                        userMessage.delete().queue();
                                         event.getChannel().asTextChannel().sendMessage("Для Twitch необходимо указать прямую ссылку на стрим")
                                             .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
                                         return;
@@ -107,9 +112,15 @@ public class PlayMusicSlashCommand implements ICommand {
                                     break;
                             }
 
-                            message.delete().queue(); // Удаляем сообщение с запросом
-                            response.deleteOriginal().queue(); // Удаляем сообщение "Введите поисковый запрос"
+                            // Добавляем удаление сообщения пользователя с URL/запросом
+                            userMessage.delete().queue();
                             
+                            // Удаляем сообщение с инструкцией досрочно
+                            message.delete().queue();
+                            
+                            // Удаляем коллектор из активных
+                            activeCollectors.remove(event.getUser().getId());
+
                             // Используем play вместо loadAndPlay для отображения плеера
                             PlayerManager.getInstance().play(
                                 event.getChannel().asTextChannel(),
@@ -121,6 +132,9 @@ public class PlayMusicSlashCommand implements ICommand {
 
                     activeCollectors.put(event.getUser().getId(), collector);
                 });
+            
+            // Удаляем оригинальное сообщение с меню
+            event.getHook().deleteOriginal().queue();
         }
     }
 

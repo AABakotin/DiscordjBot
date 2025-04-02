@@ -35,7 +35,7 @@ public class PlayerManager {
         this.musicManagers = new HashMap<>();
         this.audioPlayerManager = new DefaultAudioPlayerManager();
 
-        // Настройка YouTube с увеличенными таймаутами
+        // Настройка источников музыки с повышенной надежностью
         YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager();
         
         // Регистрация источников музыки
@@ -108,10 +108,21 @@ public class PlayerManager {
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                textChannel.sendMessage("Не удалось воспроизвести: " + exception.getMessage())
+                String errorMessage;
+                if (exception.getCause() instanceof java.net.SocketTimeoutException 
+                    || (exception.getMessage() != null && exception.getMessage().contains("timeout"))) {
+                    errorMessage = "Время ожидания ответа от YouTube истекло. Возможные причины:\n"
+                        + "• Медленное интернет-соединение\n"
+                        + "• YouTube временно блокирует запросы\n"
+                        + "Попробуйте воспроизвести трек позже или использовать другой источник.";
+                } else {
+                    errorMessage = "Не удалось воспроизвести: " + exception.getMessage();
+                }
+                
+                textChannel.sendMessage(errorMessage)
                     .queue(message -> {
-                        // Удаляем сообщение через 5 секунд
-                        message.delete().queueAfter(5, TimeUnit.SECONDS);
+                        // Удаляем сообщение через 15 секунд (увеличено время для чтения ошибки)
+                        message.delete().queueAfter(15, TimeUnit.SECONDS);
                     });
             }
         });
@@ -139,7 +150,22 @@ public class PlayerManager {
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                textChannel.sendMessage("Ошибка при загрузке: " + exception.getMessage()).queue();
+                String errorMessage;
+                if (exception.getCause() instanceof java.net.SocketTimeoutException 
+                    || (exception.getMessage() != null && exception.getMessage().contains("timeout"))) {
+                    errorMessage = "Время ожидания ответа от YouTube истекло. Возможные причины:\n"
+                        + "• Медленное интернет-соединение\n"
+                        + "• YouTube временно блокирует запросы\n"
+                        + "Попробуйте воспроизвести трек позже или использовать другой источник.";
+                } else {
+                    errorMessage = "Ошибка при загрузке: " + exception.getMessage();
+                }
+                
+                textChannel.sendMessage(errorMessage)
+                    .queue(message -> {
+                        // Удаляем сообщение через 15 секунд
+                        message.delete().queueAfter(15, TimeUnit.SECONDS);
+                    });
             }
         });
     }
@@ -181,10 +207,21 @@ public class PlayerManager {
 
             @Override
             public void loadFailed(FriendlyException e) {
-                channel.sendMessage("Не удалось воспроизвести: " + e.getMessage())
+                String errorMessage;
+                if (e.getCause() instanceof java.net.SocketTimeoutException 
+                    || (e.getMessage() != null && e.getMessage().contains("timeout"))) {
+                    errorMessage = "Время ожидания ответа от YouTube истекло. Возможные причины:\n"
+                        + "• Медленное интернет-соединение\n"
+                        + "• YouTube временно блокирует запросы\n"
+                        + "Попробуйте воспроизвести трек позже или использовать другой источник.";
+                } else {
+                    errorMessage = "Не удалось воспроизвести: " + e.getMessage();
+                }
+                
+                channel.sendMessage(errorMessage)
                     .queue(message -> {
-                        // Удаляем сообщение через 5 секунд
-                        message.delete().queueAfter(5, TimeUnit.SECONDS);
+                        // Удаляем сообщение через 15 секунд (увеличено время для чтения ошибки)
+                        message.delete().queueAfter(15, TimeUnit.SECONDS);
                     });
             }
         });
