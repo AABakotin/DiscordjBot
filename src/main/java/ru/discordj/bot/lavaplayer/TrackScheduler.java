@@ -112,7 +112,10 @@ public class TrackScheduler extends AudioEventAdapter {
         queue.clear();
         player.stopTrack();
         stopUpdateTask();
-        updatePlayerMessage();
+        // Очищаем ID сообщения плеера и текстовый канал
+        this.playerMessageId = null;
+        this.textChannel = null;
+        // НЕ вызываем updatePlayerMessage() так как сообщение будет удалено
     }
 
     public void toggleRepeat() {
@@ -142,6 +145,7 @@ public class TrackScheduler extends AudioEventAdapter {
     public BlockingQueue<AudioTrack> getQueue() { return queue; }
     public boolean isRepeat() { return isRepeat; }
     public String getPlayerMessageId() { return playerMessageId; }
+    public TextChannel getTextChannel() { return textChannel; }
 
     public List<AudioTrack> getPlayList() {
         return new ArrayList<>(queue);

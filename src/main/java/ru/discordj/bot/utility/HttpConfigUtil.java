@@ -1,7 +1,6 @@
 package ru.discordj.bot.utility;
 
 import java.lang.reflect.Field;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClientBuilder;

@@ -12,6 +12,7 @@ import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.events.CommandManager;
 import ru.discordj.bot.events.listener.AddRoleListener;
 import ru.discordj.bot.events.listener.PlayerButtonListener;
+import ru.discordj.bot.events.listener.VoiceChannelListener;
 import ru.discordj.bot.events.listener.configurator.Configurator;
 import ru.discordj.bot.events.slashcommands.*;
 import ru.discordj.bot.events.listener.MusicControlsListener;
@@ -40,6 +41,10 @@ public class JdaConfig {
         MANAGER.add(new PlayMusicSlashCommand());
         MANAGER.add(new RadioSlashCommand());
         MANAGER.add(new UpdateCommandsSlashCommand());
+        MANAGER.add(new RadioReloadSlashCommand());
+        MANAGER.add(new RadioAddSlashCommand());
+        MANAGER.add(new RadioRemoveSlashCommand());
+        MANAGER.add(new RadioListSlashCommand());
 
     }
 
@@ -69,7 +74,8 @@ public class JdaConfig {
                         new Configurator(),
                         new MusicControlsListener(),
                         new MemberListener(),
-                        new ReadyListener()
+                        new ReadyListener(),
+                        new VoiceChannelListener()
                 )
                 .build();
     }
