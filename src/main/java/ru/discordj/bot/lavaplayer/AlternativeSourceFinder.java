@@ -16,6 +16,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Класс для поиска музыки через альтернативные источники, когда основной источник (YouTube) не работает
  */
 public class AlternativeSourceFinder {
+    static {
+        // Устанавливаем кодировку для консоли на UTF-8
+        System.setProperty("file.encoding", "UTF-8");
+        System.setProperty("console.encoding", "UTF-8");
+    }
+    
     private static final Logger log = LoggerFactory.getLogger(AlternativeSourceFinder.class);
     
     /**
@@ -39,7 +45,7 @@ public class AlternativeSourceFinder {
             public void trackLoaded(AudioTrack track) {
                 trackLoaded.set(true);
                 guildMusicManager.getTrackScheduler().queue(track);
-                log.info("Трек загружен успешно: {}", track.getInfo().title);
+                log.info("Track loaded successfully: {}", track.getInfo().title);
             }
 
             @Override
@@ -48,7 +54,7 @@ public class AlternativeSourceFinder {
                 if (!playlist.getTracks().isEmpty()) {
                     AudioTrack track = playlist.getTracks().get(0);
                     guildMusicManager.getTrackScheduler().queue(track);
-                    log.info("Трек загружен из плейлиста: {}", track.getInfo().title);
+                    log.info("Track loaded from playlist: {}", track.getInfo().title);
                 }
             }
 
@@ -62,7 +68,7 @@ public class AlternativeSourceFinder {
             @Override
             public void loadFailed(FriendlyException exception) {
                 if (!trackLoaded.get()) {
-                    log.warn("Ошибка при загрузке с основного источника: {}", exception.getMessage());
+                    log.warn("Error loading from primary source: {}", exception.getMessage());
                     
                     if (exception.getCause() instanceof java.net.SocketTimeoutException 
                             || exception.getMessage().contains("timeout")) {
@@ -107,7 +113,7 @@ public class AlternativeSourceFinder {
             
         String searchQuery = extractSearchQuery(query);
         String soundCloudQuery = "scsearch:" + searchQuery;
-        log.info("Пробуем SoundCloud с запросом: {}", soundCloudQuery);
+        log.info("Trying SoundCloud with query: {}", soundCloudQuery);
         
         AtomicBoolean trackFound = new AtomicBoolean(false);
         
@@ -137,7 +143,7 @@ public class AlternativeSourceFinder {
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                log.warn("Ошибка при загрузке с SoundCloud: {}", exception.getMessage());
+                log.warn("Error loading from SoundCloud: {}", exception.getMessage());
                 // Если на SoundCloud произошла ошибка, пробуем Bandcamp
                 trySearchWithBandcamp(playerManager, guildMusicManager, textChannel, searchQuery);
             }
@@ -154,7 +160,7 @@ public class AlternativeSourceFinder {
             String searchQuery) {
             
         String bandcampQuery = "bcsearch:" + searchQuery;
-        log.info("Пробуем Bandcamp с запросом: {}", bandcampQuery);
+        log.info("Trying Bandcamp with query: {}", bandcampQuery);
         
         playerManager.loadItemOrdered(guildMusicManager, bandcampQuery, new AudioLoadResultHandler() {
             @Override
@@ -180,7 +186,7 @@ public class AlternativeSourceFinder {
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                log.warn("Ошибка при загрузке с Bandcamp: {}", exception.getMessage());
+                log.warn("Error loading from Bandcamp: {}", exception.getMessage());
                 textChannel.sendMessage("❌ Не удалось найти трек. Попробуйте другой источник или прямую ссылку.")
                     .queue(msg -> msg.delete().queueAfter(10, TimeUnit.SECONDS));
             }
