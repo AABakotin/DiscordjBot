@@ -15,22 +15,25 @@ import java.util.Queue;
 
 
 public class MusicEmbed extends BaseEmbed {
-    private static final int PROGRESS_BAR_LENGTH = 15;
-    private static final String PROGRESS_START = "『";
-    private static final String PROGRESS_END = "』";
-    private static final String PROGRESS_LINE = "═";
-    private static final String PROGRESS_CURRENT = "🔮";
-    private static final String EMOJI_MUSIC = "🎵";
-    private static final String EMOJI_QUEUE = "📝";
-    private static final String EMOJI_DURATION = "⌛";
-    private static final String EMOJI_AUTHOR = "👑";
-    private static final String EMOJI_LINK = "🔗";
+    private static final int PROGRESS_BAR_LENGTH = 20;
+    private static final String PROGRESS_START = "┃";
+    private static final String PROGRESS_END = "┃";
+    private static final String PROGRESS_LINE = "━";
+    private static final String PROGRESS_CURRENT = "⚡";
+    private static final String EMOJI_MUSIC = "🎧";
+    private static final String EMOJI_QUEUE = "📋";
+    private static final String EMOJI_DURATION = "⏱️";
+    private static final String EMOJI_AUTHOR = "👤";
+    private static final String EMOJI_LINK = "🌐";
     private static final String EMOJI_PLAYING = "▶️";
-    private static final String EMOJI_WARNING = "⚠";
+    private static final String EMOJI_WARNING = "⚠️";
     private static final String EMOJI_PAUSED = "⏸️";
     private static final String EMOJI_STOP = "⏹️";
-    private static final String EMOJI_REPEAT = "🔄";
+    private static final String EMOJI_REPEAT = "🔁";
     private static final String EMOJI_SKIP = "⏭️";
+    private static final String EMOJI_SHUFFLE = "🔀";
+    private static final String EMOJI_VOLUME_UP = "🔊";
+    private static final String EMOJI_VOLUME_DOWN = "🔉";
 
     public void updatePlayerMessage(TextChannel textChannel, String messageId) {
         if (messageId == null) return;
@@ -75,7 +78,7 @@ public class MusicEmbed extends BaseEmbed {
         if (currentTrack == null) {
             embed.setColor(Color.decode("#2f3136"))
                 .setTitle(EMOJI_MUSIC + " Нет активного трека")
-                .setDescription(EMOJI_WARNING + " Используйте `/play` чтобы включить музыку");
+                .setDescription(EMOJI_WARNING + " Используйте `/play` или `/radio` чтобы включить музыку");
         } else {
             String thumbnailUrl = "https://img.youtube.com/vi/" + currentTrack.getIdentifier() + "/default.jpg";
             
