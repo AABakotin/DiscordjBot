@@ -129,6 +129,15 @@ public class PlayerManager {
     public void searchAndPlay(TextChannel textChannel, String searchQuery) {
         final GuildMusicManager musicManager = getGuildMusicManager(textChannel.getGuild());
 
+        // Создаем сообщение плеера, если его еще нет
+        if (musicManager.getTrackScheduler().getPlayerMessageId() == null) {
+            textChannel.sendMessage(EmbedFactory.getInstance().createMusicEmbed()
+                .createPlayerMessage(textChannel).build())
+                .queue(message -> 
+                    musicManager.getTrackScheduler().setPlayerMessage(textChannel, message.getId())
+                );
+        }
+
         audioPlayerManager.loadItemOrdered(musicManager, "ytsearch:" + searchQuery, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
@@ -143,7 +152,8 @@ public class PlayerManager {
 
             @Override
             public void noMatches() {
-                textChannel.sendMessage("Ничего не найдено по запросу: " + searchQuery).queue();
+                textChannel.sendMessage("Ошибка: Ничего не найдено по запросу: " + searchQuery)
+                    .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
             }
 
             @Override
@@ -151,7 +161,7 @@ public class PlayerManager {
                 String errorMessage;
                 if (exception.getCause() instanceof java.net.SocketTimeoutException 
                     || (exception.getMessage() != null && exception.getMessage().contains("timeout"))) {
-                    errorMessage = "Время ожидания ответа от YouTube истекло. Возможные причины:\n"
+                    errorMessage = "Ошибка: Время ожидания ответа от YouTube истекло. Возможные причины:\n"
                         + "• Медленное интернет-соединение\n"
                         + "• YouTube временно блокирует запросы\n"
                         + "Попробуйте воспроизвести трек позже или использовать другой источник.";
@@ -160,10 +170,7 @@ public class PlayerManager {
                 }
                 
                 textChannel.sendMessage(errorMessage)
-                    .queue(message -> {
-                        // Удаляем сообщение через 15 секунд
-                        message.delete().queueAfter(15, TimeUnit.SECONDS);
-                    });
+                    .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
             }
         });
     }
@@ -172,14 +179,19 @@ public class PlayerManager {
     public void loadAndPlay(TextChannel channel, String trackUrl) {
         final GuildMusicManager musicManager = this.getGuildMusicManager(channel.getGuild());
 
+        // Создаем сообщение плеера, если его еще нет
+        if (musicManager.getTrackScheduler().getPlayerMessageId() == null) {
+            channel.sendMessage(EmbedFactory.getInstance().createMusicEmbed()
+                .createPlayerMessage(channel).build())
+                .queue(message -> 
+                    musicManager.getTrackScheduler().setPlayerMessage(channel, message.getId())
+                );
+        }
+
         audioPlayerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
                 musicManager.getTrackScheduler().queue(track);
-                String message = String.format("Добавлено в очередь: `%s` от `%s`", 
-                    track.getInfo().title,
-                    track.getInfo().author);
-                channel.sendMessage(message).queue();
             }
 
             @Override
@@ -187,20 +199,13 @@ public class PlayerManager {
                 final List<AudioTrack> tracks = playlist.getTracks();
                 if (!tracks.isEmpty()) {
                     musicManager.getTrackScheduler().queue(tracks.get(0));
-                    String message = String.format("Добавлено в очередь: `%s` от `%s`",
-                        tracks.get(0).getInfo().title,
-                        tracks.get(0).getInfo().author);
-                    channel.sendMessage(message).queue();
                 }
             }
 
             @Override
             public void noMatches() {
-                channel.sendMessage("Трек не найден: " + trackUrl)
-                    .queue(message -> {
-                        // Удаляем сообщение через 15 секунд
-                        message.delete().queueAfter(15, TimeUnit.SECONDS);
-                    });
+                channel.sendMessage("Ошибка: Трек не найден: " + trackUrl)
+                    .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
             }
 
             @Override
@@ -208,19 +213,16 @@ public class PlayerManager {
                 String errorMessage;
                 if (e.getCause() instanceof java.net.SocketTimeoutException 
                     || (e.getMessage() != null && e.getMessage().contains("timeout"))) {
-                    errorMessage = "Время ожидания ответа от YouTube истекло. Возможные причины:\n"
+                    errorMessage = "Ошибка: Время ожидания ответа от YouTube истекло. Возможные причины:\n"
                         + "• Медленное интернет-соединение\n"
                         + "• YouTube временно блокирует запросы\n"
                         + "Попробуйте воспроизвести трек позже или использовать другой источник.";
                 } else {
-                    errorMessage = "Не удалось воспроизвести: " + e.getMessage();
+                    errorMessage = "Ошибка: Не удалось воспроизвести: " + e.getMessage();
                 }
                 
                 channel.sendMessage(errorMessage)
-                    .queue(message -> {
-                        // Удаляем сообщение через 15 секунд (увеличено время для чтения ошибки)
-                        message.delete().queueAfter(15, TimeUnit.SECONDS);
-                    });
+                    .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
             }
         });
     }
