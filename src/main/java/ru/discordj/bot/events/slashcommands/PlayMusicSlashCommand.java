@@ -114,12 +114,25 @@ public class PlayMusicSlashCommand implements ICommand {
      * @return Подготовленный запрос для LavaPlayer
      */
     private String determineSearchQuery(String query) {
+        // Удаляем символ @ в начале ссылки (если он есть)
+        if (query.startsWith("@")) {
+            query = query.substring(1);
+        }
+        
         // Если это URL, определяем его тип
-        if (query.startsWith("http")) {
-            if (YOUTUBE_URL_PATTERN.matcher(query).matches()) {
-                return query; // Прямая ссылка на YouTube
-            } else if (TWITCH_URL_PATTERN.matcher(query).matches()) {
+        if (query.startsWith("http") || query.startsWith("www")) {
+            // Проверяем, корректен ли URL для Twitch
+            if (TWITCH_URL_PATTERN.matcher(query).matches()) {
+                System.out.println("Обнаружена ссылка на Twitch: " + query);
+                
+                // Убедимся, что URL имеет схему https://
+                if (!query.startsWith("http")) {
+                    query = "https://" + query;
+                }
+                
                 return query; // Прямая ссылка на Twitch
+            } else if (YOUTUBE_URL_PATTERN.matcher(query).matches()) {
+                return query; // Прямая ссылка на YouTube
             } else if (BANDCAMP_URL_PATTERN.matcher(query).matches()) {
                 return query; // Прямая ссылка на Bandcamp
             } else {
