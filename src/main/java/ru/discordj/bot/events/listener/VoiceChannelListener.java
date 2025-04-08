@@ -1,7 +1,6 @@
 package ru.discordj.bot.events.listener;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
@@ -54,7 +53,7 @@ public class VoiceChannelListener extends ListenerAdapter {
         String channelName = botChannel.getName();
         
         if (event.getChannelJoined() != null && event.getChannelJoined().equals(botChannel)) {
-            logger.info("Пользователь {} присоединился к каналу {} в гильдии {}", 
+            logger.info("Юзер {} присоединился к каналу {} в гильдии {}", 
                     memberName, channelName, guildName);
             
             // Если это не бот
@@ -76,7 +75,7 @@ public class VoiceChannelListener extends ListenerAdapter {
         }
         
         if (event.getChannelLeft() != null && event.getChannelLeft().equals(botChannel)) {
-            logger.info("Пользователь {} покинул канал {} в гильдии {}", 
+            logger.info("Юзер {} покинул канал {} в гильдии {}", 
                     memberName, channelName, guildName);
             
             // Проверяем, не остался ли бот один в канале (только если ушел не бот)
@@ -94,7 +93,7 @@ public class VoiceChannelListener extends ListenerAdapter {
         if (task != null && !task.isDone()) {
             task.cancel(false);
             disconnectTasks.remove(guildId);
-            logger.info("Задача отключения отменена для гильдии {}, так как в канале появились слушатели", guildId);
+            logger.info("Задача отключения отменена для гильдии {}, так как слушатели присоединились к каналу", guildId);
         }
     }
     
@@ -163,7 +162,7 @@ public class VoiceChannelListener extends ListenerAdapter {
         
         // Если кто-то присоединился - не отключаемся
         if (!botAlone) {
-            logger.info("Отключение отменено, так как в канале {} гильдии {} появились слушатели", 
+            logger.info("Disconnect cancelled, as listeners have joined channel {} in guild {}", 
                     voiceChannel.getName(), guild.getName());
             return;
         }
@@ -195,8 +194,8 @@ public class VoiceChannelListener extends ListenerAdapter {
         // Отключаемся от голосового канала
         guild.getAudioManager().closeAudioConnection();
         
-        // Логгируем событие
-        logger.info("Бот отключился от голосового канала {}, так как оставался один в гильдии {} в течение {} секунд", 
+        // Log the event
+        logger.info("Bot disconnected from voice channel {}, as it was left alone in guild {} for {} seconds", 
                 voiceChannel.getName(), guild.getName(), DISCONNECT_DELAY_SECONDS);
     }
 } 

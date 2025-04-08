@@ -39,15 +39,14 @@ public class PlayerManager {
             // Создаем и настраиваем YouTube API с увеличенными таймаутами
             YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager();
             
-            // Используем новый класс для настройки
-            youtubeManager = YoutubeConfig.configure(youtubeManager);
-            
             // Регистрация источников музыки
             audioPlayerManager.registerSourceManager(youtubeManager);  // YouTube
+            audioPlayerManager.registerSourceManager(new HttpAudioSourceManager());  // HTTP потоки (для радио)
         } catch (Exception e) {
-            System.out.println("Ошибка при настройке YouTube: " + e.getMessage());
-            // В случае ошибки, создаем обычный YoutubeAudioSourceManager
+            System.out.println("Ошибка при настройке источников: " + e.getMessage());
+            // В случае ошибки, создаем обычные менеджеры
             audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
+            audioPlayerManager.registerSourceManager(new HttpAudioSourceManager());
         }
         
         // Настройка таймаутов для LavaPlayer
@@ -59,7 +58,6 @@ public class PlayerManager {
         audioPlayerManager.registerSourceManager(new VimeoAudioSourceManager());      // Vimeo
         audioPlayerManager.registerSourceManager(new TwitchStreamAudioSourceManager()); // Twitch
         audioPlayerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault()); // SoundCloud с настройками по умолчанию
-        audioPlayerManager.registerSourceManager(new HttpAudioSourceManager());       // HTTP URLs
         audioPlayerManager.registerSourceManager(new LocalAudioSourceManager());      // Local files
 
         // Настройка качества и буферизации
@@ -99,9 +97,33 @@ public class PlayerManager {
                     musicManager.getTrackScheduler().setPlayerMessage(textChannel, message.getId())
                 );
         }
-        
-        // Используем AlternativeSourceFinder для автоматического выбора источника
-        AlternativeSourceFinder.tryLoadWithAlternatives(audioPlayerManager, musicManager, textChannel, trackUrl);
+
+        // Загружаем и воспроизводим трек
+        audioPlayerManager.loadItem(trackUrl, new AudioLoadResultHandler() {
+            @Override
+            public void trackLoaded(AudioTrack track) {
+                musicManager.getTrackScheduler().queue(track);
+            }
+
+            @Override
+            public void playlistLoaded(AudioPlaylist playlist) {
+                // Для радиостанций это не должно происходить
+                textChannel.sendMessage("Ошибка: Обнаружен плейлист, ожидалась радиостанция")
+                    .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
+            }
+
+            @Override
+            public void noMatches() {
+                textChannel.sendMessage("Ошибка: Не удалось найти радиостанцию")
+                    .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
+            }
+
+            @Override
+            public void loadFailed(FriendlyException exception) {
+                textChannel.sendMessage("Ошибка: Не удалось загрузить радиостанцию: " + exception.getMessage())
+                    .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
+            }
+        });
     }
 
     public void searchAndPlay(TextChannel textChannel, String searchQuery) {

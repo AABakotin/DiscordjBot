@@ -33,8 +33,8 @@ public class HelloSlashcommand implements ICommand {
         event.reply("Hello " + userName + " ,my friend " + event.getUser().getAvatarUrl())
                 .setEphemeral(true)
                 .queue(
-                        success -> logger.info("requested 'hello' by @{}", event.getUser().getName()),
-                        failure -> logger.error("Some error occurred in 'hello', try again!")
+                        success -> logger.info("Юзер {} запросил 'hello'", event.getUser().getName()),
+                        failure -> logger.error("Ошибка при запросе 'hello', попробуйте снова!")
                 );
     }
 }

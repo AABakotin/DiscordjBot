@@ -63,8 +63,8 @@ public class InfoSlashcommand implements ICommand {
                 .setEmbeds(avatarEmbed.build())
                 .setEphemeral(true)
                 .queue(
-                        success -> logger.info("requested 'info' @{} by @{}", target.getName(), event.getUser().getName()),
-                        failure -> logger.error("Some error occurred in 'info', try again!")
+                        success -> logger.info("Юзер {} запросил 'info' @{}", event.getUser().getName(), target.getName()),
+                        failure -> logger.error("Ошибка при запросе 'info', попробуйте снова!")
                 );
     }
 }

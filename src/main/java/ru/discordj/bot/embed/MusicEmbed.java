@@ -31,9 +31,6 @@ public class MusicEmbed extends BaseEmbed {
     private static final String EMOJI_STOP = "⏹️";
     private static final String EMOJI_REPEAT = "🔁";
     private static final String EMOJI_SKIP = "⏭️";
-    private static final String EMOJI_SHUFFLE = "🔀";
-    private static final String EMOJI_VOLUME_UP = "🔊";
-    private static final String EMOJI_VOLUME_DOWN = "🔉";
 
     public void updatePlayerMessage(TextChannel textChannel, String messageId) {
         if (messageId == null) return;

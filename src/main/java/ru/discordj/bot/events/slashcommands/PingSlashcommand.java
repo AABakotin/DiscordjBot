@@ -36,8 +36,8 @@ public class PingSlashcommand implements ICommand {
                                 .editOriginalFormat(
                                         "Pong: %d ms", System.currentTimeMillis() - time))
                 .queue(
-                        success -> logger.info("requested 'ping' by @{}", event.getUser().getName()),
-                        failure -> logger.error("Some error occurred in 'ping', try again!")
+                        success -> logger.info("Юзер {} запросил 'ping'", event.getUser().getName()),
+                        failure -> logger.error("Ошибка при запросе 'ping', попробуйте снова!")
                 );
     }
 }

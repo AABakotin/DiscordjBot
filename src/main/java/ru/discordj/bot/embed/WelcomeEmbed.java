@@ -38,22 +38,4 @@ public class WelcomeEmbed extends BaseEmbed {
 
         return embed.build();
     }
-
-    public MessageEmbed embedLeaveGuild(String avatarUrl, String username) {
-        String inviteLink = jsonHandler.read().getInviteLink();
-        if (inviteLink == null || inviteLink.equals("empty")) {
-            inviteLink = "https://discord.gg/invite";
-        }
-
-        return new EmbedBuilder()
-            .setColor(Color.decode("#2f3136"))
-            .setThumbnail(avatarUrl)
-            .setTitle("До свидания!")
-            .setDescription(String.format(
-                "Пользователь **%s** покинул сервер 👋\n\n" +
-                "Будем рады видеть вас снова!\n" +
-                "Ссылка для возвращения: %s", 
-                username, inviteLink))
-            .build();
-    }
 }
