@@ -39,13 +39,18 @@ public class PlayerManager {
             // Создаем и настраиваем YouTube API с увеличенными таймаутами
             YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager();
             
+            // Настройка Twitch с повышенным таймаутом
+            TwitchStreamAudioSourceManager twitchManager = new TwitchStreamAudioSourceManager();
+            
             // Регистрация источников музыки
             audioPlayerManager.registerSourceManager(youtubeManager);  // YouTube
+            audioPlayerManager.registerSourceManager(twitchManager);   // Twitch
             audioPlayerManager.registerSourceManager(new HttpAudioSourceManager());  // HTTP потоки (для радио)
         } catch (Exception e) {
             System.out.println("Ошибка при настройке источников: " + e.getMessage());
             // В случае ошибки, создаем обычные менеджеры
             audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
+            audioPlayerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
             audioPlayerManager.registerSourceManager(new HttpAudioSourceManager());
         }
         
@@ -56,7 +61,6 @@ public class PlayerManager {
         // Регистрация остальных источников музыки
         audioPlayerManager.registerSourceManager(new BandcampAudioSourceManager());   // Bandcamp
         audioPlayerManager.registerSourceManager(new VimeoAudioSourceManager());      // Vimeo
-        audioPlayerManager.registerSourceManager(new TwitchStreamAudioSourceManager()); // Twitch
         audioPlayerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault()); // SoundCloud с настройками по умолчанию
         audioPlayerManager.registerSourceManager(new LocalAudioSourceManager());      // Local files
 
@@ -98,6 +102,9 @@ public class PlayerManager {
                 );
         }
 
+        // Проверяем, содержит ли URL ссылку на Twitch
+        boolean isTwitch = trackUrl.contains("twitch.tv");
+
         // Загружаем и воспроизводим трек
         audioPlayerManager.loadItem(trackUrl, new AudioLoadResultHandler() {
             @Override
@@ -120,7 +127,18 @@ public class PlayerManager {
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                textChannel.sendMessage("Ошибка: Не удалось загрузить радиостанцию: " + exception.getMessage())
+                String errorMsg;
+                if (isTwitch) {
+                    errorMsg = "Ошибка: Не удалось загрузить Twitch-стрим. Возможные причины:\n" +
+                        "• Стрим не активен или канал офлайн\n" +
+                        "• Неверный формат ссылки (должен быть: https://www.twitch.tv/channelname)\n" +
+                        "• Канал не существует\n\n" +
+                        "Проверьте ссылку и убедитесь, что стрим запущен.";
+                } else {
+                    errorMsg = "Ошибка: Не удалось загрузить радиостанцию: " + exception.getMessage();
+                }
+                
+                textChannel.sendMessage(errorMsg)
                     .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
             }
         });
