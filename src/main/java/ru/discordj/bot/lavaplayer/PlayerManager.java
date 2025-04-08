@@ -93,9 +93,6 @@ public class PlayerManager {
     public void play(TextChannel textChannel, String trackUrl) {
         GuildMusicManager musicManager = getGuildMusicManager(textChannel.getGuild());
         
-        // Логируем попытку воспроизведения для отладки
-        System.out.println("Пытаюсь воспроизвести: " + trackUrl);
-        
         // Создаем сообщение плеера, если его еще нет
         if (musicManager.getTrackScheduler().getPlayerMessageId() == null) {
             textChannel.sendMessage(EmbedFactory.getInstance().createMusicEmbed()
@@ -107,37 +104,29 @@ public class PlayerManager {
 
         // Проверяем, содержит ли URL ссылку на Twitch
         boolean isTwitch = trackUrl.contains("twitch.tv");
-        if (isTwitch) {
-            System.out.println("Обнаружен Twitch-стрим: " + trackUrl);
-        }
 
         // Загружаем и воспроизводим трек
         audioPlayerManager.loadItem(trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                System.out.println("Трек успешно загружен: " + track.getInfo().title);
                 musicManager.getTrackScheduler().queue(track);
             }
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
                 // Для радиостанций это не должно происходить
-                System.out.println("Обнаружен плейлист вместо трека: " + playlist.getName());
                 textChannel.sendMessage("Ошибка: Обнаружен плейлист, ожидалась радиостанция")
                     .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
             }
 
             @Override
             public void noMatches() {
-                System.out.println("Не найден контент по URL: " + trackUrl);
                 textChannel.sendMessage("Ошибка: Не удалось найти радиостанцию")
                     .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
             }
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                System.out.println("Ошибка загрузки: " + exception.getMessage());
-                
                 String errorMsg;
                 if (isTwitch) {
                     errorMsg = "Ошибка: Не удалось загрузить Twitch-стрим. Возможные причины:\n" +

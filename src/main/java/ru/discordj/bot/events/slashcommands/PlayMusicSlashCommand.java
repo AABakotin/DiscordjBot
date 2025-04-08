@@ -123,8 +123,6 @@ public class PlayMusicSlashCommand implements ICommand {
         if (query.startsWith("http") || query.startsWith("www")) {
             // Проверяем, корректен ли URL для Twitch
             if (TWITCH_URL_PATTERN.matcher(query).matches()) {
-                System.out.println("Обнаружена ссылка на Twitch: " + query);
-                
                 // Убедимся, что URL имеет схему https://
                 if (!query.startsWith("http")) {
                     query = "https://" + query;
