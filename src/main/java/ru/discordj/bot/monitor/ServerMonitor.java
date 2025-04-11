@@ -8,7 +8,7 @@ import ru.discordj.bot.config.JdaConfig;
 import ru.discordj.bot.embed.EmbedFactory;
 import ru.discordj.bot.embed.ServerStatusEmbed;
 import ru.discordj.bot.monitor.parser.Parser;
-import ru.discordj.bot.utility.pojo.Root;
+import ru.discordj.bot.utility.pojo.ServerRules;
 import ru.discordj.bot.utility.pojo.ServerInfo;
 
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class ServerMonitor {
     private static ServerMonitor instance;
 
     private ScheduledExecutorService scheduler;
-    private Root config;
+    private ServerRules config;
     private final Parser parser;
     private Map<String, String> messageIds = new HashMap<>();
     private boolean isRunning = false;
@@ -47,7 +47,7 @@ public class ServerMonitor {
      *
      * @param config конфигурация с настройками серверов и каналов
      */
-    public ServerMonitor(Root config) {
+    public ServerMonitor(ServerRules config) {
         this.config = config;
         this.parser = new Parser();
         instance = this;
@@ -174,7 +174,7 @@ public class ServerMonitor {
      *
      * @param newConfig новая конфигурация
      */
-    public void updateConfig(Root newConfig) {
+    public void updateConfig(ServerRules newConfig) {
         this.config = newConfig;
     }
 } 

@@ -4,13 +4,20 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.lavaplayer.PlayerManager;
+import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.utility.MessageCollector;
+import ru.discordj.bot.utility.pojo.RadioStation;
+import ru.discordj.bot.utility.pojo.ServerRules;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -22,10 +29,11 @@ import java.util.regex.Pattern;
 /**
  * Обработчик slash-команды для воспроизведения музыки.
  * Позволяет добавлять треки в очередь воспроизведения по URL или поисковому запросу.
- * Поддерживает автоматическое подключение к голосовому каналу.
  */
 public class PlayMusicSlashCommand implements ICommand {
+    private static final Logger logger = LoggerFactory.getLogger(PlayMusicSlashCommand.class);
     private final Map<String, MessageCollector> activeCollectors = new HashMap<>();
+    private final JsonParse jsonHandler = JsonParse.getInstance();
     
     // Регулярные выражения для определения источника по URL
     private static final Pattern YOUTUBE_URL_PATTERN = Pattern.compile(
@@ -46,7 +54,7 @@ public class PlayMusicSlashCommand implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Воспроизвести музыку по ссылке или поисковому запросу";
+        return "Воспроизведение музыки и радиостанций";
     }
 
     @Override
@@ -55,9 +63,15 @@ public class PlayMusicSlashCommand implements ICommand {
         options.add(new OptionData(
             OptionType.STRING, 
             "query", 
-            "URL-ссылка или название трека для поиска", 
-            true));
+            "URL, название трека или радиостанции", 
+            true)); // Сделали опцию обязательной
         return options;
+    }
+    
+    @Override
+    public List<SubcommandData> getSubcommands() {
+        // Не используем подкоманды
+        return new ArrayList<>();
     }
 
     @Override
@@ -67,45 +81,26 @@ public class PlayMusicSlashCommand implements ICommand {
             return;
         }
         
-        // Получаем поисковый запрос или URL, с проверкой на null
-        var queryOption = event.getOption("query");
-        if (queryOption == null) {
-            event.reply("Пожалуйста, укажите URL-ссылку или поисковый запрос. Например: `/play https://youtube.com/...` или `/play название песни`")
-                .setEphemeral(true)
-                .queue(response -> {
-                    response.deleteOriginal().queueAfter(10, TimeUnit.SECONDS);
-                });
-            return;
-        }
-        
-        String query = queryOption.getAsString();
+        // Получаем запрос - он может быть URL, названием трека или названием радиостанции
+        String query = event.getOption("query").getAsString();
         
         // Подключаемся к голосовому каналу
         connectToVoiceChannel(event);
         
-        // Определяем тип источника по URL или считаем поисковым запросом
+        // Определяем тип источника (URL, трек или радиостанция)
         String searchQuery = determineSearchQuery(query);
         
-        // Используем deferReply() для предотвращения сообщения "Приложение не отвечает"
-        // и для длительной загрузки, особенно для Twitch-стримов
-        if (searchQuery.contains("twitch.tv")) {
-            event.deferReply(true).queue(response -> {
-                // После завершения подготовки, воспроизводим музыку и удаляем сообщение
-                PlayerManager.getInstance().play(
-                    event.getChannel().asTextChannel(),
-                    searchQuery
-                );
-                
-                // Удаляем ответное сообщение через 2 секунды
-                response.deleteOriginal().queueAfter(2, TimeUnit.SECONDS);
-            });
-        } else {
-            // Для обычных запросов продолжаем без отложенного ответа
+        // Отвечаем на команду и сразу удаляем ответ
+        event.deferReply(true).queue(response -> {
+            // Воспроизводим музыку
             PlayerManager.getInstance().play(
                 event.getChannel().asTextChannel(),
                 searchQuery
             );
-        }
+            
+            // Удаляем наш ответ сразу
+            response.deleteOriginal().queue();
+        });
     }
     
     /**
@@ -137,7 +132,15 @@ public class PlayMusicSlashCommand implements ICommand {
                 return query; // Любая другая ссылка
             }
         } else {
-            // Если это не URL, считаем поисковым запросом YouTube
+            // Проверяем, есть ли в списке радиостанций станция с таким именем
+            ServerRules guildConfig = jsonHandler.read(null); // Используем null для получения глобальной конфигурации
+            RadioStation station = findStation(guildConfig.getRadioStations(), query);
+            
+            if (station != null) {
+                return station.getUrl(); // Если нашли радиостанцию, возвращаем её URL
+            }
+            
+            // Если это не URL и не имя радиостанции, считаем поисковым запросом YouTube
             return "ytsearch:" + query;
         }
     }
@@ -152,10 +155,10 @@ public class PlayMusicSlashCommand implements ICommand {
         GuildVoiceState memberVoiceState = member.getVoiceState();
 
         if (!memberVoiceState.inAudioChannel()) {
-            event.reply("Вы должны находиться в голосовом канале")
+            event.reply("❌ Вы должны находиться в голосовом канале")
                 .setEphemeral(true)
                 .queue(response -> {
-                    response.deleteOriginal().queueAfter(10, TimeUnit.SECONDS);
+                    response.deleteOriginal().queueAfter(30, TimeUnit.SECONDS);
                 });
             return false;
         }
@@ -169,5 +172,15 @@ public class PlayMusicSlashCommand implements ICommand {
         if (!audioManager.isConnected()) {
             audioManager.openAudioConnection(member.getVoiceState().getChannel());
         }
+    }
+    
+    /**
+     * Поиск радиостанции по имени
+     */
+    private RadioStation findStation(List<RadioStation> stations, String name) {
+        return stations.stream()
+                .filter(station -> station.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
     }
 }

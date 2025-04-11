@@ -9,7 +9,6 @@ public class ConfigEmbed extends BaseEmbed {
         EmbedBuilder builder = new EmbedBuilder()
             .setColor(Color.BLUE)
             .setTitle("█▓▒░⡷⠂Configuration⠐⢾░▒▓█")
-            .addField("Token", jsonHandler.read().getToken(), false)
             .addField("Owner", jsonHandler.read().getOwner(), false)
             .addField("invite_link", jsonHandler.read().getInviteLink(), false);
         
@@ -25,7 +24,6 @@ public class ConfigEmbed extends BaseEmbed {
             "\n!id - копирует ID админа автоматически, " +
             "\n!id_del - удаляет ID админа. Только админ может удалить себя из списка, " +
             "\n!role - добавляет правило для авто-роли (id_канал id_роль id_емодзи), " +
-            "\n!token - записывает токен (токен), " +
             "\n!link - ссылка приглашения в дискорд (URL), " +
             "\n!del_role - удаляет правило авто-роли (число)");
         return builder.build();

@@ -26,7 +26,7 @@ public class WelcomeEmbed extends BaseEmbed {
         }
         
         if (rules.getRulesField() != null) {
-            embed.addField("", rules.getRulesField(), false);
+            embed.addField("", rules.getFormattedRulesField(), false);
         }
         
         if (rules.getFooter() != null) {

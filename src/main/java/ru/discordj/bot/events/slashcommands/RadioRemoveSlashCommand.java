@@ -2,17 +2,20 @@ package ru.discordj.bot.events.slashcommands;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.discordj.bot.events.ICommand;
+import ru.discordj.bot.utility.JsonParse;
+import ru.discordj.bot.utility.pojo.RadioStation;
+import ru.discordj.bot.utility.pojo.ServerRules;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Slash-команда для удаления радиостанции из списка.
- * Доступна только администраторам сервера.
+ * Slash-команда для удаления радиостанции.
  */
 public class RadioRemoveSlashCommand implements ICommand {
     
@@ -23,69 +26,70 @@ public class RadioRemoveSlashCommand implements ICommand {
     
     @Override
     public String getDescription() {
-        return "Удалить радиостанцию из списка";
+        return "Удалить радиостанцию";
     }
     
     @Override
     public List<OptionData> getOptions() {
-        List<OptionData> options = new ArrayList<>();
-        options.add(new OptionData(OptionType.STRING, "name", "Название радиостанции для удаления", true));
-        return options;
+        return Collections.singletonList(
+            new OptionData(OptionType.STRING, "name", "Название радиостанции для удаления", true)
+        );
     }
     
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        // Проверяем, имеет ли пользователь права администратора
-        if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-            event.reply("❌ Эта команда доступна только администраторам сервера.")
-                .setEphemeral(true)
-                .queue(response -> {
-                    response.deleteOriginal().queueAfter(10, TimeUnit.SECONDS);
-                });
-            return;
-        }
-        
-        // Получаем название радиостанции из команды
-        String stationName = event.getOption("name").getAsString();
-        
         try {
-            // Проверяем, существует ли радиостанция с таким названием
-            if (!RadioSlashCommand.hasStation(stationName)) {
-                event.reply("❌ Радиостанция с названием **" + stationName + "** не найдена!")
+            // Проверяем права администратора
+            if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+                event.reply("❌ Эта команда доступна только администраторам сервера!")
                     .setEphemeral(true)
-                    .queue();
+                    .queue(response -> response.deleteOriginal().queueAfter(10, TimeUnit.SECONDS));
                 return;
             }
             
-            // Запоминаем количество радиостанций до удаления
-            int previousCount = RadioSlashCommand.getStationsCount();
+            // Получаем название станции для удаления
+            String name = event.getOption("name").getAsString();
             
-            // Удаляем радиостанцию
-            RadioSlashCommand.removeRadioStation(stationName);
+            // Получаем конфигурацию гильдии
+            ServerRules config = JsonParse.getInstance().read(event.getGuild());
             
-            // Получаем новое количество радиостанций
-            int newCount = RadioSlashCommand.getStationsCount();
+            // Ищем станцию в списке
+            RadioStation stationToRemove = null;
+            for (RadioStation station : config.getRadioStations()) {
+                if (station.getName().equalsIgnoreCase(name)) {
+                    stationToRemove = station;
+                    break;
+                }
+            }
             
-            // Формируем сообщение об успешном удалении
-            StringBuilder successMessage = new StringBuilder();
-            successMessage.append("✅ Радиостанция **").append(stationName).append("** успешно удалена!\n\n");
-            successMessage.append("📊 Статистика:\n");
-            successMessage.append("• Было: ").append(previousCount).append(" станций\n");
-            successMessage.append("• Стало: ").append(newCount).append(" станций");
+            // Проверяем, существует ли станция
+            if (stationToRemove == null) {
+                event.reply("❌ Радиостанция **" + name + "** не найдена!")
+                    .setEphemeral(true)
+                    .queue(response -> response.deleteOriginal().queueAfter(10, TimeUnit.SECONDS));
+                return;
+            }
             
-            // Отправляем сообщение с результатом операции
-            event.reply(successMessage.toString())
+            // Удаляем станцию
+            config.getRadioStations().remove(stationToRemove);
+            
+            // Сохраняем конфигурацию
+            JsonParse.getInstance().write(event.getGuild(), config);
+            
+            // Отправляем сообщение об успехе
+            event.reply("✅ Радиостанция **" + name + "** успешно удалена!")
                 .setEphemeral(true)
-                .queue();
+                .queue(response -> response.deleteOriginal().queueAfter(30, TimeUnit.SECONDS));
             
         } catch (Exception e) {
-            // В случае ошибки выводим информацию о ней
-            System.err.println("Ошибка удаления радиостанции: " + e.getMessage());
-            e.printStackTrace();
-            
-            event.reply("❌ Произошла ошибка при удалении радиостанции: " + e.getMessage())
+            event.reply("❌ Произошла ошибка: " + e.getMessage())
                 .setEphemeral(true)
-                .queue();
+                .queue(response -> response.deleteOriginal().queueAfter(10, TimeUnit.SECONDS));
         }
+    }
+    
+    @Override
+    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+        // Не используется
     }
 } 
