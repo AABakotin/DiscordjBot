@@ -75,7 +75,7 @@ public class MusicEmbed extends BaseEmbed {
         if (currentTrack == null) {
             embed.setColor(Color.decode("#2f3136"))
                 .setTitle(EMOJI_MUSIC + " Нет активного трека")
-                .setDescription(EMOJI_WARNING + " Используйте `/play` или `/radio` чтобы включить музыку");
+                .setDescription(EMOJI_WARNING + " Используйте `/play` чтобы включить музыку");
         } else {
             String thumbnailUrl = "https://img.youtube.com/vi/" + currentTrack.getIdentifier() + "/default.jpg";
             

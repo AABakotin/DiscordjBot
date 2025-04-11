@@ -2,12 +2,17 @@ package ru.discordj.bot.events.slashcommands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.discordj.bot.events.ICommand;
+import ru.discordj.bot.utility.JsonParse;
+import ru.discordj.bot.utility.pojo.RadioStation;
+import ru.discordj.bot.utility.pojo.ServerRules;
 
 import java.awt.Color;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Slash-команда для отображения списка доступных радиостанций.
@@ -26,62 +31,51 @@ public class RadioListSlashCommand implements ICommand {
     
     @Override
     public List<OptionData> getOptions() {
-        return Collections.emptyList();
+        // Команда не имеет параметров
+        return new ArrayList<>();
     }
     
     @Override
     public void execute(SlashCommandInteractionEvent event) {
         try {
-            // Получаем список всех радиостанций по категориям
-            Map<String, List<RadioSlashCommand.RadioStation>> stationsByCategory = 
-                RadioSlashCommand.getStationsByCategory();
+            // Получаем конфигурацию гильдии
+            ServerRules guildConfig = JsonParse.getInstance().read(event.getGuild());
+            List<RadioStation> stations = guildConfig.getRadioStations();
             
-            // Если список пуст, сообщаем об этом
-            if (stationsByCategory.isEmpty()) {
-                event.reply("❌ Список радиостанций пуст!")
+            if (stations.isEmpty()) {
+                event.reply("❌ Список радиостанций пуст. Администраторы могут добавить станции с помощью команды `/radio_add`")
                     .setEphemeral(true)
-                    .queue();
+                    .queue(response -> response.deleteOriginal().queueAfter(30, TimeUnit.SECONDS));
                 return;
             }
             
-            // Создаем эмбед с информацией о радиостанциях
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("📻 Список доступных радиостанций");
-            embed.setColor(Color.BLUE);
-            embed.setDescription("Всего радиостанций: " + RadioSlashCommand.getStationsCount() + 
-                                "\nИспользуйте команду `/radio` для прослушивания");
+            // Создаем красивый эмбед со списком станций
+            EmbedBuilder embed = new EmbedBuilder()
+                .setTitle("📻 Список доступных радиостанций")
+                .setColor(Color.decode("#9370DB")) // Медиум пурпурный цвет
+                .setDescription("Для воспроизведения используйте команду `/radio name:название`\n")
+                .setFooter("Всего станций: " + stations.size() + " | Обновить список: /radio_reload");
             
-            // Добавляем поля с категориями радиостанций
-            for (Map.Entry<String, List<RadioSlashCommand.RadioStation>> entry : stationsByCategory.entrySet()) {
-                String category = entry.getKey();
-                List<RadioSlashCommand.RadioStation> stations = entry.getValue();
-                
-                // Строим список станций этой категории
-                String stationsList = stations.stream()
-                    .map(station -> "• " + station.getName())
-                    .collect(Collectors.joining("\n"));
-                
-                // Добавляем поле с категорией
-                embed.addField("🏷️ " + category + " (" + stations.size() + ")", 
-                              stationsList, 
-                              true);
+            // Добавляем информацию о каждой станции
+            for (int i = 0; i < stations.size(); i++) {
+                RadioStation station = stations.get(i);
+                embed.appendDescription(String.format("\n**%d.** %s", i + 1, station.getName()));
             }
-            
-            // Добавляем совет
-            embed.setFooter("💡 Администраторы могут добавлять/удалять станции через команды /radio_add и /radio_remove");
             
             // Отправляем эмбед
             event.replyEmbeds(embed.build())
+                .setEphemeral(true) // Видно только пользователю
                 .queue();
             
         } catch (Exception e) {
-            // В случае ошибки выводим информацию о ней
-            System.err.println("Ошибка при отображении списка радиостанций: " + e.getMessage());
-            e.printStackTrace();
-            
-            event.reply("❌ Произошла ошибка при получении списка радиостанций: " + e.getMessage())
+            event.reply("❌ Произошла ошибка: " + e.getMessage())
                 .setEphemeral(true)
-                .queue();
+                .queue(response -> response.deleteOriginal().queueAfter(10, TimeUnit.SECONDS));
         }
+    }
+    
+    @Override
+    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+        // Не используется
     }
 } 

@@ -92,14 +92,8 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public void skip() {
-        if (isRepeat) {
-            AudioTrack currentTrack = player.getPlayingTrack();
-            if (currentTrack != null) {
-                player.startTrack(currentTrack.makeClone(), false);
-            }
-        } else {
-            nextTrack();
-        }
+        player.stopTrack();
+        nextTrack();
         updatePlayerMessage();
     }
 

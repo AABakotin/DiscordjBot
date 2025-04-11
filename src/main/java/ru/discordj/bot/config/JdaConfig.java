@@ -13,7 +13,6 @@ import ru.discordj.bot.events.CommandManager;
 import ru.discordj.bot.events.listener.AddRoleListener;
 import ru.discordj.bot.events.listener.PlayerButtonListener;
 import ru.discordj.bot.events.listener.VoiceChannelListener;
-import ru.discordj.bot.events.listener.configurator.Configurator;
 import ru.discordj.bot.events.slashcommands.*;
 import ru.discordj.bot.events.listener.MusicControlsListener;
 import ru.discordj.bot.events.listener.MemberListener;
@@ -39,12 +38,8 @@ public class JdaConfig {
         MANAGER.add(new HelloSlashcommand());
         MANAGER.add(new InviteSlashcommand());
         MANAGER.add(new PlayMusicSlashCommand());
-        MANAGER.add(new RadioSlashCommand());
         MANAGER.add(new UpdateCommandsSlashCommand());
-        MANAGER.add(new RadioReloadSlashCommand());
-        MANAGER.add(new RadioAddSlashCommand());
-        MANAGER.add(new RadioRemoveSlashCommand());
-        MANAGER.add(new RadioListSlashCommand());
+        MANAGER.add(new GuildConfigSlashCommand());
 
     }
 
@@ -71,7 +66,6 @@ public class JdaConfig {
                         MANAGER,
                         new AddRoleListener(),
                         new PlayerButtonListener(),
-                        new Configurator(),
                         new MusicControlsListener(),
                         new MemberListener(),
                         new ReadyListener(),
@@ -82,19 +76,29 @@ public class JdaConfig {
 
     private static String checkToken(String[] args) {
         if (args.length >= 1) {
-            logger.info("Loading token key form args...");
+            logger.info("Loading token key from args...");
             return args[0];
         } else if (System.getenv().containsKey("TOKEN")) {
-            logger.info("Loading token key form system environment...");
+            logger.info("Loading token key from system environment...");
             return System.getenv("TOKEN");
         } else {
-            logger.info("Loading token key form properties file...");
-            return jsonHandler.read().getToken();
+            logger.error("No token provided in args or environment variables! Please provide a token.");
+            throw new IllegalArgumentException("Discord bot token is required. Provide it as first argument or set TOKEN environment variable.");
         }
     }
 
     public static JDA getJda() {
         return jda;
+    }
+    
+    /**
+     * Инициализирует компоненты бота после полной загрузки JDA
+     */
+    public static void initializeComponents() {
+        // Инициализация мониторинга для всех гильдий
+        MonitoringManager.getInstance().initForAllGuilds(jda.getGuilds());
+        
+        logger.info("Компоненты бота инициализированы");
     }
 
 }

@@ -18,7 +18,7 @@ public class ReadyListener implements EventListener {
     }
 
     private void onReady(ReadyEvent event) {
-        MonitoringManager.getInstance().init();
+        MonitoringManager.getInstance().initForAllGuilds(event.getJDA().getGuilds());
         logger.info("Bot is ready!");
     }
 } 

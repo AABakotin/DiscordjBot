@@ -2,16 +2,19 @@ package ru.discordj.bot.events.slashcommands;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.discordj.bot.events.ICommand;
+import ru.discordj.bot.utility.JsonParse;
+import ru.discordj.bot.utility.pojo.ServerRules;
+import ru.discordj.bot.utility.pojo.RadioStation;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Slash-команда для перезагрузки списка радиостанций из JSON-файла.
- * Доступна только администраторам сервера.
+ * Slash-команда для перезагрузки списка радиостанций из файла конфигурации.
  */
 public class RadioReloadSlashCommand implements ICommand {
     
@@ -22,62 +25,73 @@ public class RadioReloadSlashCommand implements ICommand {
     
     @Override
     public String getDescription() {
-        return "Перезагрузить список радиостанций из JSON-файла";
+        return "Перезагрузить список радиостанций из файла конфигурации";
     }
     
     @Override
     public List<OptionData> getOptions() {
-        return Collections.emptyList();
+        // Команда не имеет параметров
+        return new ArrayList<>();
     }
     
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        // Проверяем, имеет ли пользователь права администратора
-        if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-            event.reply("❌ Эта команда доступна только администраторам сервера.")
-                .setEphemeral(true)
-                .queue(response -> {
-                    response.deleteOriginal().queueAfter(10, TimeUnit.SECONDS);
-                });
-            return;
-        }
-        
         try {
-            // Запоминаем текущее количество радиостанций
-            int previousStationsCount = RadioSlashCommand.getStationsCount();
-            
-            // Перезагружаем список радиостанций
-            RadioSlashCommand.reloadStations();
-            
-            // Получаем новое количество радиостанций
-            int newStationsCount = RadioSlashCommand.getStationsCount();
-            
-            // Формируем сообщение об успешной перезагрузке
-            StringBuilder successMessage = new StringBuilder();
-            successMessage.append("✅ Список радиостанций успешно перезагружен из файла!\n");
-            successMessage.append("📊 Статистика:\n");
-            successMessage.append("• Было: ").append(previousStationsCount).append(" станций\n");
-            successMessage.append("• Стало: ").append(newStationsCount).append(" станций");
-            
-            // Если количество станций превышает лимит Discord (25), добавляем предупреждение
-            if (newStationsCount > 25) {
-                successMessage.append("\n⚠️ Внимание: в меню будут отображаться только первые 25 станций из ")
-                    .append(newStationsCount).append(" из-за ограничений Discord.");
+            // Проверяем права администратора
+            if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+                event.reply("❌ Эта команда доступна только администраторам сервера!")
+                    .setEphemeral(true)
+                    .queue(response -> response.deleteOriginal().queueAfter(30, TimeUnit.SECONDS));
+                return;
             }
             
-            // Отправляем сообщение с результатом операции
-            event.reply(successMessage.toString())
+            // Форсируем обновление радиостанций из конфигурации по умолчанию
+            List<RadioStation> updatedStations = JsonParse.getInstance().reloadRadioStations(event.getGuild());
+            
+            if (updatedStations == null) {
+                event.reply("❌ Произошла ошибка при обновлении списка радиостанций!")
+                    .setEphemeral(true)
+                    .queue(response -> response.deleteOriginal().queueAfter(30, TimeUnit.SECONDS));
+                return;
+            }
+            
+            // Отправляем сообщение об успехе
+            event.reply("✅ Список радиостанций успешно обновлен! Добавлено **" + updatedStations.size() + "** " + 
+                    getStationWordForm(updatedStations.size()))
                 .setEphemeral(true)
-                .queue();
+                .queue(response -> response.deleteOriginal().queueAfter(30, TimeUnit.SECONDS));
             
         } catch (Exception e) {
-            // В случае ошибки выводим информацию о ней
-            System.err.println("Ошибка перезагрузки радиостанций: " + e.getMessage());
-            e.printStackTrace();
-            
-            event.reply("❌ Произошла ошибка при перезагрузке радиостанций: " + e.getMessage())
+            event.reply("❌ Произошла ошибка при перезагрузке: " + e.getMessage())
                 .setEphemeral(true)
-                .queue();
+                .queue(response -> response.deleteOriginal().queueAfter(30, TimeUnit.SECONDS));
         }
+    }
+    
+    @Override
+    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+        // Не используется
+    }
+    
+    /**
+     * Возвращает правильную форму слова "станция" для числительных
+     */
+    private String getStationWordForm(int count) {
+        int lastDigit = count % 10;
+        int lastTwoDigits = count % 100;
+        
+        if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+            return "станций";
+        }
+        
+        if (lastDigit == 1) {
+            return "станция";
+        }
+        
+        if (lastDigit >= 2 && lastDigit <= 4) {
+            return "станции";
+        }
+        
+        return "станций";
     }
 } 

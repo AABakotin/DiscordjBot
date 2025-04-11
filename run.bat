@@ -4,7 +4,7 @@ title Discord Bot
 echo Starting DiscordJBot with UTF-8 encoding...
 echo.
 
-start /min cmd /c "java -Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8 -jar ./DiscordjBot-1.0-jar-with-dependencies.jar %* && pause"
+java -Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8 -jar DiscordjBot-1.0-jar-with-dependencies.jar %*
 
-echo Bot has been started in minimized window.
-timeout /t 3 > nul 
+echo Bot finished working.
+pause 

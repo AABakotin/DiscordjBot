@@ -28,6 +28,14 @@ public class InviteSlashcommand implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        event.reply(jsonHandler.read().getInviteLink()).setEphemeral(true).queue();
+        // Получаем ссылку-приглашение для текущей гильдии
+        String inviteLink = jsonHandler.read(event.getGuild()).getInviteLink();
+        
+        // Если ссылка не настроена для гильдии, используем глобальную
+        if (inviteLink == null || inviteLink.equals("empty")) {
+            inviteLink = jsonHandler.read().getInviteLink();
+        }
+        
+        event.reply(inviteLink).setEphemeral(true).queue();
     }
 }

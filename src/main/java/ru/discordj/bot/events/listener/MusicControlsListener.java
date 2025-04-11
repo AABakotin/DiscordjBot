@@ -50,10 +50,10 @@ public class MusicControlsListener extends ListenerAdapter {
                     scheduler.skip();
                     break;
             }
+            
+            // Подтверждаем взаимодействие и обновляем сообщение
+            event.deferEdit().queue();
         }
-        
-        // Подтверждаем взаимодействие и обновляем сообщение
-        event.deferEdit().queue();
     }
 
     private void handleTrackSelection(ButtonInteractionEvent event) {

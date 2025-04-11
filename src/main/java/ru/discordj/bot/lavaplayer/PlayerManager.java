@@ -106,21 +106,30 @@ public class PlayerManager {
         boolean isTwitch = trackUrl.contains("twitch.tv");
 
         // Загружаем и воспроизводим трек
-        audioPlayerManager.loadItem(trackUrl, new AudioLoadResultHandler() {
+        audioPlayerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
                 musicManager.getTrackScheduler().queue(track);
+                // Не отправляем сообщение о начале воспроизведения, так как плеер уже создан
             }
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
-                // Для радиостанций это не должно происходить
-                textChannel.sendMessage("Ошибка: Обнаружен плейлист, ожидалась радиостанция")
-                    .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
+                // Для радиостанций обычно это не происходит, но обрабатываем на всякий случай
+                if (!playlist.getTracks().isEmpty()) {
+                    AudioTrack track = playlist.getTracks().get(0);
+                    musicManager.getTrackScheduler().queue(track);
+                    // Не отправляем сообщение о начале воспроизведения, так как плеер уже создан
+                } else {
+                    // Отправляем сообщение об ошибке, которое будет удалено через 30 секунд
+                    textChannel.sendMessage("Ошибка: Плейлист пуст")
+                        .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
+                }
             }
 
             @Override
             public void noMatches() {
+                // Отправляем сообщение об ошибке, которое будет удалено через 30 секунд
                 textChannel.sendMessage("Ошибка: Не удалось найти радиостанцию")
                     .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
             }
@@ -134,10 +143,17 @@ public class PlayerManager {
                         "• Неверный формат ссылки (должен быть: https://www.twitch.tv/channelname)\n" +
                         "• Канал не существует\n\n" +
                         "Проверьте ссылку и убедитесь, что стрим запущен.";
+                } else if (exception.getCause() instanceof java.net.SocketTimeoutException 
+                    || (exception.getMessage() != null && exception.getMessage().contains("timeout"))) {
+                    errorMsg = "Ошибка: Время ожидания ответа истекло. Возможные причины:\n"
+                        + "• Медленное интернет-соединение\n"
+                        + "• Сервер временно недоступен\n"
+                        + "Попробуйте позже или используйте другую радиостанцию.";
                 } else {
                     errorMsg = "Ошибка: Не удалось загрузить радиостанцию: " + exception.getMessage();
                 }
                 
+                // Отправляем сообщение об ошибке, которое будет удалено через 30 секунд
                 textChannel.sendMessage(errorMsg)
                     .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
             }
@@ -160,16 +176,19 @@ public class PlayerManager {
             @Override
             public void trackLoaded(AudioTrack track) {
                 musicManager.getTrackScheduler().queue(track);
+                // Не отправляем сообщение о начале воспроизведения, так как плеер уже создан
             }
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
                 AudioTrack track = playlist.getTracks().get(0);
                 musicManager.getTrackScheduler().queue(track);
+                // Не отправляем сообщение о начале воспроизведения, так как плеер уже создан
             }
 
             @Override
             public void noMatches() {
+                // Отправляем сообщение об ошибке, которое будет удалено через 30 секунд
                 textChannel.sendMessage("Ошибка: Ничего не найдено по запросу: " + searchQuery)
                     .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
             }
@@ -184,9 +203,10 @@ public class PlayerManager {
                         + "• YouTube временно блокирует запросы\n"
                         + "Попробуйте воспроизвести трек позже или использовать другой источник.";
                 } else {
-                    errorMessage = "Ошибка при загрузке: " + exception.getMessage();
+                    errorMessage = "Ошибка: Не удалось загрузить трек: " + exception.getMessage();
                 }
                 
+                // Отправляем сообщение об ошибке, которое будет удалено через 30 секунд
                 textChannel.sendMessage(errorMessage)
                     .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
             }

@@ -6,6 +6,7 @@ import java.util.logging.LogManager;
 
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import ru.discordj.bot.config.JdaConfig;
+import ru.discordj.bot.utility.JsonParse;
 
 /**
  * Главный класс приложения, инициализирующий всё необходимое для работы бота.
@@ -21,6 +22,9 @@ public class Main {
     public static void main(String[] args) throws Exception {
         // Загружаем настройки логирования
         configureLogging();
+        
+        // Инициализируем JsonParse
+        JsonParse.getInstance();
         
         // Запускаем бота с использованием существующей конфигурации
         JdaConfig.start(args);

@@ -33,7 +33,7 @@ public class RulesSlashcommand implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        RulesMessage rules = JsonParse.getInstance().readRules();
+        RulesMessage rules = JsonParse.getInstance().readRules(event.getGuild());
         
         EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(Color.decode("#2f3136"));
@@ -47,7 +47,7 @@ public class RulesSlashcommand implements ICommand {
         }
         
         if (rules.getRulesField() != null) {
-            embed.addField("", rules.getRulesField(), false);
+            embed.addField("", rules.getFormattedRulesField(), false);
         }
         
         if (rules.getFooter() != null) {
