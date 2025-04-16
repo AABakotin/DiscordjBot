@@ -306,14 +306,14 @@ public class GuildConfigSlashCommand implements ICommand {
         String action = event.getOption("action", "", OptionMapping::getAsString);
         
         if (action.isBlank()) {
-            event.reply("Необходимо указать действие (enable/disable)").setEphemeral(true).queue();
+            event.reply("Необходимо указать действие (on/off) и указать ID канала").setEphemeral(true).queue();
             return;
         }
         
         ServerRules config = jsonHandler.read(guild);
         
         switch (action.toLowerCase()) {
-            case "enable":
+            case "on":
                 OptionMapping channelOption = event.getOption("channel");
                 if (channelOption == null) {
                     event.reply("Для включения мониторинга необходимо указать канал").setEphemeral(true).queue();
@@ -338,7 +338,7 @@ public class GuildConfigSlashCommand implements ICommand {
                 }
                 break;
                 
-            case "disable":
+            case "off":
                 // Останавливаем мониторинг
                 MonitoringManager.getInstance().stopMonitoring(guild);
                 event.reply("Мониторинг серверов выключен")
@@ -347,7 +347,7 @@ public class GuildConfigSlashCommand implements ICommand {
                 break;
                 
             default:
-                event.reply("Неизвестное действие: " + action + ". Доступные действия: enable, disable")
+                event.reply("Неизвестное действие: " + action + ". Доступные действия: on, off")
                     .setEphemeral(true)
                     .queue();
         }
