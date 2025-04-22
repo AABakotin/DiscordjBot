@@ -131,7 +131,7 @@ public class ServerMonitor {
                 });
         }
 
-        ServerStatusEmbed embedBuilder = EmbedFactory.getInstance().createServerStatusEmbed();
+        ServerStatusEmbed embedBuilder = EmbedFactory.createServerStatusEmbed();
 
         for (ServerInfo server : config.getServers()) {
             try {

@@ -40,7 +40,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
     private void updatePlayerMessage() {
         if (textChannel != null && playerMessageId != null) {
-            EmbedFactory.getInstance().createMusicEmbed()
+            EmbedFactory.createMusicEmbed()
                 .updatePlayerMessage(textChannel, playerMessageId);
         }
     }

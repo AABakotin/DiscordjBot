@@ -2,7 +2,6 @@ package ru.discordj.bot.events.listener;
 
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ru.discordj.bot.embed.EmbedFactory;
 import org.slf4j.Logger;
@@ -19,7 +18,7 @@ public class MemberListener extends ListenerAdapter {
         // Отправляем приветственное сообщение в личку
         user.openPrivateChannel()
             .queue(channel -> channel.sendMessageEmbeds(
-                EmbedFactory.getInstance().createWelcomeEmbed().embedWelcomeGuild(
+                EmbedFactory.createWelcomeEmbed().embedWelcomeGuild(
                     user.getEffectiveAvatarUrl(),
                     user.getName()
                 )

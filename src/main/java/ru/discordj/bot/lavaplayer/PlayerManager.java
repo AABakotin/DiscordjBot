@@ -95,7 +95,7 @@ public class PlayerManager {
         
         // Создаем сообщение плеера, если его еще нет
         if (musicManager.getTrackScheduler().getPlayerMessageId() == null) {
-            textChannel.sendMessage(EmbedFactory.getInstance().createMusicEmbed()
+            textChannel.sendMessage(EmbedFactory.createMusicEmbed()
                 .createPlayerMessage(textChannel).build())
                 .queue(message -> 
                     musicManager.getTrackScheduler().setPlayerMessage(textChannel, message.getId())
@@ -165,7 +165,7 @@ public class PlayerManager {
 
         // Создаем сообщение плеера, если его еще нет
         if (musicManager.getTrackScheduler().getPlayerMessageId() == null) {
-            textChannel.sendMessage(EmbedFactory.getInstance().createMusicEmbed()
+            textChannel.sendMessage(EmbedFactory.createMusicEmbed()
                 .createPlayerMessage(textChannel).build())
                 .queue(message -> 
                     musicManager.getTrackScheduler().setPlayerMessage(textChannel, message.getId())
@@ -219,7 +219,7 @@ public class PlayerManager {
 
         // Создаем сообщение плеера, если его еще нет
         if (musicManager.getTrackScheduler().getPlayerMessageId() == null) {
-            channel.sendMessage(EmbedFactory.getInstance().createMusicEmbed()
+            channel.sendMessage(EmbedFactory.createMusicEmbed()
                 .createPlayerMessage(channel).build())
                 .queue(message -> 
                     musicManager.getTrackScheduler().setPlayerMessage(channel, message.getId())

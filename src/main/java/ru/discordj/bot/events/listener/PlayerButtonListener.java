@@ -35,7 +35,7 @@ public class PlayerButtonListener extends ListenerAdapter {
         }
         
         // Обновляем сообщение с плеером
-        EmbedFactory.getInstance().createMusicEmbed()
+        EmbedFactory.createMusicEmbed()
             .updatePlayerMessage(event.getChannel().asTextChannel(), 
                 trackScheduler.getPlayerMessageId());
             
