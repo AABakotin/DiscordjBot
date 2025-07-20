@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionE
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.utility.JsonParse;
-import ru.discordj.bot.utility.pojo.ServerRules;
 import ru.discordj.bot.utility.pojo.RadioStation;
 
 import java.util.ArrayList;

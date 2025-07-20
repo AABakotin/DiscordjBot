@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.discordj.bot.lavaplayer.PlayerManager;
+import ru.discordj.bot.service.VoiceChannelService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ public class VoiceChannelListener extends ListenerAdapter {
     // Для каждой гильдии храним запланированную задачу отключения
     private final Map<Long, ScheduledFuture<?>> disconnectTasks = new HashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+    private final VoiceChannelService voiceService = new VoiceChannelService();
 
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
@@ -102,21 +104,7 @@ public class VoiceChannelListener extends ListenerAdapter {
      */
     private void checkIfAloneAndScheduleDisconnect(Guild guild, VoiceChannel voiceChannel) {
         // Получаем список участников в голосовом канале
-        List<Member> membersInChannel = voiceChannel.getMembers();
-        
-        // Проверяем, не остался ли бот один
-        boolean botAlone = true;
-        
-        for (Member member : membersInChannel) {
-            // Если участник не бот, значит бот не один
-            if (!member.getUser().isBot()) {
-                botAlone = false;
-                break;
-            }
-        }
-        
-        // Если бот остался один, запланируем задачу отключения через DISCONNECT_DELAY_SECONDS секунд
-        if (botAlone) {
+        if (voiceService.isBotAlone(voiceChannel)) {
             // Отменяем предыдущую задачу, если она существует
             cancelDisconnectTask(guild.getIdLong());
             
@@ -150,18 +138,7 @@ public class VoiceChannelListener extends ListenerAdapter {
      */
     private void disconnectBot(Guild guild, VoiceChannel voiceChannel) {
         // Проверяем, все еще ли бот один в канале
-        List<Member> membersInChannel = voiceChannel.getMembers();
-        boolean botAlone = true;
-        
-        for (Member member : membersInChannel) {
-            if (!member.getUser().isBot()) {
-                botAlone = false;
-                break;
-            }
-        }
-        
-        // Если кто-то присоединился - не отключаемся
-        if (!botAlone) {
+        if (!voiceService.isBotAlone(voiceChannel)) {
             logger.info("Disconnect cancelled, as listeners have joined channel {} in guild {}", 
                     voiceChannel.getName(), guild.getName());
             return;
@@ -193,6 +170,9 @@ public class VoiceChannelListener extends ListenerAdapter {
         
         // Отключаемся от голосового канала
         guild.getAudioManager().closeAudioConnection();
+        
+        // Удаляем менеджер после остановки
+        ru.discordj.bot.lavaplayer.PlayerManager.getInstance().removeGuildMusicManager(guild);
         
         // Log the event
         logger.info("Bot disconnected from voice channel {}, as it was left alone in guild {} for {} seconds", 

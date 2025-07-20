@@ -3,13 +3,10 @@ package ru.discordj.bot.events.slashcommands;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.managers.AudioManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.utility.pojo.RadioStation;
@@ -27,8 +24,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
  * Позволяет просматривать, добавлять, удалять радиостанции и останавливать воспроизведение.
  */
 public class RadioControlSlashCommand implements ICommand {
-    private static final Logger logger = LoggerFactory.getLogger(RadioControlSlashCommand.class);
-    private final JsonParse jsonHandler = JsonParse.getInstance();
+        private final JsonParse jsonHandler = JsonParse.getInstance();
 
     @Override
     public String getName() {
