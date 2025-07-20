@@ -7,15 +7,11 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.utility.JsonParse;
-import ru.discordj.bot.utility.pojo.ServerRules;
-import ru.discordj.bot.utility.pojo.Roles;
 import java.util.Objects;
 import ru.discordj.bot.service.RoleAssignmentService;
 
 public class AddRoleListener extends ListenerAdapter {
 
-    private final JsonParse jsonHandler = JsonParse.getInstance();
     private static final Logger logger = LoggerFactory.getLogger(AddRoleListener.class);
     private final RoleAssignmentService roleService = new RoleAssignmentService();
 

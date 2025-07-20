@@ -9,8 +9,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.discordj.bot.events.ICommand;
 import ru.discordj.bot.lavaplayer.PlayerManager;
 import ru.discordj.bot.utility.JsonParse;
@@ -30,7 +28,6 @@ import java.util.regex.Pattern;
  * Позволяет добавлять треки в очередь воспроизведения по URL или поисковому запросу.
  */
 public class PlayMusicSlashCommand implements ICommand {
-    private static final Logger logger = LoggerFactory.getLogger(PlayMusicSlashCommand.class);
     private final Map<String, MessageCollector> activeCollectors = new HashMap<>();
     private final JsonParse jsonHandler = JsonParse.getInstance();
     

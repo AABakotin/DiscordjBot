@@ -19,7 +19,9 @@ public class Main {
      * @param args аргументы командной строки
      * @throws Exception если произошла ошибка во время инициализации
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
+        // Запуск автоапдейтера для домашних серверов (раз в сутки, версия из MANIFEST.MF)
+        ru.discordj.bot.utility.Updater.startAutoUpdate();
         // Загружаем настройки логирования
         configureLogging();
         

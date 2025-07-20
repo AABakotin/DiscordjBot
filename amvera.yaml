@@ -2,7 +2,7 @@ meta:
   environment: jvm
   toolchain:
     name: maven
-    version: 21
+    version: 17
 
 run:
   jarName: target/DiscordjBot-1.0-jar-with-dependencies.jar 
