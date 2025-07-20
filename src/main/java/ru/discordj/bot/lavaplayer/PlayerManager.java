@@ -264,4 +264,11 @@ public class PlayerManager {
             }
         });
     }
+
+    public void removeGuildMusicManager(Guild guild) {
+        GuildMusicManager manager = this.musicManagers.remove(guild.getIdLong());
+        if (manager != null) {
+            manager.getPlayer().destroy(); // Освобождаем ресурсы LavaPlayer
+        }
+    }
 }

@@ -40,6 +40,8 @@ public class MusicControlsListener extends ListenerAdapter {
                 case "stop":
                     scheduler.stop();
                     event.getGuild().getAudioManager().closeAudioConnection();
+                    // Удаляем менеджер после остановки
+                    ru.discordj.bot.lavaplayer.PlayerManager.getInstance().removeGuildMusicManager(event.getGuild());
                     break;
                 
                 case "repeat":

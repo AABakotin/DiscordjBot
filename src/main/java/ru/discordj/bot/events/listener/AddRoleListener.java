@@ -7,17 +7,17 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.discordj.bot.utility.IJsonHandler;
 import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.utility.pojo.ServerRules;
 import ru.discordj.bot.utility.pojo.Roles;
-
 import java.util.Objects;
+import ru.discordj.bot.service.RoleAssignmentService;
 
 public class AddRoleListener extends ListenerAdapter {
 
     private final JsonParse jsonHandler = JsonParse.getInstance();
     private static final Logger logger = LoggerFactory.getLogger(AddRoleListener.class);
+    private final RoleAssignmentService roleService = new RoleAssignmentService();
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
@@ -25,7 +25,7 @@ public class AddRoleListener extends ListenerAdapter {
         
         Guild guild = event.getGuild();
         String emoji = event.getEmoji().getName();
-        String channelByEmoji = getChannelByEmoji(guild, emoji);
+        String channelByEmoji = roleService.getChannelByEmoji(guild, emoji);
         
         if (channelByEmoji == null) {
             return; // Пропускаем если канал не найден
@@ -38,7 +38,7 @@ public class AddRoleListener extends ListenerAdapter {
 
         if (guestGuildChannel == event.getGuildChannel()) {
             try {
-                String roleId = getRoleByEmoji(guild, emoji);
+                String roleId = roleService.getRoleByEmoji(guild, emoji);
                 if (roleId == null) {
                     return; // Пропускаем если роль не найдена
                 }
@@ -73,7 +73,7 @@ public class AddRoleListener extends ListenerAdapter {
         
         Guild guild = event.getGuild();
         String emoji = event.getEmoji().getName();
-        String channelByEmoji = getChannelByEmoji(guild, emoji);
+        String channelByEmoji = roleService.getChannelByEmoji(guild, emoji);
         
         if (channelByEmoji == null) {
             return; // Пропускаем если канал не найден
@@ -86,7 +86,7 @@ public class AddRoleListener extends ListenerAdapter {
 
         if (guestGuildChannel == event.getGuildChannel()) {
             try {
-                String roleId = getRoleByEmoji(guild, emoji);
+                String roleId = roleService.getRoleByEmoji(guild, emoji);
                 if (roleId == null) {
                     return; // Пропускаем если роль не найдена
                 }
@@ -112,36 +112,6 @@ public class AddRoleListener extends ListenerAdapter {
                     guild.getName(), e.getMessage());
             }
         }
-    }
-
-    /**
-     * Получает ID канала, связанного с эмодзи, для конкретной гильдии
-     * @param guild Гильдия
-     * @param emojiId ID эмодзи
-     * @return ID канала или null, если не найден
-     */
-    private String getChannelByEmoji(Guild guild, String emojiId) {
-        ServerRules root = jsonHandler.read(guild);
-        return root.getRoles().stream()
-            .filter(role -> role.getEmojiId().equals(emojiId))
-            .map(Roles::getChannelId)
-            .findFirst()
-            .orElse(null);
-    }
-
-    /**
-     * Получает ID роли, связанной с эмодзи, для конкретной гильдии
-     * @param guild Гильдия
-     * @param emoji ID эмодзи
-     * @return ID роли или null, если не найден
-     */
-    private String getRoleByEmoji(Guild guild, String emoji) {
-        ServerRules root = jsonHandler.read(guild);
-        return root.getRoles().stream()
-            .filter(e -> e.getEmojiId().equals(emoji))
-            .findFirst()
-            .map(Roles::getRoleId)
-            .orElse(null);
     }
 }
 
