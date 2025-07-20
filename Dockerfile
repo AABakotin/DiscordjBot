@@ -10,7 +10,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Минимальный образ JRE 17 для запуска
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre
 
 # Создаем рабочую директорию
 WORKDIR /app
