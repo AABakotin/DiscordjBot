@@ -3,6 +3,10 @@ meta:
   toolchain:
     name: maven
     version: 17
-
+build:
+  artifacts:
+    target/*.jar: /
 run:
-  jarName: target/DiscordjBot-1.0-jar-with-dependencies.jar 
+  jarName: target/DiscordjBot-1.0-jar-with-dependencies.jar
+  persistenceMount: /data
+  containerPort: 80
