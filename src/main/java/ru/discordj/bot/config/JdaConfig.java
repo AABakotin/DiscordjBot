@@ -78,12 +78,12 @@ public class JdaConfig {
         if (args.length >= 1) {
             logger.info("Loading token key from args...");
             return args[0];
-        } else if (System.getenv().containsKey("TOKEN")) {
-            logger.info("Loading token key from system environment...");
-            return System.getenv("TOKEN");
+        } else if (System.getenv().containsKey("DISCORD_TOKEN")) {
+            logger.info("Loading token key from system environment (DISCORD_TOKEN)...");
+            return System.getenv("DISCORD_TOKEN");
         } else {
             logger.error("No token provided in args or environment variables! Please provide a token.");
-            throw new IllegalArgumentException("Discord bot token is required. Provide it as first argument or set TOKEN environment variable.");
+            throw new IllegalArgumentException("Discord bot token is required. Provide it as first argument or set DISCORD_TOKEN environment variable.");
         }
     }
 

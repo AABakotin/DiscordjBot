@@ -1,5 +1,37 @@
 # Discord Bot
 Многофункциональный Discord бот с возможностями музыкального плеера, системой автоматической выдачи ролей и потоковым воспроизведением радиостанций.
+
+---
+
+## Быстрый старт через DockerHub
+
+Готовый образ доступен на DockerHub: [megabart/discordjbot](https://hub.docker.com/r/megabart/discordjbot)
+
+### Пример запуска:
+```bash
+docker run -d \
+  --name discordjbot \
+  -e DISCORD_TOKEN=your-discord-bot-token \
+  -v $(pwd)/json:/app/json \
+  megabart/discordjbot:latest
+```
+
+Или через docker-compose:
+```yaml
+version: '3.8'
+services:
+  discordjbot:
+    image: megabart/discordjbot:latest
+    container_name: discordjbot
+    environment:
+      - DISCORD_TOKEN=your-discord-bot-token
+    volumes:
+      - ./json:/app/json
+    restart: unless-stopped
+```
+
+---
+
 ## Основные возможности
 ### Музыкальный плеер
 - `/play [URL/название]` - воспроизведение музыки с YouTube, Twitch, Bandcamp
@@ -52,7 +84,7 @@
 - Автоматическое обновление информации
 ## Установка и настройка
 ### Системные требования
-- Java 11 или выше
+- Java 17 или выше
 - Maven для сборки проекта
 - Discord Bot Token
 ### Сборка проекта
@@ -88,7 +120,7 @@ mvn clean package
 Существует два способа указания токена:
 
 1. Аргумент командной строки
-2. Переменная окружения `TOKEN`
+2. Переменная окружения `DISCORD_TOKEN`
 
 ### Через JAR-файл
 
@@ -111,7 +143,7 @@ chmod +x run.sh
 ./run.sh [token]
 ```
 
-### Через Docker
+### Через Docker (локально)
 
 ```bash
 docker-compose up -d
@@ -121,6 +153,7 @@ docker-compose up -d
 ```
 DISCORD_TOKEN=your-discord-bot-token-here
 ```
+
 ## Настройка автовыдачи ролей
 1. Создайте роль на сервере Discord
 2. Получите необходимые ID:
