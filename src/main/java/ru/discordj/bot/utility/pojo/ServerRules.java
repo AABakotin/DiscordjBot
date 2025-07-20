@@ -15,9 +15,6 @@ import java.util.ArrayList;
  */
 public class ServerRules {
     
-    /** ID пользователя Discord, имеющего права администратора бота */
-    private String owner;
-    
     /** Ссылка для приглашения бота на сервер */
     private String inviteLink;
 
@@ -46,7 +43,6 @@ public class ServerRules {
      * Создает пустой объект конфигурации.
      */
     public ServerRules() {
-        this.owner = "empty";
         this.inviteLink = "empty";
         this.roles = new ArrayList<>();
         this.monitoringChannelId = "empty";
@@ -122,37 +118,6 @@ public class ServerRules {
     }
 
     /**
-     * Создает новый объект конфигурации с указанными параметрами.
-     *
-     * @param owner ID владельца бота
-     * @param inviteLink ссылка-приглашение для бота
-     * @param roles список правил выдачи ролей
-     */
-    public ServerRules(String owner, String inviteLink, List<Roles> roles) {
-        this.owner = owner;
-        this.inviteLink = inviteLink;
-        this.roles = roles;
-    }
-
-    /**
-     * Возвращает ID владельца (администратора) бота.
-     *
-     * @return ID пользователя Discord, который является администратором
-     */
-    public String getOwner() {
-        return owner;
-    }
-
-    /**
-     * Устанавливает ID владельца (администратора) бота.
-     *
-     * @param owner новый ID администратора бота
-     */
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    /**
      * Возвращает ссылку для приглашения бота.
      *
      * @return ссылка-приглашение на сервер Discord
@@ -196,7 +161,6 @@ public class ServerRules {
     @Override
     public String toString() {
         return "ServerRules{" +
-                "owner='" + owner + '\'' +
                 ", inviteLink='" + inviteLink + '\'' +
                 ", roles=" + roles +
                 ", monitoringChannelId='" + monitoringChannelId + '\'' +

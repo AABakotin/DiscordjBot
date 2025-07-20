@@ -24,9 +24,9 @@ public class UpdateCommandsSlashCommand implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        // Проверяем, является ли пользователь владельцем сервера
-        if (event.getGuild().getOwnerIdLong() != event.getUser().getIdLong()) {
-            event.reply("❌ Только владелец сервера может использовать эту команду!")
+        // Проверяем, является ли пользователь администратором сервера
+        if (!event.getMember().hasPermission(net.dv8tion.jda.api.Permission.ADMINISTRATOR)) {
+            event.reply("❌ Только администратор сервера может использовать эту команду!")
                 .setEphemeral(true)
                 .queue();
             return;
