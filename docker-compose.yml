@@ -1,17 +1,11 @@
 version: '3.8'
-
 services:
-  discord-bot:
+  discordjbot:
     build: .
-    container_name: discord-bot
-    restart: unless-stopped
+    container_name: discordjbot
     volumes:
-      - ./json:/app/json  
-    environment:
-      - TOKEN=${DISCORD_TOKEN}
-    networks:
-      - bot-network
-
-networks:
-  bot-network:
-    driver: bridge
+      - ./json:/app/json
+    # Если нужен порт, раскомментируйте следующую строку
+    # ports:
+    #   - "8080:8080"
+    restart: unless-stopped

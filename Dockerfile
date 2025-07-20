@@ -1,5 +1,5 @@
-# Используем официальный образ Maven для сборки
-FROM maven:3.8.4-openjdk-11-slim AS builder
+# Используем официальный образ Maven для сборки на Java 17
+FROM maven:3.8.4-openjdk-17-slim AS builder
 
 # Копируем файлы проекта
 WORKDIR /app
@@ -9,8 +9,8 @@ COPY src ./src
 # Собираем проект
 RUN mvn clean package -DskipTests
 
-# Используем минимальный образ JRE для запуска
-FROM openjdk:11-jre-slim
+# Минимальный образ JRE 17 для запуска
+FROM openjdk:17-jre-slim
 
 # Создаем рабочую директорию
 WORKDIR /app
