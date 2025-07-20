@@ -32,7 +32,8 @@ public class Updater {
 
     public static void checkForUpdate(String currentVersion) {
         try {
-            URL url = new URL("https://api.github.com/repos/AABakotin/DiscordjBot/releases/latest");
+            URI uri = URI.create("https://api.github.com/repos/AABakotin/DiscordjBot/releases/latest");
+            URL url = uri.toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Accept", "application/vnd.github.v3+json");
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -50,14 +51,14 @@ public class Updater {
                     String name = asset.getString("name");
                     if (name.endsWith(".jar")) {
                         String downloadUrl = asset.getString("browser_download_url");
-                        try (InputStream in2 = new URL(downloadUrl).openStream();
-                             FileOutputStream fos = new FileOutputStream("update.jar")) {
+                        try (InputStream in2 = URI.create(downloadUrl).toURL().openStream();
+                        FileOutputStream fos = new FileOutputStream("update.jar")) {
                             byte[] buffer = new byte[4096];
                             int n;
                             while ((n = in2.read(buffer)) != -1) fos.write(buffer, 0, n);
                         }
                         System.out.println("[Updater] Найдена новая версия: " + latestVersion + ". Скачан update.jar. Перезапуск...");
-                        Runtime.getRuntime().exec("java -jar update.jar");
+                        new ProcessBuilder("java", "-jar", "update.jar").start();
                         System.exit(0);
                     }
                 }
