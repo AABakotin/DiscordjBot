@@ -1,0 +1,10 @@
+<settings>
+  <mirrors>
+    <mirror>
+      <id>yandexmaven</id>
+      <mirrorOf>*</mirrorOf>
+      <name>Yandex Maven Central Mirror</name>
+      <url>https://maven.yandex.ru/repository/maven-central/</url>
+    </mirror>
+  </mirrors>
+</settings>
