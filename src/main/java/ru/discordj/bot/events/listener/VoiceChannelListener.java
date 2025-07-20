@@ -1,7 +1,6 @@
 package ru.discordj.bot.events.listener;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
@@ -13,7 +12,6 @@ import ru.discordj.bot.lavaplayer.PlayerManager;
 import ru.discordj.bot.service.VoiceChannelService;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -54,7 +52,7 @@ public class VoiceChannelListener extends ListenerAdapter {
         String guildName = guild.getName();
         String channelName = botChannel.getName();
         
-        if (event.getChannelJoined() != null && event.getChannelJoined().equals(botChannel)) {
+        if (event.getChannelLeft() != null && event.getChannelLeft().getIdLong() == botChannel.getIdLong()) {
             logger.info("Юзер {} присоединился к каналу {} в гильдии {}", 
                     memberName, channelName, guildName);
             
@@ -76,7 +74,7 @@ public class VoiceChannelListener extends ListenerAdapter {
             }
         }
         
-        if (event.getChannelLeft() != null && event.getChannelLeft().equals(botChannel)) {
+        if (event.getChannelLeft() != null && event.getChannelLeft().getIdLong() == botChannel.getIdLong()) {
             logger.info("Юзер {} покинул канал {} в гильдии {}", 
                     memberName, channelName, guildName);
             
