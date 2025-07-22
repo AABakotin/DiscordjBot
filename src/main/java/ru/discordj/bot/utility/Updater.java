@@ -81,8 +81,31 @@ public class Updater {
                             } catch (Exception e) {
                                 System.err.println("[Updater] Не удалось сохранить токен в token.txt: " + e.getMessage());
                             }
-                            pb = new ProcessBuilder("java", "-jar", "update.jar", token);
-                            pb.environment().put("DISCORD_TOKEN", token);
+                            // Перезаписываем основной jar-файл новой версией
+                            java.nio.file.Path mainJar = java.nio.file.Paths.get("DiscordjBot-1.0-jar-with-dependencies.jar");
+                            java.nio.file.Path backupJar = java.nio.file.Paths.get("DiscordjBot-1.0-jar-with-dependencies.jar.bak");
+                            java.nio.file.Path updateJar = java.nio.file.Paths.get("update.jar");
+                            try {
+                                // Удаляем старый .bak, если есть
+                                if (java.nio.file.Files.exists(backupJar)) {
+                                    java.nio.file.Files.delete(backupJar);
+                                }
+                                // Переименовываем текущий jar в .bak
+                                if (java.nio.file.Files.exists(mainJar)) {
+                                    java.nio.file.Files.move(mainJar, backupJar);
+                                }
+                                // Переименовываем update.jar в основной jar
+                                java.nio.file.Files.move(updateJar, mainJar);
+                            } catch (Exception e) {
+                                System.err.println("[Updater] Не удалось заменить основной jar-файл: " + e.getMessage());
+                            }
+                            // Запускаем обновлённый основной jar-файл
+                            if (token != null) {
+                                pb = new ProcessBuilder("java", "-jar", "DiscordjBot-1.0-jar-with-dependencies.jar", token);
+                                pb.environment().put("DISCORD_TOKEN", token);
+                            } else {
+                                pb = new ProcessBuilder("java", "-jar", "DiscordjBot-1.0-jar-with-dependencies.jar");
+                            }
                         } else {
                             pb = new ProcessBuilder("java", "-jar", "update.jar");
                         }
