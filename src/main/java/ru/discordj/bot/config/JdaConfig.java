@@ -76,7 +76,6 @@ public class JdaConfig {
 
     private static String checkToken(String[] args) {
         if (args.length >= 1) {
-            System.out.println("ARGS: " + args[0]);
             logger.info("Loading token key from args...");
             saveTokenToFile(args[0]);
             return args[0];
