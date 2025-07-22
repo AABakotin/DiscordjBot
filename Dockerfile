@@ -16,7 +16,7 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # Копируем собранный jar из предыдущего этапа
-COPY --from=builder /app/target/DiscordjBot-1.0-jar-with-dependencies.jar ./bot.jar
+COPY --from=builder /app/target/DiscordjBot-jar-with-dependencies.jar ./bot.jar
 
 # Создаем директорию для конфигурации
 RUN mkdir -p /app/json
