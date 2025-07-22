@@ -1,2 +1,36 @@
-2025-07-20 14:01:37.453 [main] INFO  ru.discordj.bot.utility.JsonParse - Created configuration directory: config
-2025-07-20 14:01:37.463 [main] ERROR ru.discordj.bot.config.JdaConfig - No token provided in args or environment variables! Please provide a token.
+2025-07-22 23:14:23.837 [main] ERROR ru.discordj.bot.config.JdaConfig - No token provided in args, environment variables or token.txt! Please provide a token.
+2025-07-22 23:15:27.141 [main] INFO  ru.discordj.bot.config.JdaConfig - Loading token key from token.txt file...
+2025-07-22 23:15:28.689 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /radio
+2025-07-22 23:15:28.691 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /radio_list
+2025-07-22 23:15:28.691 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /radio_add
+2025-07-22 23:15:28.692 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /radio_remove
+2025-07-22 23:15:28.692 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /radio_reload
+2025-07-22 23:15:28.692 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /ping
+2025-07-22 23:15:28.692 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /rules
+2025-07-22 23:15:28.693 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /info
+2025-07-22 23:15:28.693 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /hello
+2025-07-22 23:15:28.693 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /invite
+2025-07-22 23:15:28.693 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /play
+2025-07-22 23:15:28.693 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /update_commands
+2025-07-22 23:15:28.696 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /guild-config
+2025-07-22 23:15:28.700 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /radio
+2025-07-22 23:15:28.701 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /radio_list
+2025-07-22 23:15:28.701 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /radio_add
+2025-07-22 23:15:28.701 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /radio_remove
+2025-07-22 23:15:28.701 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /radio_reload
+2025-07-22 23:15:28.702 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /ping
+2025-07-22 23:15:28.702 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /rules
+2025-07-22 23:15:28.702 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /info
+2025-07-22 23:15:28.702 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /hello
+2025-07-22 23:15:28.702 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /invite
+2025-07-22 23:15:28.702 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /play
+2025-07-22 23:15:28.702 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /update_commands
+2025-07-22 23:15:28.703 [JDA MainWS-ReadThread] INFO  r.discordj.bot.events.CommandManager - Зарегистрирована команда: /guild-config
+2025-07-22 23:15:28.705 [JDA MainWS-ReadThread] INFO  ru.discordj.bot.utility.JsonParse - Creating new configuration for guild The Stealth Dudes
+2025-07-22 23:15:28.723 [JDA MainWS-ReadThread] INFO  ru.discordj.bot.utility.JsonParse - Created new configuration file for guild The Stealth Dudes with 12 radio stations
+2025-07-22 23:15:28.723 [JDA MainWS-ReadThread] INFO  ru.discordj.bot.utility.JsonParse - Creating new configuration for guild Ya snova s vami
+2025-07-22 23:15:28.736 [JDA MainWS-ReadThread] INFO  ru.discordj.bot.utility.JsonParse - Created new configuration file for guild Ya snova s vami with 12 radio stations
+2025-07-22 23:15:28.736 [JDA MainWS-ReadThread] INFO  r.d.b.events.listener.ReadyListener - Bot is ready!
+2025-07-22 23:15:28.971 [ForkJoinPool.commonPool-worker-1] INFO  r.discordj.bot.events.CommandManager - Команды успешно обновлены для гильдии: Ya snova s vami
+2025-07-22 23:15:29.020 [ForkJoinPool.commonPool-worker-1] INFO  r.discordj.bot.events.CommandManager - Команды успешно обновлены для гильдии: The Stealth Dudes
+2025-07-22 23:22:57.661 [main] ERROR ru.discordj.bot.config.JdaConfig - No token provided in args, environment variables or token.txt! Please provide a token.

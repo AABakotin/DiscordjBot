@@ -44,6 +44,10 @@ public class Updater {
 
             JSONObject release = new JSONObject(response.toString());
             String latestVersion = release.getString("tag_name");
+            if (latestVersion.equals(currentVersion)) {
+                System.out.println("[Updater] Версия актуальна: " + currentVersion + ". Обновление не требуется.");
+                return;
+            }
             if (!latestVersion.equals(currentVersion)) {
                 JSONArray assets = release.getJSONArray("assets");
                 for (int i = 0; i < assets.length(); i++) {
@@ -81,33 +85,32 @@ public class Updater {
                             } catch (Exception e) {
                                 System.err.println("[Updater] Не удалось сохранить токен в token.txt: " + e.getMessage());
                             }
-                            // Перезаписываем основной jar-файл новой версией
-                            java.nio.file.Path mainJar = java.nio.file.Paths.get("DiscordjBot-1.0-jar-with-dependencies.jar");
-                            java.nio.file.Path backupJar = java.nio.file.Paths.get("DiscordjBot-1.0-jar-with-dependencies.jar.bak");
-                            java.nio.file.Path updateJar = java.nio.file.Paths.get("update.jar");
+                            // Вместо замены jar создаём флаг-файл для внешнего скрипта
                             try {
-                                // Удаляем старый .bak, если есть
-                                if (java.nio.file.Files.exists(backupJar)) {
-                                    java.nio.file.Files.delete(backupJar);
-                                }
-                                // Переименовываем текущий jar в .bak
-                                if (java.nio.file.Files.exists(mainJar)) {
-                                    java.nio.file.Files.move(mainJar, backupJar);
-                                }
-                                // Переименовываем update.jar в основной jar
-                                java.nio.file.Files.move(updateJar, mainJar);
+                                java.nio.file.Files.createFile(java.nio.file.Paths.get("update.flag"));
                             } catch (Exception e) {
-                                System.err.println("[Updater] Не удалось заменить основной jar-файл: " + e.getMessage());
+                                System.err.println("[Updater] Не удалось создать update.flag: " + e.getMessage());
                             }
+                            System.exit(0);
                         }
-                        // Запускаем обновлённый основной jar-файл
-                        if (token != null) {
-                            pb = new ProcessBuilder("java", "-jar", "DiscordjBot-1.0-jar-with-dependencies.jar", token);
-                            pb.environment().put("DISCORD_TOKEN", token);
-                        } else {
-                            pb = new ProcessBuilder("java", "-jar", "DiscordjBot-1.0-jar-with-dependencies.jar");
+                        // Проверяем, изменилась ли версия после обновления
+                        String newVersion = null;
+                        try {
+                            java.util.jar.JarFile jar = new java.util.jar.JarFile("DiscordjBot-jar-with-dependencies.jar");
+                            java.util.jar.Manifest manifest = jar.getManifest();
+                            if (manifest != null) {
+                                java.util.jar.Attributes attr = manifest.getMainAttributes();
+                                newVersion = attr.getValue("Implementation-Version");
+                            }
+                            jar.close();
+                        } catch (Exception e) {
+                            System.err.println("[Updater] Не удалось прочитать версию из нового jar: " + e.getMessage());
                         }
-                        pb.start();
+                        if (newVersion == null || newVersion.equals(currentVersion)) {
+                            System.err.println("[Updater] Версия после обновления не изменилась (" + newVersion + "). Перезапуск не будет выполнен.");
+                            return;
+                        }
+                        // После обновления просто завершаем процесс, чтобы .bat-скрипт мог перезапустить бота
                         System.exit(0);
                     }
                 }

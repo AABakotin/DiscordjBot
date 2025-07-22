@@ -97,7 +97,7 @@ services:
 ```bash
 mvn clean package
 ```
-Собранный JAR-файл будет находиться в директории `target/DiscordjBot-1.0-jar-with-dependencies.jar`
+Собранный JAR-файл будет находиться в директории `target/DiscordjBot-jar-with-dependencies.jar`
 ### Конфигурация
 
 Для работы бота необходимы следующие настройки:
@@ -130,7 +130,7 @@ mvn clean package
 ### Через JAR-файл
 
 ```bash
-java -jar DiscordjBot-1.0-jar-with-dependencies.jar [token]
+java -jar DiscordjBot-jar-with-dependencies.jar [token]
 ```
 
 ### Через скрипты запуска

@@ -1,0 +1,53 @@
+{
+  "inviteLink" : "empty",
+  "roles" : [ ],
+  "monitoringChannelId" : "empty",
+  "servers" : [ ],
+  "monitoringEnabled" : false,
+  "rules" : {
+    "title" : null,
+    "welcomeField" : null,
+    "rulesField" : null,
+    "footer" : null,
+    "formattedRulesField" : null
+  },
+  "monitoring" : [ ],
+  "radioStations" : [ {
+    "name" : "Record Deep",
+    "url" : "https://radiorecord.hostingradio.ru/deep96.aacp"
+  }, {
+    "name" : "Record Chill House",
+    "url" : "https://radiorecord.hostingradio.ru/chillhouse96.aacp"
+  }, {
+    "name" : "Record Synthwave",
+    "url" : "https://radiorecord.hostingradio.ru/synth96.aacp"
+  }, {
+    "name" : "Record EDM",
+    "url" : "https://radiorecord.hostingradio.ru/club96.aacp"
+  }, {
+    "name" : "Record Tropical",
+    "url" : "https://radiorecord.hostingradio.ru/trop96.aacp"
+  }, {
+    "name" : "Nightwave Plaza",
+    "url" : "https://radio.plaza.one/mp3"
+  }, {
+    "name" : "Европа Плюс",
+    "url" : "http://ep128.hostingradio.ru:8030/ep128"
+  }, {
+    "name" : "Европа Плюс Top 40",
+    "url" : "http://eptop128server.streamr.ru:8033/eptop128"
+  }, {
+    "name" : "Радио Эрмитаж",
+    "url" : "https://hermitage.hostingradio.ru/hermitage128.mp3"
+  }, {
+    "name" : "Record Superdiskoteka 90's",
+    "url" : "https://radiorecord.hostingradio.ru/sd9096.aacp"
+  }, {
+    "name" : "Record Techno",
+    "url" : "https://radiorecord.hostingradio.ru/techno96.aacp"
+  }, {
+    "name" : "Record Trance",
+    "url" : "https://radiorecord.hostingradio.ru/tm96.aacp"
+  } ],
+  "currentMonitor" : null
+}
