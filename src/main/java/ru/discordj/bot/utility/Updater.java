@@ -99,15 +99,13 @@ public class Updater {
                             } catch (Exception e) {
                                 System.err.println("[Updater] Не удалось заменить основной jar-файл: " + e.getMessage());
                             }
-                            // Запускаем обновлённый основной jar-файл
-                            if (token != null) {
-                                pb = new ProcessBuilder("java", "-jar", "DiscordjBot-1.0-jar-with-dependencies.jar", token);
-                                pb.environment().put("DISCORD_TOKEN", token);
-                            } else {
-                                pb = new ProcessBuilder("java", "-jar", "DiscordjBot-1.0-jar-with-dependencies.jar");
-                            }
+                        }
+                        // Запускаем обновлённый основной jar-файл
+                        if (token != null) {
+                            pb = new ProcessBuilder("java", "-jar", "DiscordjBot-1.0-jar-with-dependencies.jar", token);
+                            pb.environment().put("DISCORD_TOKEN", token);
                         } else {
-                            pb = new ProcessBuilder("java", "-jar", "update.jar");
+                            pb = new ProcessBuilder("java", "-jar", "DiscordjBot-1.0-jar-with-dependencies.jar");
                         }
                         pb.start();
                         System.exit(0);
