@@ -58,7 +58,35 @@ public class Updater {
                             while ((n = in2.read(buffer)) != -1) fos.write(buffer, 0, n);
                         }
                         System.out.println("[Updater] Найдена новая версия: " + latestVersion + ". Скачан update.jar. Перезапуск...");
-                        new ProcessBuilder("java", "-jar", "update.jar").start();
+                        String token = null;
+                        // Пытаемся получить токен из переменной окружения или системных свойств
+                        if (System.getenv().containsKey("DISCORD_TOKEN")) {
+                            token = System.getenv("DISCORD_TOKEN");
+                        } else if (System.getProperty("DISCORD_TOKEN") != null) {
+                            token = System.getProperty("DISCORD_TOKEN");
+                        }
+                        // Если токен не найден, пробуем получить из аргументов процесса
+                        String[] processArgs = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toArray(new String[0]);
+                        for (String arg : processArgs) {
+                            if (arg != null && arg.matches("[A-Za-z0-9._-]{20,}")) {
+                                token = arg;
+                                break;
+                            }
+                        }
+                        ProcessBuilder pb;
+                        if (token != null) {
+                            // Сохраняем токен в файл для новой версии
+                            try {
+                                java.nio.file.Files.write(java.nio.file.Paths.get("token.txt"), token.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                            } catch (Exception e) {
+                                System.err.println("[Updater] Не удалось сохранить токен в token.txt: " + e.getMessage());
+                            }
+                            pb = new ProcessBuilder("java", "-jar", "update.jar", token);
+                            pb.environment().put("DISCORD_TOKEN", token);
+                        } else {
+                            pb = new ProcessBuilder("java", "-jar", "update.jar");
+                        }
+                        pb.start();
                         System.exit(0);
                     }
                 }

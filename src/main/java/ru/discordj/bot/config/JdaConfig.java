@@ -76,14 +76,24 @@ public class JdaConfig {
 
     private static String checkToken(String[] args) {
         if (args.length >= 1) {
+            System.out.println("ARGS: " + args[0]);
             logger.info("Loading token key from args...");
+            saveTokenToFile(args[0]);
             return args[0];
         } else if (System.getenv().containsKey("DISCORD_TOKEN")) {
             logger.info("Loading token key from system environment (DISCORD_TOKEN)...");
-            return System.getenv("DISCORD_TOKEN");
+            String token = System.getenv("DISCORD_TOKEN");
+            saveTokenToFile(token);
+            return token;
         } else {
-            logger.error("No token provided in args or environment variables! Please provide a token.");
-            throw new IllegalArgumentException("Discord bot token is required. Provide it as first argument or set DISCORD_TOKEN environment variable.");
+            // Пробуем прочитать токен из файла
+            String token = readTokenFromFile();
+            if (token != null && !token.isEmpty()) {
+                logger.info("Loading token key from token.txt file...");
+                return token;
+            }
+            logger.error("No token provided in args, environment variables or token.txt! Please provide a token.");
+            throw new IllegalArgumentException("Discord bot token is required. Provide it as first argument, set DISCORD_TOKEN environment variable, or put it in token.txt.");
         }
     }
 
@@ -101,5 +111,24 @@ public class JdaConfig {
         logger.info("Компоненты бота инициализированы");
     }
 
+    // Методы для работы с token.txt
+    private static void saveTokenToFile(String token) {
+        try {
+            java.nio.file.Files.write(java.nio.file.Paths.get("token.txt"), token.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            logger.warn("Не удалось сохранить токен в token.txt: {}", e.getMessage());
+        }
+    }
+    private static String readTokenFromFile() {
+        try {
+            java.nio.file.Path path = java.nio.file.Paths.get("token.txt");
+            if (java.nio.file.Files.exists(path)) {
+                return new String(java.nio.file.Files.readAllBytes(path), java.nio.charset.StandardCharsets.UTF_8).trim();
+            }
+        } catch (Exception e) {
+            logger.warn("Не удалось прочитать токен из token.txt: {}", e.getMessage());
+        }
+        return null;
+    }
 }
 
