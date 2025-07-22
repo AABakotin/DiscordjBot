@@ -1,2 +1,0 @@
-2025-07-20 14:01:37.453 [main] INFO  ru.discordj.bot.utility.JsonParse - Created configuration directory: config
-2025-07-20 14:01:37.463 [main] ERROR ru.discordj.bot.config.JdaConfig - No token provided in args or environment variables! Please provide a token.
