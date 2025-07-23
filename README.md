@@ -135,31 +135,6 @@ services:
 
 ---
 
-## Актуальная архитектура проекта
-```
-src/
-├── main/
-│   ├── java/ru/discordj/bot/
-│   │   ├── config/
-│   │   ├── embed/
-│   │   ├── events/
-│   │   │   ├── slashcommands/
-│   │   │   └── listener/
-│   │   ├── lavaplayer/
-│   │   ├── monitor/
-│   │   │   ├── parser/
-│   │   │   ├── query/
-│   │   │   ├── sender/
-│   │   │   └── tools/
-│   │   ├── service/
-│   │   └── utility/
-│   │        └── pojo/
-│   └── resources/
-│         └── META-INF/
-```
-
----
-
 ## Версия программы
 **Текущая версия: 1.2.3**
 
@@ -234,17 +209,6 @@ docker-compose up -d
 DISCORD_TOKEN=your-discord-bot-token-here
 ```
 
-## Настройка автовыдачи ролей
-1. Создайте роль на сервере Discord
-2. Получите необходимые ID:
-   - ID канала (ПКМ по каналу → Копировать ID)
-   - ID роли (Настройки сервера → Роли → Копировать ID)
-   - ID эмодзи (Поставьте эмодзи и скопируйте его)
-3. Добавьте правило командой:
-   ```
-   !role channel_id role_id emoji_id
-   ```
-
 ## Настройка радиостанций
 Бот поддерживает динамическую конфигурацию радиостанций без необходимости перезапуска:
 
@@ -295,28 +259,30 @@ DISCORD_TOKEN=your-discord-bot-token-here
 - Автоматическое создание и обновление конфигурации
 - Форматированный вывод через Embed сообщения
 ## Разработка
-### Структура проекта
+## Архитектура проекта
 ```
 src/
 ├── main/
 │   ├── java/ru/discordj/bot/
 │   │   ├── config/
+│   │   ├── embed/
 │   │   ├── events/
-│   │   │   └── slashcommands/
+│   │   │   ├── slashcommands/
 │   │   │   └── listener/
-│   │   │        └── configurator/
-│   │   │             └── command/
 │   │   ├── lavaplayer/
 │   │   ├── monitor/
-│   │   │   └── parser/
-│   │   │   └── sender/
+│   │   │   ├── parser/
+│   │   │   ├── query/
+│   │   │   ├── sender/
 │   │   │   └── tools/
-│   │   │   └── query/
+│   │   ├── service/
 │   │   └── utility/
 │   │        └── pojo/
 │   └── resources/
 │         └── META-INF/
 ```
+
+---
 ### Сборка проекта
 Проект использует Maven для управления зависимостями и сборки:
 - Автоматическое включение зависимостей
