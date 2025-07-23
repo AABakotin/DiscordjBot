@@ -32,7 +32,6 @@ public class ServerMonitor {
     private Map<String, String> messageIds = new HashMap<>();
     private boolean isRunning = false;
     private Thread monitoringThread;
-
     /**
      * Возвращает единственный экземпляр монитора.
      *
