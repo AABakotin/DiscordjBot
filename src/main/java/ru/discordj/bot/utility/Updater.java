@@ -77,7 +77,6 @@ public class Updater {
                                 break;
                             }
                         }
-                        ProcessBuilder pb;
                         if (token != null) {
                             // Сохраняем токен в файл для новой версии
                             try {

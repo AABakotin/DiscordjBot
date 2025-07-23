@@ -1,34 +1,40 @@
-name: Release
+name: Build and Release
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
           java-version: '17'
+          distribution: 'temurin'
+
       - name: Build with Maven
-        run: mvn -B clean package
-      - name: Draft release notes
-        id: create_release
-        uses: release-drafter/release-drafter@v6
-        with:
-          config-name: release-drafter.yml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload JAR to GitHub Releases
-        uses: softprops/action-gh-release@v2
+        run: mvn clean package
+
+      - name: Check JAR version matches tag
+        run: |
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          JAR=target/DiscordjBot-jar-with-dependencies.jar
+          MANIFEST_VERSION=$(unzip -p "$JAR" META-INF/MANIFEST.MF | grep Implementation-Version | cut -d' ' -f2 | tr -d '\r')
+          echo "Tag version: $TAG_VERSION"
+          echo "Manifest version: $MANIFEST_VERSION"
+          if [ "$TAG_VERSION" != "$MANIFEST_VERSION" ]; then
+            echo "ERROR: Version in MANIFEST.MF ($MANIFEST_VERSION) does not match tag ($TAG_VERSION)"
+            exit 1
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
           files: target/DiscordjBot-jar-with-dependencies.jar
-          body: ${{ steps.create_release.outputs.body }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
