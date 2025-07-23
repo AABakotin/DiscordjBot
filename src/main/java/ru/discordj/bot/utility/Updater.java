@@ -44,6 +44,9 @@ public class Updater {
 
             JSONObject release = new JSONObject(response.toString());
             String latestVersion = release.getString("tag_name");
+            if (latestVersion.startsWith("v")) {
+                latestVersion = latestVersion.substring(1);
+            }
             if (latestVersion.equals(currentVersion)) {
                 System.out.println("[Updater] Версия актуальна: " + currentVersion + ". Обновление не требуется.");
                 return;
