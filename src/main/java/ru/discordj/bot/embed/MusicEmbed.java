@@ -3,8 +3,9 @@ package ru.discordj.bot.embed;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import ru.discordj.bot.lavaplayer.PlayerManager;
 import java.awt.Color;
@@ -156,7 +157,7 @@ public class MusicEmbed extends BaseEmbed {
         }
         
         if (isPlaying) {
-            messageBuilder.setActionRow(buttons);
+            messageBuilder.addComponents(ActionRow.of(buttons));
         }
     }
 

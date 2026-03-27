@@ -44,10 +44,10 @@
     <logger name="com.sedmelluq.lava.extensions" level="OFF" />
     
     <!-- JDA логи только для ошибок и важных оповещений -->
-    <logger name="net.dv8tion.jda" level="WARN" />
+    <logger name="net.dv8tion.jda" level="ERROR" />
     
     <!-- Логи java.util.logging через мост SLF4J -->
-    <logger name="jul" level="WARN" />
+    <logger name="jul" level="ERROR" />
     
     <!-- Логи только нашего проекта на уровне INFO -->
     <logger name="ru.discordj.bot" level="INFO" />
