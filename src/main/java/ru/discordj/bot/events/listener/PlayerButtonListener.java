@@ -9,9 +9,8 @@ public class PlayerButtonListener extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        String buttonId = event.getButton().getId();
-        if (buttonId == null) return;
-        
+        String buttonId = String.valueOf(event.getButton().getUniqueId());
+
         var guild = event.getGuild();
         if (guild == null) return;
         
