@@ -1,5 +1,5 @@
 # Используем официальный образ Maven для сборки на Java 25
-FROM eclipse-temurin:25-jdk AS builder
+FROM maven:3.9-eclipse-temurin-25 AS builder
 
 # Копируем файлы проекта
 WORKDIR /app

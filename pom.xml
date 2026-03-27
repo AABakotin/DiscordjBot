@@ -33,11 +33,6 @@
     <dependencies>
         <dependency>
             <groupId>club.minnced</groupId>
-            <artifactId>jdave-native-linux-x86-64</artifactId>
-            <version>0.1.7</version>
-        </dependency>
-        <dependency>
-            <groupId>club.minnced</groupId>
             <artifactId>jdave-api</artifactId>
             <version>0.1.7</version>
         </dependency>
