@@ -14,7 +14,6 @@ import ru.discordj.bot.utility.IJsonHandler;
 import ru.discordj.bot.utility.JsonParse;
 import ru.discordj.bot.events.CommandManager;
 import ru.discordj.bot.events.listener.AddRoleListener;
-import ru.discordj.bot.events.listener.PlayerButtonListener;
 import ru.discordj.bot.events.listener.VoiceChannelListener;
 import ru.discordj.bot.events.slashcommands.*;
 import ru.discordj.bot.events.listener.MusicControlsListener;
@@ -73,7 +72,6 @@ public class JdaConfig {
                 .addEventListeners(
                         MANAGER,
                         new AddRoleListener(),
-                        new PlayerButtonListener(),
                         new MusicControlsListener(),
                         new MemberListener(),
                         new ReadyListener(),
@@ -121,7 +119,7 @@ public class JdaConfig {
     // Методы для работы с token.txt
     private static void saveTokenToFile(String token) {
         try {
-            java.nio.file.Files.write(java.nio.file.Paths.get("token.txt"), token.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.nio.file.Files.writeString(java.nio.file.Paths.get("token.txt"), token);
         } catch (Exception e) {
             logger.warn("Не удалось сохранить токен в token.txt: {}", e.getMessage());
         }
@@ -130,7 +128,7 @@ public class JdaConfig {
         try {
             java.nio.file.Path path = java.nio.file.Paths.get("token.txt");
             if (java.nio.file.Files.exists(path)) {
-                return new String(java.nio.file.Files.readAllBytes(path), java.nio.charset.StandardCharsets.UTF_8).trim();
+                return java.nio.file.Files.readString(path).trim();
             }
         } catch (Exception e) {
             logger.warn("Не удалось прочитать токен из token.txt: {}", e.getMessage());

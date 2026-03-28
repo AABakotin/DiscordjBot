@@ -17,7 +17,6 @@ public class Main {
      * Метод запуска приложения. Инициализирует и запускает бота Discord.
      * 
      * @param args аргументы командной строки
-     * @throws Exception если произошла ошибка во время инициализации
      */
     public static void main(String[] args) {
         // Запуск автоапдейтера для домашних серверов (раз в сутки, версия из MANIFEST.MF)
@@ -41,10 +40,8 @@ public class Main {
             // Загружаем конфигурацию из файла properties
             InputStream inputStream = Main.class.getClassLoader().getResourceAsStream("logging.properties");
             if (inputStream != null) {
-                try {
+                try (inputStream) {
                     LogManager.getLogManager().readConfiguration(inputStream);
-                } finally {
-                    inputStream.close();
                 }
             } else {
                 System.err.println("Файл настроек логирования не найден");

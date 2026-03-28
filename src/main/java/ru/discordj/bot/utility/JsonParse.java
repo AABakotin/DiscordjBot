@@ -20,12 +20,11 @@ public class JsonParse implements IJsonHandler {
     private static final Logger logger = LoggerFactory.getLogger(JsonParse.class);
     private static final String CONFIG_DIR = "config";
     private static final ObjectMapper mapper = new ObjectMapper();
-
     private static JsonParse instance;
 
     // Кеш данных по гильдиям для уменьшения обращений к диску
     private final Map<String, ServerRules> guildConfigCache = new HashMap<>();
-    
+
     // Замки для безопасного конкурентного доступа к файлам
     private final Map<String, ReentrantReadWriteLock> guildLocks = new HashMap<>();
 
@@ -70,7 +69,7 @@ public class JsonParse implements IJsonHandler {
 
     /**
      * Получение корневого объекта конфигурации для конкретной гильдии
-     * 
+     *
      * @param guild Объект гильдии
      * @return Корневой объект конфигурации
      */
@@ -78,13 +77,13 @@ public class JsonParse implements IJsonHandler {
         if (guild == null) {
             return read(); // Возвращаем глобальную конфигурацию
         }
-        
+
         String guildId = guild.getId();
-        
+
         // Получаем или создаем замок для гильдии
         ReentrantReadWriteLock lock = guildLocks.computeIfAbsent(
-            guildId, k -> new ReentrantReadWriteLock());
-        
+                guildId, k -> new ReentrantReadWriteLock());
+
         // Блокируем на чтение
         lock.readLock().lock();
         try {
@@ -95,7 +94,7 @@ public class JsonParse implements IJsonHandler {
         } finally {
             lock.readLock().unlock();
         }
-        
+
         // Если в кеше нет, блокируем на запись и загружаем
         lock.writeLock().lock();
         try {
@@ -103,7 +102,7 @@ public class JsonParse implements IJsonHandler {
             if (guildConfigCache.containsKey(guildId)) {
                 return guildConfigCache.get(guildId);
             }
-            
+
             // Загружаем конфигурацию гильдии
             ServerRules config = loadGuildConfig(guildId);
             guildConfigCache.put(guildId, config);
@@ -121,30 +120,30 @@ public class JsonParse implements IJsonHandler {
 
     /**
      * Сохранение конфигурации для конкретной гильдии
-     * 
+     *
      * @param guild Объект гильдии
-     * @param root Объект конфигурации для сохранения
+     * @param root  Объект конфигурации для сохранения
      */
     public void write(Guild guild, ServerRules root) {
         if (guild == null) {
             write(root); // Сохраняем глобальную конфигурацию
             return;
         }
-        
+
         String guildId = guild.getId();
-        
+
         // Получаем или создаем замок для гильдии
         ReentrantReadWriteLock lock = guildLocks.computeIfAbsent(
-            guildId, k -> new ReentrantReadWriteLock());
-        
+                guildId, k -> new ReentrantReadWriteLock());
+
         lock.writeLock().lock();
         try {
             // Обновляем кеш
             guildConfigCache.put(guildId, root);
-            
+
             // Преобразуем имя гильдии в безопасное имя файла
             String safeFileName = getSafeFileName(guild.getName());
-            
+
             // Сохраняем в файл
             File configFile = new File(CONFIG_DIR, safeFileName + ".json");
             try {
@@ -163,10 +162,10 @@ public class JsonParse implements IJsonHandler {
         // Глобальная конфигурация больше не сохраняется в файл
         logger.info("Global configuration updated in memory");
     }
-    
+
     /**
      * Загружает конфигурацию для конкретной гильдии
-     * 
+     *
      * @param guildId ID гильдии
      * @return Конфигурация гильдии
      */
@@ -177,37 +176,42 @@ public class JsonParse implements IJsonHandler {
         } catch (Exception e) {
             logger.error("Failed to get guild with ID {}: {}", guildId, e.getMessage());
         }
-        
+
         if (guild == null) {
             File configFile = new File(CONFIG_DIR, "guild_" + guildId + ".json");
-            
+
             if (configFile.exists()) {
                 try {
                     ServerRules config = mapper.readValue(configFile, ServerRules.class);
-                    logger.info("Loaded configuration for guild with ID {}", guildId);
+                    // Подстраховка, если список радиостанций отсутствует
+                    if (config.getRadioStations() == null) {
+                        config.setRadioStations(new ArrayList<>());
+                    }
+                    logger.info("Loaded configuration for guild with ID {} with {} radio stations",
+                            guildId, safeStationCount(config));
                     return config;
                 } catch (IOException e) {
                     logger.error("Error reading configuration for guild with ID {}: {}", guildId, e.getMessage());
                 }
             }
-            
+
             logger.info("Creating new configuration for guild with ID {}", guildId);
             ServerRules newConfig = new ServerRules();
-            
+
             try {
                 mapper.writerWithDefaultPrettyPrinter().writeValue(configFile, newConfig);
-                logger.info("Created new configuration file for guild with ID {} with {} radio stations", 
-                    guildId, newConfig.getRadioStations().size());
+                logger.info("Created new configuration file for guild with ID {} with {} radio stations",
+                        guildId, safeStationCount(newConfig));
             } catch (IOException e) {
                 logger.error("Error creating configuration for guild with ID {}: {}", guildId, e.getMessage());
             }
-            
+
             return newConfig;
         }
-        
+
         String safeFileName = getSafeFileName(guild.getName());
         File configFile = new File(CONFIG_DIR, safeFileName + ".json");
-        
+
         File oldConfigFile = new File(CONFIG_DIR, "guild_" + guildId + ".json");
         if (oldConfigFile.exists() && !configFile.exists()) {
             if (oldConfigFile.renameTo(configFile)) {
@@ -216,35 +220,39 @@ public class JsonParse implements IJsonHandler {
                 logger.warn("Failed to rename configuration file for guild {}", guild.getName());
             }
         }
-        
+
         if (configFile.exists()) {
             try {
                 ServerRules config = mapper.readValue(configFile, ServerRules.class);
-                logger.info("Loaded configuration for guild {} with {} radio stations", 
-                    guild.getName(), config.getRadioStations().size());
+                // Подстраховка, если список радиостанций отсутствует
+                if (config.getRadioStations() == null) {
+                    config.setRadioStations(new ArrayList<>());
+                }
+                logger.info("Loaded configuration for guild {} with {} radio stations",
+                        guild.getName(), safeStationCount(config));
                 return config;
             } catch (IOException e) {
                 logger.error("Error reading configuration for guild {}: {}", guild.getName(), e.getMessage());
             }
         }
-        
+
         logger.info("Creating new configuration for guild {}", guild.getName());
         ServerRules newConfig = new ServerRules();
-        
+
         try {
             mapper.writerWithDefaultPrettyPrinter().writeValue(configFile, newConfig);
-            logger.info("Created new configuration file for guild {} with {} radio stations", 
-                guild.getName(), newConfig.getRadioStations().size());
+            logger.info("Created new configuration file for guild {} with {} radio stations",
+                    guild.getName(), safeStationCount(newConfig));
         } catch (IOException e) {
             logger.error("Error creating configuration for guild {}: {}", guild.getName(), e.getMessage());
         }
-        
+
         return newConfig;
     }
-    
+
     /**
      * Преобразует имя гильдии в безопасное имя файла
-     * 
+     *
      * @param guildName Имя гильдии
      * @return Безопасное имя для файла
      */
@@ -252,20 +260,26 @@ public class JsonParse implements IJsonHandler {
         // Заменяем недопустимые символы на подчеркивание
         return guildName.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
     }
-    
+
+    // Безопасный подсчет количества радиостанций для логов
+    private int safeStationCount(ServerRules config) {
+        List<RadioStation> stations = config.getRadioStations();
+        return (stations == null) ? 0 : stations.size();
+    }
+
     /**
      * Очищает кеш для указанной гильдии
-     * 
+     *
      * @param guild Объект гильдии
      */
     public void clearCache(Guild guild) {
         if (guild == null) {
             return;
         }
-        
+
         String guildId = guild.getId();
         ReentrantReadWriteLock lock = guildLocks.get(guildId);
-        
+
         if (lock != null) {
             lock.writeLock().lock();
             try {
@@ -276,7 +290,7 @@ public class JsonParse implements IJsonHandler {
             }
         }
     }
-    
+
     /**
      * Очищает весь кеш
      */
@@ -285,7 +299,7 @@ public class JsonParse implements IJsonHandler {
         for (ReentrantReadWriteLock lock : guildLocks.values()) {
             lock.writeLock().lock();
         }
-        
+
         try {
             guildConfigCache.clear();
             logger.debug("All configuration cache cleared");
@@ -302,7 +316,7 @@ public class JsonParse implements IJsonHandler {
         if (guild == null) {
             return readRules();
         }
-        
+
         ServerRules config = read(guild);
         if (config.getRules() == null) {
             config.setRules(new RulesMessage());
@@ -317,7 +331,7 @@ public class JsonParse implements IJsonHandler {
             writeRules(rules);
             return;
         }
-        
+
         ServerRules config = read(guild);
         config.setRules(rules);
         write(guild, config);
@@ -327,7 +341,7 @@ public class JsonParse implements IJsonHandler {
     /**
      * Метод для обновления списка радиостанций из конфигурации по умолчанию.
      * Удаляет старые радиостанции и добавляет новые из конфигурации по умолчанию.
-     * 
+     *
      * @param guild Объект гильдии Discord для обновления радиостанций
      * @return Обновленный список радиостанций
      */
@@ -335,23 +349,23 @@ public class JsonParse implements IJsonHandler {
         if (guild == null) {
             return null;
         }
-        
+
         // Создаем новую конфигурацию с радиостанциями по умолчанию
         ServerRules defaultConfig = new ServerRules();
         List<RadioStation> defaultStations = defaultConfig.getRadioStations();
-        
+
         // Получаем текущую конфигурацию гильдии
         ServerRules guildConfig = read(guild);
-        
+
         // Обновляем список радиостанций
         guildConfig.setRadioStations(new ArrayList<>(defaultStations));
-        
+
         // Сохраняем обновленную конфигурацию
         write(guild, guildConfig);
-        
-        logger.info("Список радиостанций для сервера {} обновлен. Добавлено {} станций.", 
-            guild.getName(), defaultStations.size());
-        
+
+        logger.info("Список радиостанций для сервера {} обновлен. Добавлено {} станций.",
+                guild.getName(), defaultStations.size());
+
         return guildConfig.getRadioStations();
     }
-} 
+}

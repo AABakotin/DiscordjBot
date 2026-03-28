@@ -18,7 +18,7 @@ if exist update.flag (
     del update.flag
     echo Обновление завершено.
 )
-java -Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8 -jar DiscordjBot-jar-with-dependencies.jar
+java --enable-native-access=ALL-UNNAMED -Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8 -jar DiscordjBot-jar-with-dependencies.jar
 echo Bot has stopped or was updated. Restarting...
 timeout /t 2
 goto loop 

@@ -11,7 +11,6 @@ import ru.discordj.bot.utility.MessageCollector;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import ru.discordj.bot.events.slashcommands.RadioPlaySlashCommand;
 import ru.discordj.bot.events.slashcommands.RadioListSlashCommand;
 import ru.discordj.bot.events.slashcommands.RadioAddSlashCommand;
 import ru.discordj.bot.events.slashcommands.RadioRemoveSlashCommand;
@@ -33,7 +32,6 @@ public class CommandManager extends ListenerAdapter {
 
     public CommandManager() {
         // Регистрируем команды для управления радио
-        add(new RadioPlaySlashCommand());
         add(new RadioListSlashCommand());
         add(new RadioAddSlashCommand());
         add(new RadioRemoveSlashCommand());

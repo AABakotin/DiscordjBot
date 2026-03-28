@@ -18,7 +18,7 @@ while true; do
         echo "Обновление завершено."
     fi
 
-    java -Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8 -jar DiscordjBot-jar-with-dependencies.jar "$@"
+    java --enable-native-access=ALL-UNNAMED -Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8 -jar DiscordjBot-jar-with-dependencies.jar "$@"
 
     echo
     echo "Bot has stopped or was updated. Restarting..."

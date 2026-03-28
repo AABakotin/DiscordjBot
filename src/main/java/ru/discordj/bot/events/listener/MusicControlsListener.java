@@ -64,9 +64,9 @@ public class MusicControlsListener extends ListenerAdapter {
             .getTrackScheduler();
         
         TrackSelectionData selectionData = scheduler.getTrackSelectionData();
-        if (selectionData != null && event.getMessage().getId().equals(selectionData.getMessageId())) {
+        if (selectionData != null && event.getMessage().getId().equals(selectionData.messageId())) {
             int index = Integer.parseInt(event.getComponentId().split(":")[1]);
-            AudioTrack selectedTrack = selectionData.getTracks().get(index).makeClone();
+            AudioTrack selectedTrack = selectionData.tracks().get(index).makeClone();
             
             scheduler.queue(selectedTrack);
             event.getMessage().delete().queue();
