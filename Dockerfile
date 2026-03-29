@@ -19,7 +19,7 @@ WORKDIR /app
 COPY --from=builder /app/target/DiscordjBot-jar-with-dependencies.jar app.jar
 
 # Создаем директорию для конфигурации
-RUN mkdir -p /app/json
+RUN mkdir -p /app/config
 
 # Запускаем бота
 ENTRYPOINT ["java", "--enable-native-access=ALL-UNNAMED", "-jar", "app.jar"]

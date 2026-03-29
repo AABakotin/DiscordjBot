@@ -1,11 +1,9 @@
-version: '3.8'
 services:
   discordjbot:
     build: .
     container_name: discordjbot
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
     volumes:
-      - ./json:/app/json
-    # Если нужен порт, раскомментируйте следующую строку
-    # ports:
-    #   - "8080:8080"
+      - ./config:/app/config
     restart: unless-stopped
