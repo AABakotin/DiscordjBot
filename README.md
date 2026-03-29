@@ -1,4 +1,7 @@
 # Discord Bot
+[![Docker Pulls](https://img.shields.io/docker/pulls/megabart/discordjbot)](https://hub.docker.com/r/megabart/discordjbot)
+[![GitHub Release](https://img.shields.io/github/v/release/AABakotin/DiscordjBot)](https://github.com/AABakotin/DiscordjBot/releases)
+
 Многофункциональный Discord бот с возможностями музыкального плеера, системой автоматической выдачи ролей и потоковым воспроизведением радиостанций.
 
 ---
@@ -12,13 +15,12 @@
 docker run -d \
   --name discordjbot \
   -e DISCORD_TOKEN=your-discord-bot-token \
-  -v $(pwd)/json:/app/json \
+  -v $(pwd)/config:/app/config \
   megabart/discordjbot:latest
 ```
 
 Или через docker-compose:
 ```yaml
-version: '3.8'
 services:
   discordjbot:
     image: megabart/discordjbot:latest
@@ -26,7 +28,7 @@ services:
     environment:
       - DISCORD_TOKEN=your-discord-bot-token
     volumes:
-      - ./json:/app/json
+      - ./config:/app/config
     restart: unless-stopped
 ```
 
