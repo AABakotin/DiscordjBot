@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
 
-import org.slf4j.bridge.SLF4JBridgeHandler;
+
 import ru.discordj.bot.config.JdaConfig;
 import ru.discordj.bot.utility.JsonParse;
 
@@ -46,14 +46,7 @@ public class Main {
             } else {
                 System.err.println("Файл настроек логирования не найден");
             }
-            
-            // Устанавливаем мост между JUL и SLF4J
-            // Удаляем существующие хендлеры у корневого логгера
-            SLF4JBridgeHandler.removeHandlersForRootLogger();
-            
-            // Устанавливаем мост между JUL и SLF4J
-            SLF4JBridgeHandler.install();
-            
+
         } catch (IOException e) {
             System.err.println("Ошибка при загрузке настроек логирования: " + e.getMessage());
         }

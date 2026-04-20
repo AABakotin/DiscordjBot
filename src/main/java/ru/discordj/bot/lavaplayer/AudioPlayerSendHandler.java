@@ -3,21 +3,19 @@ package ru.discordj.bot.lavaplayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
-
 import java.nio.ByteBuffer;
 
 public class AudioPlayerSendHandler implements AudioSendHandler {
-
-    private final AudioPlayer audioPlayer;
+    private final AudioPlayer player;
     private AudioFrame lastFrame;
 
-    public AudioPlayerSendHandler(AudioPlayer audioPlayer) {
-        this.audioPlayer = audioPlayer;
+    public AudioPlayerSendHandler(AudioPlayer player) {
+        this.player = player;
     }
 
     @Override
     public boolean canProvide() {
-        lastFrame = audioPlayer.provide();
+        lastFrame = player.provide();
         return lastFrame != null;
     }
 

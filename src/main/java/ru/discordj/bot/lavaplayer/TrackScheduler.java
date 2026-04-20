@@ -41,13 +41,12 @@ public class TrackScheduler extends AudioEventAdapter {
     private void updatePlayerMessage() {
         if (textChannel != null && playerMessageId != null) {
             EmbedFactory.createMusicEmbed()
-                .updatePlayerMessage(textChannel, playerMessageId);
+                    .updatePlayerMessage(textChannel, playerMessageId);
         }
     }
 
     public void startUpdateTask() {
-        stopUpdateTask(); // Останавливаем предыдущую задачу если она существует
-        
+        stopUpdateTask();
         updateTask = scheduler.scheduleAtFixedRate(() -> {
             if (player.getPlayingTrack() != null && textChannel != null && playerMessageId != null) {
                 updatePlayerMessage();
@@ -76,11 +75,9 @@ public class TrackScheduler extends AudioEventAdapter {
                 nextTrack();
             }
         }
-        
         if (player.getPlayingTrack() == null) {
             stopUpdateTask();
         }
-        
         updatePlayerMessage();
     }
 
@@ -106,10 +103,8 @@ public class TrackScheduler extends AudioEventAdapter {
         queue.clear();
         player.stopTrack();
         stopUpdateTask();
-        // Очищаем ID сообщения плеера и текстовый канал
         this.playerMessageId = null;
         this.textChannel = null;
-        // НЕ вызываем updatePlayerMessage() так как сообщение будет удалено
     }
 
     public void toggleRepeat() {
@@ -121,8 +116,8 @@ public class TrackScheduler extends AudioEventAdapter {
         List<AudioTrack> currentQueue = new ArrayList<>(queue);
         queue.clear();
         currentQueue.stream()
-            .filter(track -> !track.getInfo().title.equals(title))
-            .forEach(queue::offer);
+                .filter(track -> !track.getInfo().title.equals(title))
+                .forEach(queue::offer);
         updatePlayerMessage();
     }
 
@@ -134,12 +129,26 @@ public class TrackScheduler extends AudioEventAdapter {
         return trackSelectionData;
     }
 
-    // Геттеры
-    public AudioPlayer getPlayer() { return player; }
-    public BlockingQueue<AudioTrack> getQueue() { return queue; }
-    public boolean isRepeat() { return isRepeat; }
-    public String getPlayerMessageId() { return playerMessageId; }
-    public TextChannel getTextChannel() { return textChannel; }
+    // ========== Геттеры, необходимые для VoiceChannelListener и других классов ==========
+    public AudioPlayer getPlayer() {
+        return player;
+    }
+
+    public BlockingQueue<AudioTrack> getQueue() {
+        return queue;
+    }
+
+    public boolean isRepeat() {
+        return isRepeat;
+    }
+
+    public String getPlayerMessageId() {
+        return playerMessageId;
+    }
+
+    public TextChannel getTextChannel() {
+        return textChannel;
+    }
 
     public List<AudioTrack> getPlayList() {
         return new ArrayList<>(queue);
@@ -148,5 +157,4 @@ public class TrackScheduler extends AudioEventAdapter {
     private void nextTrack() {
         player.startTrack(queue.poll(), false);
     }
-
 }

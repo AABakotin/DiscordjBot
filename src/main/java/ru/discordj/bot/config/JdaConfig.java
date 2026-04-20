@@ -2,10 +2,9 @@ package ru.discordj.bot.config;
 
 
 
-import club.minnced.discord.jdave.interop.JDaveSessionFactory;
+
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.audio.AudioModuleConfig;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.slf4j.Logger;
@@ -51,11 +50,6 @@ public class JdaConfig {
 
     public static void start(String[] args) {
         jda = JDABuilder.createDefault(checkToken(args))
-                .setAudioModuleConfig(
-                        new AudioModuleConfig()
-                                .withDaveSessionFactory(
-                                        new JDaveSessionFactory()
-                        ))
                 .setEnabledIntents(
                         GUILD_PRESENCES,
                         GUILD_MESSAGES,
