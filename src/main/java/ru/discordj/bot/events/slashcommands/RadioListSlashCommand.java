@@ -53,7 +53,7 @@ public class RadioListSlashCommand implements ICommand {
             EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("📻 Список доступных радиостанций")
                 .setColor(Color.decode("#9370DB")) // Медиум пурпурный цвет
-                .setDescription("Для воспроизведения используйте команду `/radio name:название`\n")
+                .setDescription("Для воспроизведения используйте команду `/play name:название`\n")
                 .setFooter("Всего станций: " + stations.size() + " | Обновить список: /radio_reload");
             
             // Добавляем информацию о каждой станции

@@ -8,7 +8,7 @@ import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -117,7 +117,7 @@ public class PlayerManager {
             public void playlistLoaded(AudioPlaylist playlist) {
                 // Для радиостанций обычно это не происходит, но обрабатываем на всякий случай
                 if (!playlist.getTracks().isEmpty()) {
-                    AudioTrack track = playlist.getTracks().get(0);
+                    AudioTrack track = playlist.getTracks().getFirst();
                     musicManager.getTrackScheduler().queue(track);
                     // Не отправляем сообщение о начале воспроизведения, так как плеер уже создан
                 } else {
@@ -181,7 +181,7 @@ public class PlayerManager {
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
-                AudioTrack track = playlist.getTracks().get(0);
+                AudioTrack track = playlist.getTracks().getFirst();
                 musicManager.getTrackScheduler().queue(track);
                 // Не отправляем сообщение о начале воспроизведения, так как плеер уже создан
             }
