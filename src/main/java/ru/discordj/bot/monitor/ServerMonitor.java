@@ -17,11 +17,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Класс для мониторинга состояния игровых серверов.
- * Реализует периодический опрос серверов и отображение их статуса в Discord канале.
- * Использует паттерн Singleton для обеспечения единственного экземпляра монитора.
- */
 public class ServerMonitor {
     private static final Logger logger = LoggerFactory.getLogger(ServerMonitor.class);
     private static ServerMonitor instance;
@@ -32,46 +27,30 @@ public class ServerMonitor {
     private Map<String, String> messageIds = new HashMap<>();
     private boolean isRunning = false;
     private Thread monitoringThread;
-    /**
-     * Возвращает единственный экземпляр монитора.
-     *
-     * @return экземпляр ServerMonitor
-     */
+
     public static ServerMonitor getInstance() {
         return instance;
     }
 
-    /**
-     * Создает новый экземпляр монитора с указанной конфигурацией.
-     *
-     * @param config конфигурация с настройками серверов и каналов
-     */
     public ServerMonitor(ServerRules config) {
         this.config = config;
         this.parser = new Parser();
         instance = this;
     }
 
-    /**
-     * Запускает мониторинг серверов.
-     * Создает отдельный поток для периодического опроса серверов.
-     */
     public void start() {
         if (!isRunning) {
             scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
                 monitoringThread = new Thread(r, "MonitoringThread");
                 return monitoringThread;
             });
-            scheduler.scheduleAtFixedRate(this::updateServersStatus, 0, 30, TimeUnit.SECONDS);
+            // Увеличил интервал до 60 секунд, чтобы снизить нагрузку на API
+            scheduler.scheduleAtFixedRate(this::updateServersStatus, 0, 60, TimeUnit.SECONDS);
             isRunning = true;
             logger.info("Monitoring service started");
         }
     }
 
-    /**
-     * Останавливает мониторинг серверов.
-     * Освобождает все ресурсы и очищает сообщения.
-     */
     public void stop() {
         if (isRunning) {
             try {
@@ -94,24 +73,15 @@ public class ServerMonitor {
         }
     }
 
-    /**
-     * Проверяет, запущен ли мониторинг.
-     *
-     * @return true если мониторинг активен, false в противном случае
-     */
     public boolean isRunning() {
         return isRunning;
     }
 
-    /**
-     * Обновляет статус всех серверов.
-     * Опрашивает каждый сервер и обновляет сообщения в Discord канале.
-     */
     private void updateServersStatus() {
         if (Thread.currentThread().isInterrupted()) {
             return;
         }
-        
+
         if (config.getMonitoringChannelId() == null || config.getServers().isEmpty()) {
             return;
         }
@@ -119,15 +89,15 @@ public class ServerMonitor {
         TextChannel channel = JdaConfig.getJda().getTextChannelById(config.getMonitoringChannelId());
         if (channel == null) return;
 
-        // При первом запуске удаляем старые сообщения
+        // При первом запуске удаляем старые сообщения (только один раз)
         if (messageIds.isEmpty()) {
             channel.getIterableHistory()
-                .takeAsync(100)
-                .thenAccept(messages -> {
-                    messages.stream()
-                        .filter(m -> m.getAuthor().equals(JdaConfig.getJda().getSelfUser()))
-                        .forEach(m -> m.delete().queue());
-                });
+                    .takeAsync(100)
+                    .thenAccept(messages -> {
+                        messages.stream()
+                                .filter(m -> m.getAuthor().equals(JdaConfig.getJda().getSelfUser()))
+                                .forEach(m -> m.delete().queue());
+                    });
         }
 
         ServerStatusEmbed embedBuilder = EmbedFactory.createServerStatusEmbed();
@@ -136,7 +106,6 @@ public class ServerMonitor {
             try {
                 Map<String, String> serverInfo = parser.getServerInfo(server.getIp(), server.getPort());
                 MessageEmbed embed = embedBuilder.createServerEmbed(server, serverInfo);
-                
                 String serverId = server.getIp() + ":" + server.getPort();
                 updateMessage(channel, serverId, embed);
             } catch (Exception e) {
@@ -147,33 +116,32 @@ public class ServerMonitor {
         }
     }
 
-    /**
-     * Обновляет или создает сообщение в канале Discord.
-     *
-     * @param channel канал для отправки сообщения
-     * @param serverId идентификатор сервера
-     * @param embed сообщение для отправки
-     */
     private void updateMessage(TextChannel channel, String serverId, MessageEmbed embed) {
         String messageId = messageIds.get(serverId);
         if (messageId == null) {
-            channel.sendMessageEmbeds(embed)
-                .queue(message -> messageIds.put(serverId, message.getId()));
+            // Отправляем новое сообщение
+            channel.sendMessageEmbeds(embed).queue(
+                    message -> messageIds.put(serverId, message.getId()),
+                    failure -> logger.error("Не удалось отправить сообщение для сервера {}: {}", serverId, failure.getMessage())
+            );
         } else {
-            channel.editMessageEmbedsById(messageId, embed)
-                .queue(null, error -> {
-                    channel.sendMessageEmbeds(embed)
-                        .queue(message -> messageIds.put(serverId, message.getId()));
-                });
+            // Пытаемся отредактировать существующее
+            channel.editMessageEmbedsById(messageId, embed).queue(
+                    success -> { /* OK */ },
+                    failure -> {
+                        // Если не удалось отредактировать (сообщение удалено или ошибка), удаляем ID и пробуем отправить новое
+                        logger.warn("Не удалось отредактировать сообщение {} для сервера {}, отправляем новое: {}", messageId, serverId, failure.getMessage());
+                        messageIds.remove(serverId);
+                        channel.sendMessageEmbeds(embed).queue(
+                                newMessage -> messageIds.put(serverId, newMessage.getId()),
+                                newFailure -> logger.error("Не удалось отправить новое сообщение для сервера {}: {}", serverId, newFailure.getMessage())
+                        );
+                    }
+            );
         }
     }
 
-    /**
-     * Обновляет конфигурацию монитора.
-     *
-     * @param newConfig новая конфигурация
-     */
     public void updateConfig(ServerRules newConfig) {
         this.config = newConfig;
     }
-} 
+}

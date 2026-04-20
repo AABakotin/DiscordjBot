@@ -76,11 +76,15 @@ public class TrackScheduler extends AudioEventAdapter {
                 nextTrack();
             }
         }
-        
-        if (player.getPlayingTrack() == null) {
+        if (player.getPlayingTrack() == null && getQueue().isEmpty()) {
             stopUpdateTask();
+            // 👇 Удаляем сообщение плеера
+            if (textChannel != null && playerMessageId != null) {
+                textChannel.deleteMessageById(playerMessageId).queue(null, error -> {});
+                playerMessageId = null;
+                textChannel = null;
+            }
         }
-        
         updatePlayerMessage();
     }
 

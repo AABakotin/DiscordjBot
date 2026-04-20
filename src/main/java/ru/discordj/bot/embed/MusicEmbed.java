@@ -75,8 +75,8 @@ public class MusicEmbed extends BaseEmbed {
 
         if (currentTrack == null) {
             embed.setColor(Color.decode("#2f3136"))
-                .setTitle(EMOJI_MUSIC + " Нет активного трека")
-                .setDescription(EMOJI_WARNING + " Используйте `/play` чтобы включить музыку");
+                .setTitle(EMOJI_MUSIC + " Поиск трека")
+                .setDescription(EMOJI_WARNING + " Ожидайте включения музыки.");
         } else {
             String thumbnailUrl = "https://img.youtube.com/vi/" + currentTrack.getIdentifier() + "/default.jpg";
             
@@ -93,8 +93,6 @@ public class MusicEmbed extends BaseEmbed {
                               createProgressBar(currentTrack))
                 .setThumbnail(thumbnailUrl)
                 .addField(EMOJI_DURATION + " Время", timeDisplay, true)
-                .addField(EMOJI_AUTHOR + " Исполнитель", 
-                    "`" + currentTrack.getInfo().author + "`", true)
                 .setFooter(EMOJI_LINK + " Источник • " + currentTrack.getInfo().uri);
 
             addQueueInfo(embed, textChannel, messageBuilder);
